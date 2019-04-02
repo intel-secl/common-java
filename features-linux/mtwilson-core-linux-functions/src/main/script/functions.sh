@@ -825,6 +825,7 @@ rpm_detect() {
 aptget_detect() {
   aptget=`which apt-get 2>/dev/null`
   aptcache=`which apt-cache 2>/dev/null`
+  if [ -n "$aptget" ]; then return 0; else return 1; fi
 }
 # Output:
 # - variable "dpkg" contains path to dpkg or empty
@@ -915,6 +916,7 @@ register_startup_script() {
     if [ -f "/etc/systemd/system/${startup_name}.service" ]; then
       rm -f "/etc/systemd/system/${startup_name}.service"
     fi
+
     echo -e "[Unit]\nDescription=${startup_name}\n\n[Service]\nType=forking\nPIDFile=${pid_file}\nSuccessExitStatus=SIGKILL\nExecStart=${absolute_filename} start\nExecStop=${absolute_filename} stop\nTimeoutSec=300\n\n[Install]\nWantedBy=multi-user.target\n" > "/etc/systemd/system/${startup_name}.service"
     chmod 664 "/etc/systemd/system/${startup_name}.service"
     "$systemctlCommand" daemon-reload
@@ -2131,7 +2133,7 @@ if postgres_server_detect ; then
       fi
     fi
 
-    #we first need to find if the user has specified a different port than the once currently configured for postgres
+  #we first need to find if the user has specified a different port than the once currently configured for postgres
     current_port=`grep "port =" $postgres_conf | awk '{print $3}'`
     has_correct_port=`grep $POSTGRES_PORTNUM $postgres_conf`
     if [ -z "$has_correct_port" ]; then
@@ -4382,6 +4384,7 @@ setup_pgpass() {
   if [ $(whoami) == "root" ]; then cp ${MTWILSON_CONFIGURATION}/.pgpass ~/.pgpass;
   fi
 }
+
 function configure_cron() {
    action=$1
    interval=$2
@@ -4408,3 +4411,37 @@ function configure_cron() {
    esac
 }
 
+### FUNCTION LIBRARY: grub
+is_uefi_boot() {
+  if [ -d /sys/firmware/efi ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+define_grub_file() {
+  if is_uefi_boot; then
+    if [ -f "/boot/efi/EFI/redhat/grub.cfg" ]; then
+      DEFAULT_GRUB_FILE="/boot/efi/EFI/redhat/grub.cfg"
+    else
+      DEFAULT_GRUB_FILE="/boot/efi/EFI/ubuntu/grub.cfg"
+    fi
+  else
+    if [ -f "/boot/grub2/grub.cfg" ]; then
+      DEFAULT_GRUB_FILE="/boot/grub2/grub.cfg"
+    else
+      DEFAULT_GRUB_FILE="/boot/grub/grub.cfg"
+    fi
+  fi
+  export GRUB_FILE=${GRUB_FILE:-$DEFAULT_GRUB_FILE}
+}
+
+### FUNCTION LIBRARY: sUEFI
+is_suefi_enabled() {
+  mokutil --sb-state | grep enabled > /dev/null
+  if [ $? -eq 0 ]; then
+    return 0
+  fi
+  return 1
+}

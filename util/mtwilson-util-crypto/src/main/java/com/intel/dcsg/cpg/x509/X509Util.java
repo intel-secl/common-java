@@ -143,7 +143,7 @@ public class X509Util {
      * @throws CertificateException 
      */
     public static X509Certificate decodeDerCertificate(byte[] certificateBytes) throws CertificateException {
-          CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
         X509Certificate cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certificateBytes));
         return cert;
     }
