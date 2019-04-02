@@ -1,0 +1,11 @@
+target
+.settings
+.project
+.classpath
+.idea
+pom.xml.versionsBackup
+pom.xml.releaseBackup
+nb-configuration.xml
+~*
+*.tmp
+*.iml
