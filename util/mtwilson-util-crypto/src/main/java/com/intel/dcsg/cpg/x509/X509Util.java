@@ -174,8 +174,8 @@ public class X509Util {
      * @throws CertificateException 
      */
     public static X509Certificate decodeDerCertificate(byte[] certificateBytes) throws CertificateException {
-          CertificateFactory cf = CertificateFactory.getInstance("X.509");
-//        TODO there is as issue with bcprov-jdk15on for performing below step, reverting back to use java native API
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        //TODO there is as issue with bcprov-jdk15on for performing below step, reverting back to use java native API 
 //        java.security.cert.CertificateFactory cf = java.security.cert.CertificateFactory.getInstance("X.509", new BouncyCastleProvider());
         X509Certificate cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certificateBytes));
         return cert;

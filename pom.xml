@@ -3,7 +3,7 @@
     
     <groupId>com.intel.mtwilson</groupId>
     <artifactId>mtwilson-maven-build-coreutil-root</artifactId>
-    <version>4.4-SNAPSHOT</version>
+    <version>5.0-SNAPSHOT</version>
     
     <packaging>pom</packaging>
     <description>
@@ -176,6 +176,55 @@
                     <artifactId>maven-source-plugin</artifactId>
                     <version>2.2</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.jvnet.jaxb2.maven2</groupId>
+                    <artifactId>maven-jaxb2-plugin</artifactId>
+                    <version>0.13.1</version>
+                    <executions>
+                        <execution>
+                            <configuration>
+                                <plugins>
+                                    <plugin>
+                                        <!-- Purpose: automatically add @XmlElementWrapper annotations to generated classes -->
+                                        <!-- License: LGPL 3.0 http://www.gnu.org/licenses/lgpl-3.0.html -->
+                                        <!-- Site: https://github.com/dmak/jaxb-xew-plugin/blob/master/README.md -->
+                                        <!-- NOTE:  THIS PLUGIN IS BUILD-TIME ONLY, IT IS NOT DISTRIBUTED WITH OUR APPLICATION -->
+                                        <groupId>com.github.jaxb-xew-plugin</groupId>
+                                        <artifactId>jaxb-xew-plugin</artifactId>
+                                        <version>1.6</version>
+                                    </plugin>
+                                </plugins>
+                            </configuration>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <catalog>src/main/resources/jaxb/catalog.xml</catalog>
+                        <catalogResolver>org.jvnet.jaxb2.maven2.resolver.tools.ClasspathCatalogResolver</catalogResolver>
+                        <forceRegenerate>true</forceRegenerate>
+                        <generateDirectory>${project.build.directory}/generated-sources/xjc</generateDirectory>
+                        <verbose>true</verbose>
+                        <extension>true</extension>
+                        <args>
+                            <arg>-Xannotate</arg>
+                            <arg>-XremoveAnnotation</arg>
+                        </args>
+                        <plugins>
+                            <plugin>
+                                <groupId>org.jvnet.jaxb2_commons</groupId>
+                                <artifactId>jaxb2-basics-annotate</artifactId>
+                                <version>1.1.0</version>
+                            </plugin>
+                        </plugins>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.fasterxml.jackson.core</groupId>
+                            <artifactId>jackson-annotations</artifactId>
+                            <version>2.9.6</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>aspectj-maven-plugin</artifactId>

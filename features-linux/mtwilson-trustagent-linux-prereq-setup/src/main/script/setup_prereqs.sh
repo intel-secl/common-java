@@ -137,12 +137,12 @@ update_tboot_grub_configuration_script() {
   local tbootGrubConfigScript="/etc/grub.d/05_linux_tboot"
   if [ -f "${tbootGrubConfigScript}" ]; then
     grubHasAssetTag=$(grep 'measure_nv=true' ${tbootGrubConfigScript})
-    if [ -z ${grubHasAssetTag} ]; then
+    if [[ -z ${grubHasAssetTag} ]]; then
       sed -i '/export TEXTDOMAIN=grub/i GRUB_CMDLINE_TBOOT="${GRUB_CMDLINE_TBOOT} measure_nv=true"' ${tbootGrubConfigScript}
     fi
     if [ "$TPM_VERSION" == "2.0" ]; then
       local grubHasSha256Bank=$(grep 'extpol=embedded' ${tbootGrubConfigScript})
-      if [ -z ${grubHasSha256Bank} ]; then
+      if [[ -z ${grubHasSha256Bank} ]]; then
         sed -i 's|GRUB_CMDLINE_TBOOT="${GRUB_CMDLINE_TBOOT} measure_nv=true"|GRUB_CMDLINE_TBOOT="${GRUB_CMDLINE_TBOOT} measure_nv=true extpol=embedded"|g' ${tbootGrubConfigScript}
       fi
     fi
@@ -153,7 +153,11 @@ update_tboot_grub_configuration_script() {
 install_tss2_tpmtools2() {
   #install tpm2-tss, tpm2-tools for tpm2
   # (do not install trousers and its dev packages for tpm 2.0)
-  ./mtwilson-trustagent-tpm2-packages-*.bin
+#  ./mtwilson-trustagent-tpm2-packages-*.bin
+    yum -y install tpm2-tools-3.0.*
+    if [ $? -ne 0 ]; then echo_failure "Failed to install tpm2-tools version 3.0.* through package installer"; exit 1; fi
+    service tcsd2 stop >/dev/null 2>&1
+    service tpm2-abrmd start >/dev/null 2>&1
 }
 
 install_openssl

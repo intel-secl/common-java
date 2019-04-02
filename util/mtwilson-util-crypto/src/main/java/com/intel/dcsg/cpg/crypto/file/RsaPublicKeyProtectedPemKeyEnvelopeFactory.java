@@ -13,10 +13,13 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.security.spec.MGF1ParameterSpec;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.OAEPParameterSpec;
+import javax.crypto.spec.PSource;
 
 /**
  * The RsaKeyEnvelopeFactory creates RsaKeyEnvelope objects for various AES secret keys by encrypting those keys 
@@ -99,7 +102,12 @@ public class RsaPublicKeyProtectedPemKeyEnvelopeFactory {
     public PemKeyEncryption seal(Key secretKey) throws CryptographyException {
         try {
             Cipher cipher = Cipher.getInstance(algorithm); // NoSuchAlgorithmException, NoSuchPaddingException
-            cipher.init(Cipher.WRAP_MODE,publicKey); // InvalidKeyException
+            if (algorithm.matches("RSA/ECB/OAEPWithSHA-256AndMGF1Padding")) {
+                OAEPParameterSpec oaepParams = new OAEPParameterSpec("SHA-256", "MGF1", new MGF1ParameterSpec("SHA-256"), PSource.PSpecified.DEFAULT);
+                cipher.init(Cipher.WRAP_MODE, publicKey, oaepParams);
+            } else {
+                cipher.init(Cipher.WRAP_MODE, publicKey);
+            }
             byte[] encryptedKey = cipher.wrap(secretKey); // IllegalBlockSizeException, BadPaddingException
             Pem pem = new Pem(KeyEnvelope.PEM_BANNER, encryptedKey);
             KeyEnvelope keyEnvelope = new KeyEnvelope(pem);
@@ -107,8 +115,7 @@ public class RsaPublicKeyProtectedPemKeyEnvelopeFactory {
             keyEnvelope.setEncryptionKeyId(publicKeyId);
             keyEnvelope.setEncryptionAlgorithm(algorithm);
             return keyEnvelope;
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             throw new CryptographyException(e);
         }
     }

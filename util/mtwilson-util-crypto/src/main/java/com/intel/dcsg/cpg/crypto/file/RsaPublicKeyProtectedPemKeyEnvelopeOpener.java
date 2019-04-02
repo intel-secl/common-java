@@ -10,7 +10,10 @@ import com.intel.dcsg.cpg.crypto.RsaCredentialX509;
 import com.intel.dcsg.cpg.io.pem.Pem;
 import java.security.Key;
 import java.security.PrivateKey;
+import java.security.spec.MGF1ParameterSpec;
 import javax.crypto.Cipher;
+import javax.crypto.spec.OAEPParameterSpec;
+import javax.crypto.spec.PSource;
 
 /**
  * The RsaKeyEnvelopeRecipient class can be used by the owner of the RSA private key to unseal an
@@ -80,7 +83,12 @@ public class RsaPublicKeyProtectedPemKeyEnvelopeOpener {
             }
             
             Cipher cipher = Cipher.getInstance(algorithm); // NoSuchAlgorithmException, NoSuchPaddingException ; envelopeAlgorithm like "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"
-            cipher.init(Cipher.UNWRAP_MODE,privateKey); // InvalidKeyException
+            if (algorithm.matches("RSA/ECB/OAEPWithSHA-256AndMGF1Padding")) {
+                OAEPParameterSpec oaepParams = new OAEPParameterSpec("SHA-256", "MGF1", new MGF1ParameterSpec("SHA-256"), PSource.PSpecified.DEFAULT);
+                cipher.init(Cipher.UNWRAP_MODE, privateKey, oaepParams);
+            } else {
+                cipher.init(Cipher.UNWRAP_MODE, privateKey);
+            }
             return cipher.unwrap(envelope.getDocument().getContent(), envelope.getContentAlgorithm(), Cipher.SECRET_KEY); // contentAlgorithm like "AES"
         }
         catch(Exception e) {

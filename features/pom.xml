@@ -3,14 +3,14 @@
     
     <groupId>com.intel.mtwilson</groupId>
     <artifactId>mtwilson-maven-build-coreutil-features</artifactId>
-    <version>4.4-SNAPSHOT</version>
+    <version>5.0-SNAPSHOT</version>
     
     <packaging>pom</packaging>
     
     <parent>
         <groupId>com.intel.mtwilson</groupId>
         <artifactId>mtwilson-maven-build-coreutil-root</artifactId>
-        <version>4.4-SNAPSHOT</version>
+        <version>5.0-SNAPSHOT</version>
     </parent>
     
     <modules>
@@ -64,7 +64,7 @@
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
-					<complianceLevel>1.7</complianceLevel>
+                    <complianceLevel>1.7</complianceLevel>
                     <showWeaveInfo>true</showWeaveInfo>
                     <aspectLibraries>
                         <!-- security framework -->
@@ -139,14 +139,14 @@
             <dependency>
                 <groupId>com.intel.mtwilson.maven</groupId>
                 <artifactId>mtwilson-maven-bom-coreutil</artifactId>
-                <version>4.4-SNAPSHOT</version>
+                <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>com.intel.mtwilson.maven</groupId>
                 <artifactId>mtwilson-maven-bom-external</artifactId>
-                <version>4.4-SNAPSHOT</version>
+                <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

@@ -36,5 +36,5 @@ public class TpmCertifyKeySignature extends ASN1Object {
     public ASN1Primitive toASN1Primitive() {
         return bytes;
     }
-    
+
 }

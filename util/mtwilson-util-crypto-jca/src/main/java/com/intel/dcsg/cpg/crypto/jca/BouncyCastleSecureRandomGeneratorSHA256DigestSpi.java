@@ -24,7 +24,8 @@ import org.slf4j.LoggerFactory;
  */
 public class BouncyCastleSecureRandomGeneratorSHA256DigestSpi extends SecureRandomSpi {
 
-    private final static Logger log = LoggerFactory.getLogger(BouncyCastleSecureRandomGeneratorSHA256DigestSpi.class);
+    //private final static Logger log = LoggerFactory.getLogger(BouncyCastleSecureRandomGeneratorSHA256DigestSpi.class);
+    private static final LogUtil.Logger log = new LogUtil.Logger();
     private final static DigestRandomGenerator random = new DigestRandomGenerator(new SHA256Digest());
     private final static int SEED_LENGTH_BYTES = 12;
     private final static long MAX = Integer.MAX_VALUE / 2; // number of random bytes before we force a re-seed
