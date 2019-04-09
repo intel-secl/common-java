@@ -4,15 +4,10 @@
  */
 package com.intel.dcsg.cpg.classpath;
 
-import com.intel.dcsg.cpg.classpath.MavenResolver;
-import com.intel.dcsg.cpg.classpath.MultiJarFileClassLoader;
-import com.intel.dcsg.cpg.classpath.JarFileClassLoader;
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.Manifest;
@@ -183,53 +178,7 @@ public class ClassLoaderTest {
         Collection differentJars = CollectionUtils.disjunction(jars1, jars2);
         log.debug("Disjunction jars: {}", names(differentJars));
         
-        
-        /*
-        JarFileClassLoader cl1 = new JarFileClassLoader(pluginJarFile1);
-        Class<?> messageClass = cl1.loadClass("com.intel.mtwilson.plugin.sample.MessageA"); 
-        Object messageObject = messageClass.newInstance(); 
-        log.debug("Loaded MessageA object: {}", messageObject.getClass().getName());
-        
-        JarFileClassLoader cl2 = new JarFileClassLoader(pluginJarFile2, cl1); //  <<<===================== So  just putting classloader 1 here as a parent works because when this one looks for Message A and doesn't find it, it delegates to parent that does know it
-        Class<?> componentClass = cl2.loadClass("com.intel.mtwilson.plugin.sample.SampleConventionalComponent"); // throws ClassNotFoundException
-        Object componentObject = componentClass.newInstance(); 
-        log.debug("Loaded component object: {}", componentObject.getClass().getName());
-        
-        Method noticeMethod = ReflectionUtil.getNoticeMethodForType(componentClass, messageClass); // no error
-        noticeMethod.invoke(componentObject, messageObject);
-        */
     }
-    
-    
-    /**
-     * THIS ONE DOESN'T WORK AT ALL
-     * @throws IOException
-     * @throws ClassNotFoundException
-     * @throws InstantiationException
-     * @throws IllegalAccessException 
-     */
-    /*
-    @Test
-    public void testDelegatingLoader() throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        // first we identify a plugin to load, and list its dependencies (and their locations on disk)
-        MavenResolver resolver = new MavenResolver();
-        File pluginJarFile = resolver.findJarFile("com.intel.mtwilson.plugins", "mtwilson-version", "1.2-SNAPSHOT");
-        Manifest manifest = ModuleUtil.readManifest(pluginJarFile); // throws IOException
-        Set<File> jars = resolver.resolveClasspath(manifest);
-        // second we create one JarFileClassLoader per dependency
-        DelegatingClassLoader delegatingClassLoader = new DelegatingClassLoader();
-        HashSet<ClassLoader> classLoaders = new HashSet<ClassLoader>();
-        for(File jar : jars) {
-            LimitedJarFileClassLoader classLoader = new LimitedJarFileClassLoader(jar, delegatingClassLoader);
-            classLoaders.add(classLoader);
-        }
-        classLoaders.add(new LimitedJarFileClassLoader(pluginJarFile, delegatingClassLoader));
-        delegatingClassLoader.children().addAll(classLoaders);
-        Class<?> pluginClass = delegatingClassLoader.loadClass("com.intel.mtwilson.plugin.version.VersionPlugin"); // throws ClassNotFoundException
-        Object versionPlugin = pluginClass.newInstance();  // throws InstantiationException, IllegalAccessException
-        log.debug("Loaded version plugin: {}", versionPlugin.getClass().getName());
-    }
-    */
 
     // given collection of files, returns space-separated list of names (not full paths)
     private String names(Collection<File> files) {

@@ -17,11 +17,7 @@ public class MutableQuery extends Query {
     public MutableQuery() {
         super();
     }
-    /*
-    public MutableQuery(LinkedHashMap<String,ArrayList<String>> map) {
-        this.map = map;
-    }*/
-    
+
     public MutableQuery(Map<String,String[]> map) {
         super(map);
     }

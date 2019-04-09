@@ -42,12 +42,8 @@ public class LoggingShiroFilter extends ShiroFilter {
             log.debug("before doFilterInternal");
             // parent class initializes the subject in its doFilterInternal so there is nothing to log before parent executes
             super.doFilterInternal(servletRequest, servletResponse, chain);
-//            Subject subject = SecurityUtils.getSubject();
-//            log.debug("after doFilterInternal subject authenticated? {}", subject.isAuthenticated()); // should be false!   never get here...
             log.debug("after doFilterInternal; subject not bound to thread at this point");
         } finally {
-//            Subject subject = SecurityUtils.getSubject();
-//            log.debug("finally after doFilterInternal subject authenticated? {}", subject.isAuthenticated()); // should be false!
             log.debug("finally after doFilterInternal; subject not bound to thread at this point");
         }
     }

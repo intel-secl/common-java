@@ -139,7 +139,6 @@ public class AesMessageWriter {
         byte[] messageBytesWithIntegrity = ByteArray.concat(input, digestBytes);
         log.debug("message bytes with integrity: {} bytes", messageBytesWithIntegrity.length);
         // 3) encrypt the entire message with integrity protection, and use base64 transfer encoding to help against accidental/copy-paste corruption
-//        SecretKey key = Aes.generateKey(128); // throws CryptographyException
         Aes aes = new Aes(key);
         byte[] encrypted = aes.encrypt(messageBytesWithIntegrity);
         Message encryptedMessage = new Message();

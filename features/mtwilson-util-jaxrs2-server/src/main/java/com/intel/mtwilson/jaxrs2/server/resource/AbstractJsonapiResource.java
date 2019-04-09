@@ -12,7 +12,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
-import com.intel.mtwilson.jaxrs2.Document;
 import com.intel.mtwilson.jaxrs2.DocumentCollection;
 import com.intel.mtwilson.repository.FilterCriteria;
 import com.intel.mtwilson.repository.Locator;
@@ -50,10 +49,6 @@ public abstract class AbstractJsonapiResource<T extends AbstractDocument, C exte
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AbstractJsonapiResource.class);
 
     protected abstract C createEmptyCollection(); 
-    /*
-    public AbstractJsonapiResource() {
-        super();
-    }*/
 
     @GET
     @Produces(DataMediaType.APPLICATION_VND_API_JSON)
@@ -163,10 +158,6 @@ public abstract class AbstractJsonapiResource<T extends AbstractDocument, C exte
     @Produces(DataMediaType.APPLICATION_VND_API_JSON)
     public C patchJsonapiCollection(@BeanParam L locator /*, PatchDocumentCollection patch */) {
         log.debug("patchCollection");
-        // look it up first, update whtever fields are specified for update by the patch format, then issue updates...
-//        HostFilterCriteria criteria = new HostFilterCriteria();
-//        criteria.id = UUID.valueOf(id);
-//        return searchCollection(criteria);
         return null;
     }
     

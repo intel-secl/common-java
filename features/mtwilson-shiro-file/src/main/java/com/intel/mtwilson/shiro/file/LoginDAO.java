@@ -43,7 +43,6 @@ public class LoginDAO  {
         return String.format("%s:%s:%s:%s", 
                 userLoginPassword.getUsername(),
                 userLoginPassword.getAlgorithm(),
-//                userLoginPassword.getIterations(), // omitting the iterations %d placeholder
                 Base64.encodeBase64String(userLoginPassword.getSalt()),
                 Base64.encodeBase64String(userLoginPassword.getPasswordHash())
                 );
@@ -54,7 +53,6 @@ public class LoginDAO  {
         UserPassword userLoginPassword = new UserPassword();
         userLoginPassword.setUsername(parts[0]);
         userLoginPassword.setAlgorithm(parts[1]);
-//        userLoginPassword.setIterations(Integer.valueOf(parts[2]));
         userLoginPassword.setSalt(Base64.decodeBase64(parts[2]));
         userLoginPassword.setPasswordHash(Base64.decodeBase64(parts[3]));
         return userLoginPassword;

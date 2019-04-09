@@ -34,7 +34,6 @@ public abstract class LocalSetupTask extends AbstractSetupTask {
 
         public String exec; // the command line to execute
         public byte[] output; // will contain the output when done
-        // public byte[] input; // input to send to stdin of the command
     }
 
     protected void runToVoid(String commandLine) throws IOException {

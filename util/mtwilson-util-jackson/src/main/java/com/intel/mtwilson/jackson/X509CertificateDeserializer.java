@@ -27,7 +27,6 @@ public class X509CertificateDeserializer extends JsonDeserializer<X509Certificat
             return certificate;
         }
         catch(CertificateException e) {
-//            throw new JsonProcessingException("Cannot read certificate", jp.getCurrentLocation(), e);
             throw new IOException("Cannot read certificate", e);
         }
     }

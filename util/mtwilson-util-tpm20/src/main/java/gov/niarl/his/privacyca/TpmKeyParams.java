@@ -256,9 +256,6 @@ public class TpmKeyParams {
 	public String toString() {
 		String returnVal = "";
 		returnVal += "TpmKeyParams:\n";
-		//returnVal += " algorithmId: " + Integer.toString(algorithmId) + "\n";
-		//returnVal += " encScheme: " + Short.toString(encScheme) + "\n";
-		//returnVal += " sigScheme: " + Short.toString(sigScheme) + "\n";
 		returnVal += " algorithmId: " + TpmKeyParams.algToString(algorithmId) + "\n";
 		returnVal += " encScheme: " + TpmKeyParams.esToString(encScheme, TrouSerSmode) + "\n";
 		returnVal += " sigScheme: " + TpmKeyParams.ssToString(sigScheme) + "\n";

@@ -14,7 +14,6 @@ import com.intel.mtwilson.repository.Locator;
  * 
  * @author jbuhacoff
  */
-//public interface SimpleRepository<T extends Document, C extends DocumentCollection<T>, F extends FilterCriteria<T>, L extends Locator<T>> {
 public interface DocumentRepository<T extends AbstractDocument, C extends DocumentCollection<T>, F extends FilterCriteria<T>, L extends Locator<T>> extends SearchableRepository<T,L,C,F> {
 
 

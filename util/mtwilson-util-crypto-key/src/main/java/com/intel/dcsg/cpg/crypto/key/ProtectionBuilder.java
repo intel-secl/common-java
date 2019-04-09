@@ -175,8 +175,7 @@ public class ProtectionBuilder {
         return this;
     }
 
-    public Protection build() /*throws NoSuchAlgorithmException, NoSuchPaddingException*/ {
-//        protection.cipher = Cipher.getInstance(String.format("%s/%s/%s", protection.algorithm, protection.mode, protection.padding));
+    public Protection build() {
         if( protection.mode == null || protection.padding == null ) {
             throw new IllegalArgumentException("Missing cipher mode and padding scheme");
         }

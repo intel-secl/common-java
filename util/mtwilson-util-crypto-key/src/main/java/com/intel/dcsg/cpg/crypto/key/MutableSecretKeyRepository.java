@@ -4,7 +4,6 @@
  */
 package com.intel.dcsg.cpg.crypto.key;
 
-import javax.crypto.SecretKey;
 
 /**
  *

@@ -69,32 +69,9 @@ public class ClasspathResourceResolver extends ClasspathResolver /*implements LS
         if( path == null || path.isEmpty() || path.equals("/")) { return null; }
         InputStream in = getClass().getResourceAsStream(path);
         if( in == null ) { return null; }
-//        byte[] content = IOUtils.toByteArray(in);
-//        if( content == null || content.length == 0 ) { return null; }
-//        log.trace("findResource: {} length: {} content: {}", path, content.length, new String(content));
-//        return new ByteArrayInputStream(content);
         return in;
     }
-    
-    /*
-    @Override
-    public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId, String baseURI) {
-        log.debug("resolveResource type {} type namespaceURI {} publicId {} systemId {} baseURI {}", type, namespaceURI, publicId, systemId, baseURI);
-        try {
-            URL url = new URL(systemId);
-            return new ClasspathResolver.LSInputImpl(publicId, systemId, url.openStream());
-        }
-        catch(MalformedURLException e) {
-            log.error("Invalid URL in systemId: {}: {}", systemId, e.getMessage());
-            return null;
-        }
-        catch(IOException e) {
-            log.error("Cannot open input stream for systemId: {}: {}", systemId, e.getMessage());
-            return null;
-        }
-    }
-    */
-    
+
     /**
      * Instead of looking for classpath:/path/to/resource.xsd, this resolver
      * accepts the URLs that are used in the original xsd's and uses the
@@ -136,10 +113,6 @@ public class ClasspathResourceResolver extends ClasspathResolver /*implements LS
                 String path = pathFromFilename(href);
                 InputStream in = getResourceAsStream(path);// path like "/saml-schema-assertion-2.0.xsd"
                 log.debug("tried to resolve href {} to {}", href, in);
-//                if( in == null && !href.startsWith("/")) {
-//                    in = getClass().getResourceAsStream("/"+href);
-//                    log.debug("tried again to resolve href /{} to {}", href, in);
-//                }
                 return in;
             }
         }

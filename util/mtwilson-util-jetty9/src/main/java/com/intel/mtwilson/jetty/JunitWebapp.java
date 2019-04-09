@@ -23,9 +23,7 @@ public class JunitWebapp {
         server = new Server(8080);
         server.setStopAtShutdown(true);
         WebAppContext webAppContext = new WebAppContext();
-//        webAppContext.setContextPath("/webapp");
-        webAppContext.setResourceBase("src/main/webapp");       
-//        webAppContext.setClassLoader(getClass().getClassLoader());
+        webAppContext.setResourceBase("src/main/webapp");
         server.setHandler(webAppContext);
         try {
         server.start();        

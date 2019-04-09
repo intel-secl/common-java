@@ -99,29 +99,6 @@ public class SimpleKeystore {
         } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
             throw new KeyManagementException("Cannot load keystore", e);
         }
-        /*
-         catch(NullPointerException e) {
-         //             means file (or database field) was empty or non-existent... even if we "canRead"
-         //            log.warn("Failed to read keystore", e);
-         throw new KeyManagementException("Cannot read keystore", e);
-         }
-         catch(EOFException e) {
-         // means file was empty or non-existent... even if we "canRead"
-         //            log.warn("Failed to read keystore", e);
-         throw new KeyManagementException("Cannot read keystore", e);
-         }
-         catch (KeyStoreException e) {
-         throw new KeyManagementException("Cannot create a keystore of type "+KeyStore.getDefaultType(), e);
-         }
-         catch(IOException e) {
-         throw new KeyManagementException("Cannot load keystore", e);
-         }
-         catch(NoSuchAlgorithmException e) {
-         throw new KeyManagementException("Cannot load keystore", e);                    
-         }
-         catch(CertificateException e) {
-         throw new KeyManagementException("Cannot load keystore", e);                    
-         }*/
     }
 
     /**
@@ -207,19 +184,6 @@ public class SimpleKeystore {
             }
             throw new IllegalArgumentException("Key has a certificate that is not X509: " + myCertificate.getType());
         }
-        /*
-         KeyStore.PrivateKeyEntry pkEntry = (KeyStore.PrivateKeyEntry)keystore.getEntry(keyAlias, new KeyStore.PasswordProtection(keyPassword.toCharArray())); //NoSuchAlgorithmException, UnrecoverableEntryException, KeyStoreException, UnrecoverableKeyException
-         if( pkEntry != null ) {
-         PrivateKey myPrivateKey = pkEntry.getPrivateKey();
-         Certificate myCertificate = pkEntry.getCertificate();
-         if( myCertificate instanceof X509Certificate ) { //if( "X.509".equals(myCertificate.getType()) ) {
-         return new RsaCredentialX509(myPrivateKey, (X509Certificate)myCertificate); // CryptographyException
-         }
-         throw new IllegalArgumentException("Key has a certificate that is not X509: "+myCertificate.getType());
-         //PublicKey myPublicKey = pkEntry.getCertificate().getPublicKey();
-         //return new RsaCredential(myPrivateKey, myPublicKey);
-         }
-         */
         // key pair not found
         throw new FileNotFoundException("Keystore does not contain the specified key");
     }
@@ -233,8 +197,6 @@ public class SimpleKeystore {
             return (X509Certificate) myCertificate;
         }
         throw new IllegalArgumentException("Certificate is not X509: " + myCertificate.getType());
-        //PublicKey myPublicKey = pkEntry.getCertificate().getPublicKey();
-        //return new RsaCredential(myPrivateKey, myPublicKey);
     }
 
     private X509Certificate certificateIn(KeyStore.PrivateKeyEntry certEntry) {
@@ -246,8 +208,6 @@ public class SimpleKeystore {
             return (X509Certificate) myCertificate;
         }
         throw new IllegalArgumentException("Certificate is not X509: " + myCertificate.getType());
-        //PublicKey myPublicKey = pkEntry.getCertificate().getPublicKey();
-        //return new RsaCredential(myPrivateKey, myPublicKey);
     }
 
     public X509Certificate getX509CertificateWithPassword(String certAlias, String password) throws NoSuchAlgorithmException, UnrecoverableEntryException, KeyStoreException, CertificateEncodingException {

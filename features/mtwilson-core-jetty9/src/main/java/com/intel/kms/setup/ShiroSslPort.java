@@ -4,7 +4,6 @@
  */
 package com.intel.kms.setup;
 
-import com.intel.kms.jetty9.StartHttpServer;
 import com.intel.kms.setup.faults.IniEntryMismatch;
 import com.intel.kms.setup.faults.IniEntryNotFound;
 import com.intel.mtwilson.Folders;

@@ -10,7 +10,6 @@ import com.intel.dcsg.cpg.crypto.SimpleKeystore;
 import com.intel.dcsg.cpg.io.pem.Pem;
 import com.intel.dcsg.cpg.io.pem.PemLikeParser;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.KeyFactory;
 import java.security.KeyManagementException;
@@ -32,13 +31,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.StringUtils;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.security.x509.GeneralNameInterface;
@@ -70,20 +66,6 @@ public class X509Util {
         return digest;
     }
 
-    /**
-     * Provided for compatibility with other systems.
-     * See also Sha1Digest in the datatypes project
-     * @param certificate
-     * @return
-     */
-    /*
-    public static byte[] sha1fingerprint(X509Certificate certificate) throws NoSuchAlgorithmException, CertificateEncodingException {
-        MessageDigest hash = MessageDigest.getInstance("SHA-1");
-        byte[] digest = hash.digest(certificate.getEncoded());
-        return digest;
-    }
-    */
-    
     /**
      * Converts an X509 Certificate to PEM encoding, with lines up to 76 characters long.
      * Newlines are carriage-return and line-feed. 
@@ -138,28 +120,15 @@ public class X509Util {
                 return decodeDerCertificate(pem.getContent());
             }
         }
-//        String content = text.replace(BEGIN_CERTIFICATE, "").replace(END_CERTIFICATE, "");
-//             byte[] der = Base64.decodeBase64(content);
-//                return decodeDerCertificate(der);
-        return null;        
+        return null;
     }
     
     
-//    public static 
     public static List<X509Certificate> decodePemCertificates(String text) throws CertificateException {
-//        String[] pems = StringUtils.splitByWholeSeparator(text, END_CERTIFICATE);
-//        for(String pem : pems) { log.debug("PEM:  {}", pem); }
-//        ArrayList<X509Certificate> certs = new ArrayList<X509Certificate>(pems.length);
-//        for(String pem : pems) {
-//            if( pem.trim().isEmpty() ) { continue; }
-//            certs.add(decodePemCertificate(pem));
-//        }
         List<Pem> pems = PemLikeParser.parse(text);
         ArrayList<X509Certificate> certs = new ArrayList<>();
         for(Pem pem : pems) {
             if( "CERTIFICATE".equals(pem.getBanner()) ) {
-//                log.debug("Certificate content: {}", pem.getContent());
-//                byte[] content = Base64.decodeBase64(pem.getContent());
                 certs.add(decodeDerCertificate(pem.getContent()));
             }
         }
@@ -175,8 +144,6 @@ public class X509Util {
      */
     public static X509Certificate decodeDerCertificate(byte[] certificateBytes) throws CertificateException {
           CertificateFactory cf = CertificateFactory.getInstance("X.509");
-//        TODO there is as issue with bcprov-jdk15on for performing below step, reverting back to use java native API
-//        java.security.cert.CertificateFactory cf = java.security.cert.CertificateFactory.getInstance("X.509", new BouncyCastleProvider());
         X509Certificate cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certificateBytes));
         return cert;
     }

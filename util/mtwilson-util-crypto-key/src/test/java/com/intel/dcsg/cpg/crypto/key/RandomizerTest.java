@@ -4,8 +4,6 @@
  */
 package com.intel.dcsg.cpg.crypto.key;
 
-import com.intel.dcsg.cpg.crypto.key.RandomSource;
-import com.intel.dcsg.cpg.crypto.key.RandomUtil;
 import java.security.SecureRandom;
 import org.junit.Test;
 import static org.junit.Assert.*;

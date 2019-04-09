@@ -10,7 +10,6 @@ import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicyException;
 import com.intel.dcsg.cpg.tls.policy.TrustDelegate;
 import com.intel.dcsg.cpg.x509.repository.PublicKeyRepository;
-import java.net.Socket;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -38,8 +37,7 @@ public class PublicKeyTlsPolicy extends X509ExtendedServerTrustManager implement
     private transient final PublicKeyRepository repository;
     private transient final TrustDelegate delegate;
     private transient final ProtocolSelector selector;
-//    private transient X509Certificate trustedCertificate = null;
-    
+
     public PublicKeyTlsPolicy(PublicKeyRepository repository) {
         this.repository = repository;
         this.delegate = null;

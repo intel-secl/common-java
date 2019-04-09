@@ -142,43 +142,6 @@ public class StartHttpServer implements Runnable {
     }
 
     /**
-     * Converts forward slashes to the platform path separator (forward on
-     * linux/mac, backslash on windows)
-     *
-     * Example:
-     * <pre>
-     * path("C:/kms/configuration") on Windows would produce "C:\\kms\\configuration"
-     * </pre>
-     *
-     * @param pathForwardSlashes
-     * @return
-     */
-    /*
-     private String path(String pathForwardSlashes) {
-     return pathForwardSlashes.replace("/", File.separator);
-     }
-     */
-    /**
-     * URLs with a file or jar:file scheme require forward slashes on both Linux
-     * and Windows. So given a platform absolute path which could have either
-     * forward slashes (Linux) or back slashes (Windows) this will convert those
-     * slashes to forward slashes.
-     *
-     * Example:
-     * <pre>
-     * "jar:file://" + jarpath(absolutePathToJar) + "!/path/within/jar"
-     * </pre>
-     *
-     * @param pathPlatformSlashes
-     * @return
-     */
-    /*
-    private String jarpath(String pathPlatformSlashes) {
-        return pathPlatformSlashes.replace(File.separator, "/");
-    }
-    */
-
-    /**
      * PROTOTYPE IMPLEMENTATION: Assumes an "html5" feature containing static
      * resources in the file system. The static resources provided by kms-html5
      * are available under the URL path /v1/resources. So the minimum HTML
@@ -289,9 +252,7 @@ public class StartHttpServer implements Runnable {
             if (keystorePassword != null) {
                 sslConnectionFactory.setKeyStorePassword(new String(keystorePassword.toCharArray()));
             }
-//            sslConnectionFactory.setIncludeProtocols("TLSv1", "TLSv1.1", "TLSv1.2");
             sslConnectionFactory.setExcludeProtocols("SSL", "SSLv2", "SSLv2Hello", "SSLv3", "TLSv1", "TLSv1.1");
-            // Enable stronger cipher suites to overcome DH vulnerabilities; ISECL-2188, ISECL-2188, ISECL-3482
             sslConnectionFactory.setIncludeCipherSuites(
                     "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
                     "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
@@ -299,11 +260,6 @@ public class StartHttpServer implements Runnable {
                     "TLS_RSA_WITH_AES_128_GCM_SHA256",
                     "TLS_RSA_WITH_AES_128_CCM"
             );
-//            sslConnectionFactory.setExcludeCipherSuites(
-//                    ".*NULL.*", ".*RC4.*", ".*MD5.*", ".*DES.*", ".*DSS.*", ".*CBC.*",
-//                     ".*EC.*", "*ECDHE.*", ".*ECDH.*",
-//                    "TLS_DHE_RSA_WITH_AES_128_CBC_SHA"
-//            );
             sslConnectionFactory.setRenegotiationAllowed(false);
             ServerConnector https = new ServerConnector(jetty, new ConnectionFactory[]{new SslConnectionFactory(sslConnectionFactory, "http/1.1"), new HttpConnectionFactory(httpsConfiguration)});
             https.setPort(getHttpsPort());

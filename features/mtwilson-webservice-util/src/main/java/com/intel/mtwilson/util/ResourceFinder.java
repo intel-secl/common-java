@@ -25,11 +25,10 @@ import org.slf4j.LoggerFactory;
  */
 public class ResourceFinder {
     private static Logger log = LoggerFactory.getLogger(ResourceFinder.class);
-    
+
     // returns a File from which you can getAbsolutePath or wrap with FileInputStream
     public static File getFile(String filename) throws FileNotFoundException {
         // try standard install locations        
-//        System.out.println("ResourceFinder os.name="+System.getProperty("os.name"));
         ArrayList<File> files = new ArrayList<>();
         // first try an absolute filename or relative to current directory
         files.add(new File(filename));

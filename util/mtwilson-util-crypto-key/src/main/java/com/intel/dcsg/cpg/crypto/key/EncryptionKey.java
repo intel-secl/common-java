@@ -37,7 +37,6 @@ public class EncryptionKey {
     
     // key info 
     protected transient SecretKey secretKey;
-//    protected transient byte[] keyBytes; // should only serialize the key in encrypted/wrapped form
     protected byte[] keyId;
     protected long createdOn; // seconds since unix epoch   Jan 1, 1970    XXX TODO  use Date class instead?
     protected transient AtomicLong encryptionCounter; // must serialize its value

@@ -4,10 +4,6 @@
  */
 package com.intel.dcsg.cpg.crypto.key;
 
-import com.intel.dcsg.cpg.crypto.key.Protection;
-import com.intel.dcsg.cpg.crypto.key.ProtectionBuilder;
-import com.intel.dcsg.cpg.crypto.key.ProtectionPolicy;
-import com.intel.dcsg.cpg.crypto.key.ProtectionPolicyBuilder;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

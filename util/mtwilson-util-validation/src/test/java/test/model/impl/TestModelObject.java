@@ -149,7 +149,6 @@ public class TestModelObject {
     @Test
     public void testReflection() {
         try {
-//            Color color = new Color();
             Color color = new Color("blue", 0, 0, 255);
             Method isValid = color.getClass().getMethod("isValid");
             Boolean isValidResult = (Boolean)isValid.invoke(color);

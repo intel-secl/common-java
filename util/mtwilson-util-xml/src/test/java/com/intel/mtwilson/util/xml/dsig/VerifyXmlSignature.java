@@ -59,7 +59,6 @@ public class VerifyXmlSignature {
      */
     @Test
     public void testTrustPolicyDocumentWithSigNs() throws IOException, CertificateException, ParserConfigurationException, SAXException, MarshalException, XMLSignatureException {
-//        assertTrue(isValid("/documents/2/trustpolicy_sig.xml","/documents/2/certificate.pem"));
     }
 
     /**
@@ -73,22 +72,7 @@ public class VerifyXmlSignature {
      */
     @Test
     public void testTrustPolicyDocumentWithSigNoNs() throws IOException, CertificateException, ParserConfigurationException, SAXException, MarshalException, XMLSignatureException {
-//        assertTrue(isValid("/documents/2/trustpolicy_sig_no_ns.xml","/documents/2/certificate.pem"));
-//        isValid("/documents/2/trustpolicy_sig.xml","/documents/2/certificate.pem");
-//        isValid("/documents/2/trustpolicy_sig2.xml","/documents/2/certificate.pem");
-//        isValid("/documents/2/trustpolicy_sig3.xml","/documents/2/certificate.pem");
-//        isValid("/documents/2/trustpolicy_sig_nospaces.xml","/documents/2/certificate.pem");
-//        isValid("/documents/2/trustpolicy_sig_no_ns.xml","/documents/2/certificate.pem");
-//        isValid("/documents/2/trustpolicy_sig_no_ns_newline.xml","/documents/2/certificate.pem");
-//        isValid("/documents/2/trustpolicy_sig_no_ns_nospaces.xml","/documents/2/certificate.pem");
-//        isValid("/documents/3/trustpolicy_signed_3.xml","/documents/3/certificate.pem");
-//        isValid("/documents/3/trustpolicy_signed_3_edited.xml","/documents/3/certificate.pem");
-//        isValid("/documents/4/trustpolicy_signed_4.xml","/documents/4/certificate.pem");
-//        isValid("/documents/3/trustpolicy_signed_3_edited.xml","/documents/3/certificate.pem");
-//        isValid("/documents/4/trustpolicy_signed_4_edited.xml","/documents/4/certificate.pem");
         isValid("/documents/5/trustpolicy_1_signed.xml","/documents/5/certificate.pem");
-//        isValid("/documents/5/trustpolicy_2_jaxb.xml","/documents/5/certificate.pem");
-//        isValid("/documents/5/trustpolicy_3_formatted.xml","/documents/5/certificate.pem");
         isValid("/documents/5/trustpolicy_4_edited.xml","/documents/5/certificate.pem");
         isValid("/documents/5/trustpolicy_5_edited.xml","/documents/5/certificate.pem");
     }

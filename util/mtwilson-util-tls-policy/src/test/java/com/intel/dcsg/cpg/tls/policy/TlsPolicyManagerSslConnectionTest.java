@@ -6,8 +6,6 @@ package com.intel.dcsg.cpg.tls.policy;
 
 import com.intel.dcsg.cpg.tls.policy.impl.CertificateTlsPolicy;
 import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
-//import com.intel.dcsg.cpg.tls.policy.impl.StrictTlsPolicy;
-//import com.intel.dcsg.cpg.tls.policy.impl.TrustKnownCertificateTlsPolicy;
 import com.intel.dcsg.cpg.x509.repository.ArrayCertificateRepository;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -66,7 +64,6 @@ public class TlsPolicyManagerSslConnectionTest {
         connect(serverHostname,serverPort, tlsPolicyTrustKnownCertificate);
     }
     
-//    @Test(expected=SSLPeerUnverifiedException.class)
     @Test(expected=SSLHandshakeException.class)
     public void testSslConnectionKnownCertificatePolicyIncorrectCert() throws Exception {
         TlsPolicy tlsPolicyTrustKnownCertificate = new CertificateTlsPolicy(new ArrayCertificateRepository(new X509Certificate[] {  }));
@@ -136,10 +133,5 @@ public class TlsPolicyManagerSslConnectionTest {
             log.debug("Writing: {}", data);
                 sockOutput.write(data.getBytes());
                 sockOutput.flush();
-//            InputStream sockInput = sock.getInputStream();
-//            byte[] buf = new byte[5000];
-//            int bytes_read = sockInput.read(buf);
-//            log.debug( "Received {} bytes to server and received them back again, msg = {} ", bytes_read , new String(buf));
-                
     }
 }

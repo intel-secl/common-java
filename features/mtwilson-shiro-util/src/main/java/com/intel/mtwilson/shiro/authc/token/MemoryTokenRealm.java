@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.AccountException;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -91,7 +90,6 @@ public class MemoryTokenRealm extends AuthorizingRealm {
         TokenCredential tokenCredential;
         try {
             tokenRecord = database.findByTokenValue(tokenValue);
-//            tokenCredential = database.findCredentialByTokenValue(tokenValue);
             if( tokenRecord == null ) {
                 log.debug("doGetAuthenticationInfo token value not found in database: {}", tokenValue);
                 return null;

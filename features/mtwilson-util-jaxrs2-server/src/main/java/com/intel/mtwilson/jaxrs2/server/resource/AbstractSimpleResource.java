@@ -17,7 +17,6 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
-import com.intel.mtwilson.jaxrs2.Document;
 import com.intel.mtwilson.jaxrs2.DocumentCollection;
 import com.intel.mtwilson.repository.FilterCriteria;
 import com.intel.mtwilson.repository.Locator;
@@ -25,7 +24,6 @@ import com.intel.mtwilson.jaxrs2.Patch;
 import com.intel.mtwilson.jaxrs2.PatchLink;
 import com.intel.mtwilson.jaxrs2.mediatype.DataMediaType;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -104,15 +102,6 @@ public abstract class AbstractSimpleResource<T extends AbstractDocument, C exten
         faults.add(fault);
     }
     
-/*
-    private SimpleRepository<T,C,F,L> repository;
-    
-    public void setRepository(SimpleRepository<T,C,F,L> repository) {
-        this.repository = repository;
-    } 
-    
-    protected SimpleRepository<T,C,F,L> getRepository() { return repository; }
-    */
     protected abstract DocumentRepository<T,C,F,L> getRepository();
     
     @GET
@@ -159,21 +148,6 @@ public abstract class AbstractSimpleResource<T extends AbstractDocument, C exten
         }
         getRepository().delete(locator);
         httpServletResponse.setStatus(Status.NO_CONTENT.getStatusCode());
-        /*
-        T item = getRepository().retrieve(id); // subclass is responsible for validating the id in whatever manner it needs to;  most will return null if !UUID.isValid(id)  but we don't do it here because a resource might want to allow using something other than uuid as the url key, for example uuid OR hostname for hosts
-        if (item == null) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND); 
-        }
-        getRepository().delete(id);*/
-                /*
-//        C collection = getRepository().search(selector);
-//        if( collection.getDocuments().isEmpty() ) {            
-//            throw new WebApplicationException(Response.Status.NOT_FOUND); 
-//        }
-//        T item = collection.getDocuments().get(0);
-        
-//        getRepository().delete(item.getId().toString());
-* */
     }
     
    
@@ -192,23 +166,10 @@ public abstract class AbstractSimpleResource<T extends AbstractDocument, C exten
     @GET
     public T retrieveOne(@BeanParam L locator, @Context HttpServletRequest httpServletRequest, @Context HttpServletResponse httpServletResponse) {
         try { log.debug("retrieveOne: {}", mapper.writeValueAsString(locator)); } catch(JsonProcessingException e) { log.debug("retrieveOne: cannot serialize locator: {}", e.getMessage()); }
-        /*
-        T item = getRepository().retrieve(id); // subclass is responsible for validating the id in whatever manner it needs to;  most will return null if !UUID.isValid(id)  but we don't do it here because a resource might want to allow using something other than uuid as the url key, for example uuid OR hostname for hosts
-        if (item == null) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND); 
-        }*/
-        /*
-//        C collection = getRepository().search(selector);
-//        if( collection.getDocuments().isEmpty() ) {            
-//            throw new WebApplicationException(Response.Status.NOT_FOUND); 
-//        }
-//        T item = collection.getDocuments().get(0);
-* */
         T existing = getRepository().retrieve(locator); // subclass is responsible for validating the id in whatever manner it needs to;  most will return null if !UUID.isValid(id)  but we don't do it here because a resource might want to allow using something other than uuid as the url key, for example uuid OR hostname for hosts
         if (existing == null) {
             httpServletResponse.setStatus(Status.NOT_FOUND.getStatusCode());
             return null;
-//            throw new WebApplicationException(Response.Status.NOT_FOUND); 
         }
         return existing;
     }
@@ -231,7 +192,6 @@ public abstract class AbstractSimpleResource<T extends AbstractDocument, C exten
     public T storeOne(@BeanParam L locator, T item) {
         try { log.debug("storeOne: {}", mapper.writeValueAsString(locator)); } catch(JsonProcessingException e) { log.debug("storeOne: cannot serialize locator: {}", e.getMessage()); }
         ValidationUtil.validate(item);
-//        item.setId(UUID.valueOf(id));
         locator.copyTo(item);
         T existing = getRepository().retrieve(locator); // subclass is responsible for validating id
         if (existing == null) {
@@ -274,8 +234,6 @@ public abstract class AbstractSimpleResource<T extends AbstractDocument, C exten
             }
 
         }
-        //return new Host();
-//        return patch(null);
         return null;
     }
 

@@ -78,18 +78,4 @@ public class PasswordProtection extends Protection {
     protected void setSaltBytes(int saltBytes) {
         this.saltBytes = saltBytes;
     }
-    
-    
-    /*
-    @Override
-    public void copy(Object other) {
-        super.copy(other);
-        if( other instanceof PasswordProtection ) {
-            PasswordProtection protection = (PasswordProtection)other;
-            this.keyAlgorithm = protection.keyAlgorithm;
-            this.saltBytes = protection.saltBytes;
-            this.iterations = protection.iterations;
-        }
-    }
-    */
 }

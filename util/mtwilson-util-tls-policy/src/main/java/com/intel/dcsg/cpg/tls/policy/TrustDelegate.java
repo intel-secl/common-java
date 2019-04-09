@@ -21,6 +21,5 @@ import java.security.cert.X509Certificate;
  * @author jbuhacoff
  */
 public interface TrustDelegate {
-//    boolean acceptUnknownCertificateAuthority(X509Certificate certificate);
     boolean acceptUnknownCertificate(X509Certificate certificate);
 }

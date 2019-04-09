@@ -29,13 +29,11 @@ public class AdminUser extends LocalSetupTask {
     
     private String getUsername() {
         // gets environment variable MTWILSON_ADMIN_USERNAME, TRUSTAGENT_ADMIN_USERNAME, KMS_ADMIN_USERNAME, etc.
-//        return Environment.get("ADMIN_USERNAME", "admin"); // avoid use of Environment outside bootstrap code
-        // setup tasks configuration includes all-caps environment, so admin.username here will also be translated to ADMIN_USERNAME and MTWILSON_ADMIN_USERNAME 
+        // setup tasks configuration includes all-caps environment, so admin.username here will also be translated to ADMIN_USERNAME and MTWILSON_ADMIN_USERNAME
         return getConfiguration().get("admin.username", "admin");
     }
     private String getPassword() {
         // gets environment variable MTWILSON_ADMIN_PASSWORD, TRUSTAGENT_ADMIN_PASSWORD, KMS_ADMIN_PASSWORD, etc.
-//        String existing = Environment.get("ADMIN_PASSWORD");// avoid use of Environment outside bootstrap code
         String existing = getConfiguration().get("admin.password");
         if( existing != null ) {
             return existing;

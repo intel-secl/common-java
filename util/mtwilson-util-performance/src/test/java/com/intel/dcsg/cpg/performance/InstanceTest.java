@@ -35,7 +35,6 @@ public class InstanceTest {
         long elapsedTimes[] = new long[n];
         for(int i=0; i<n; i++) {
             long start = System.currentTimeMillis();
-            //if( getClass().isInstance(Object.class)) { log.debug("never see this because Object is NOT an instance of InstanceTest"); }
             if( !(this instanceof Object) ) { log.debug("never see this because this is an instance of Object"); }
             long end = System.currentTimeMillis();
             elapsedTimes[i] = end - start;

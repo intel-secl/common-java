@@ -59,10 +59,7 @@ public class JacksonXmlMapperProvider implements ContextResolver<XmlMapper> {
  
     private XmlMapper createDefaultMapper() {
         log.trace("JacksonXmlMapperProvider createDefaultMapper");
-//        JsonFactory jsonFactory = new JsonFactory();
-//        jsonFactory.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
         XmlMapper mapper = new XmlMapper(/*jsonFactory*/);
-//        mapper.setPropertyNamingStrategy(new PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy());
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

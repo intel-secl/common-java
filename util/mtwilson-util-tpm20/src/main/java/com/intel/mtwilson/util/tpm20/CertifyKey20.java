@@ -23,11 +23,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
-import org.bouncycastle.asn1.ASN1Object;
-import org.bouncycastle.asn1.ASN1Sequence;
-import org.bouncycastle.asn1.DEROctetString;
-import org.bouncycastle.asn1.DERSequence;
-import org.bouncycastle.asn1.DERUTF8String;
 
 /**
  *
@@ -145,8 +140,7 @@ public class CertifyKey20 {
     public static boolean isCertifiedKeySignatureValid(byte[] certifyKeyDataBlob, byte[] certifyKeySignatureBlob, PublicKey aikPublicKey)
             throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, DecoderException, TpmUtils.TpmBytestreamResouceException, TpmUtils.TpmUnsignedConversionException {
         //TPM2.0 has 4 additional bytes vs. TPM 1.2
-        byte[] oidPadding = Hex.decodeHex("3031300d060960864801650304020105000420".toCharArray()); //TpmUtils.hexStringToByteArray("3031300d060960864801650304020105000420");
-        //byte[] SHA256_ENCRYPTION_SCHEME = {(byte) 0x00, (byte) 0x0b};
+        byte[] oidPadding = Hex.decodeHex("3031300d060960864801650304020105000420".toCharArray());
         short SHA256_ENCRYPTION_SCHEME = 0x000b;
         try {
 
@@ -186,9 +180,6 @@ public class CertifyKey20 {
     }
 
     public static boolean isBindingKey(TpmCertifyKey20 certifiedKey) {
-        //int TPM_KEY_BIND = 0x0014; // This SHALL indicate a key that can be used for TPM_Bind and TPM_UnBind operations only
-        //int TPM_ES_RSAESOAEP_SHA1_MGF1 = 0x0003;
-        //int TPM_VOLATILE = 0x00000004;
         byte[] TPM_GENERATED = {(byte) 0xff, (byte) 0x54, (byte) 0x43, (byte) 0x47};
         byte[] TPM_ST_ATTEST_CERTIFY = {(byte) 0x80, (byte) 0x17};
 
@@ -204,87 +195,6 @@ public class CertifyKey20 {
     }
 
     public static boolean isSigningKey(TpmCertifyKey20 certifiedKey) {
-//        int TPM_KEY_SIGNING = 0x0010; // This SHALL indicate a signing key.
-//        int TPM_ES_NONE = 0x0001;
-//        int TPM_VOLATILE = 0x00000004;
-        /*        if( certifiedKey.getTpmKeyUsage() != TPM_KEY_SIGNING ) {
-         log.debug("Invalid key type specified during creation. Using {} instead of {}.", certifiedKey.getTpmKeyUsage(), TPM_KEY_SIGNING);
-         return false;
-         }
-         if( certifiedKey.getKeyParms().getEncScheme() != TPM_ES_NONE ) {
-         log.debug("Invalid encryption scheme used. Using {} scheme instead of No scheme.", certifiedKey.getKeyParms().getEncScheme());
-         return false;
-         }
-         if( certifiedKey.getTpmKeyFlags() != TPM_VOLATILE ) {
-         log.debug("Invalid flag specified during the key creation. Using {} instead of {}.", certifiedKey.getTpmKeyFlags(), TPM_VOLATILE);
-         return false;
-         }*/
         return true;
     }
-
-    /**
-     * Verifies the encryption scheme, key type and the key flags used for the
-     * creation of the keys.
-     *
-     * @param tcgCertificate
-     * @param isBindingKey
-     * @throws Exception
-     */
-    /*
-     @Deprecated
-     private static void validateCertifyKeyData(byte[] tcgCertificate, boolean isBindingKey) 
-     throws Exception {
-     int TPM_ES_RSAESOAEP_SHA1_MGF1 = 0x0003;
-     int TPM_ES_NONE = 0x0001;
-     int TPM_VOLATILE = 0x00000004;
-     int TPM_KEY_SIGNING = 0x0010; // This SHALL indicate a signing key.
-     int TPM_KEY_BIND = 0x0014; // This SHALL indicate a key that can be used for TPM_Bind and TPM_UnBind operations only
-        
-     try {
-            
-     TpmCertifyKey certifiedKey = new TpmCertifyKey(tcgCertificate);
-     log.debug("Certified key info:");
-     log.debug("@certifyKey@ *version info: {}", Hex.encodeHexString(certifiedKey.getStructVer())); //TpmUtils.byteArrayToHexString(certifiedKey.getStructVer()));                           
-     log.debug("@certifyKey@ *key usage: {}", certifiedKey.getTpmKeyUsage());
-     log.debug("@certifyKey@ *key flags: {}", certifiedKey.getTpmKeyFlags());
-     log.debug("@certifyKey@ *auth data usage: {}", certifiedKey.getTpmAuthDataUsage());
-     log.debug("@certifyKey@ *Alg params:: ");
-     log.debug("@certifyKey@ *Alg id:  {}, enc scheme: {}, sig scheme: {}; sub-parms: {}",
-     certifiedKey.getKeyParms().getAlgorithmId(), certifiedKey.getKeyParms().getEncScheme(), 
-     certifiedKey.getKeyParms().getSigScheme(), 
-     (certifiedKey.getKeyParms().getSubParams() == null ? "null" : Hex.encodeHexString(certifiedKey.getKeyParms().getSubParams().toByteArray()))); //TpmUtils.byteArrayToHexString(certifiedKey.getKeyParms().getSubParams().toByteArray()));      
-            
-     if ( isBindingKey && certifiedKey.getKeyParms().getEncScheme() != TPM_ES_RSAESOAEP_SHA1_MGF1) {
-     log.error("Invalid encryption scheme used. Using {} scheme instead of RSA.", certifiedKey.getKeyParms().getEncScheme());
-     throw new Exception ("Invalid encryption scheme used for creating the key.");
-     } 
-            
-     if ( !isBindingKey && certifiedKey.getKeyParms().getEncScheme() != TPM_ES_NONE) {
-     log.error("Invalid encryption scheme used. Using {} scheme instead of No scheme.", certifiedKey.getKeyParms().getEncScheme());
-     throw new Exception ("Invalid encryption scheme used for creating the key.");
-     } 
-
-     if (certifiedKey.getTpmKeyFlags() != TPM_VOLATILE) {
-     log.error("Invalid flag specified during the key creation. Using {} instead of {}.", certifiedKey.getTpmKeyFlags(), TPM_VOLATILE);
-     throw new Exception ("Invalid flag specified during the key creation.");
-     }
-            
-     if (isBindingKey && certifiedKey.getTpmKeyUsage() != TPM_KEY_BIND ) {
-     log.error("Invalid key type specified during creation. Using {} instead of {}.", certifiedKey.getTpmKeyUsage(), TPM_KEY_BIND);
-     throw new Exception ("Invalid flag specified during the binding key creation.");                
-     }
-            
-     if (!isBindingKey && certifiedKey.getTpmKeyUsage() != TPM_KEY_SIGNING ) {
-     log.error("Invalid flag specified during the key creation. Using {} instead of {}.", certifiedKey.getTpmKeyUsage(), TPM_KEY_SIGNING);
-     throw new Exception ("Invalid flag specified during the signing key creation.");                
-     }
-            
-            
-     } catch (Exception ex) {
-     log.error("Error during signature verification. {}", ex.getMessage());
-     throw ex;
-     }
-        
-     }
-     */
 }

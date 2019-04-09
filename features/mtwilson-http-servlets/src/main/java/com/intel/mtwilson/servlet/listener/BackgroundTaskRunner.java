@@ -37,7 +37,6 @@ public class BackgroundTaskRunner implements ServletContextListener, Runnable {
     @Override
     public void contextInitialized(ServletContextEvent context) {
         log.debug("contextInitialized");
-//        Util.scanJars(Util.findAllJars(),getRegistrars());
         List<Runnable> runnables = Extensions.findAll(Runnable.class);
         // now filter this for runnables annotated with @Background
         for(Runnable runnable : runnables) {
@@ -74,12 +73,5 @@ public class BackgroundTaskRunner implements ServletContextListener, Runnable {
             }
         }
     }
-    
-    /*
-    protected Registrar[] getRegistrars() {
-        ImplementationRegistrar runnables = new ImplementationRegistrar(); //  backgroudn tasks
-        return new Registrar[] { runnables };
-    }
-    */
 }
 

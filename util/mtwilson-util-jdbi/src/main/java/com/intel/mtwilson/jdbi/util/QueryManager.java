@@ -16,7 +16,6 @@ public class QueryManager {
     
         private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(QueryManager.class);
 
-//        private String queryResourceFilename;
         private String driverName;
         private Properties sql;
         public QueryManager(String sqlResourcePath, String driverName) throws IOException {

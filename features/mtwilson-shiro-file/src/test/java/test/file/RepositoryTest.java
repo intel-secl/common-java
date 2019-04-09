@@ -38,32 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RepositoryTest {
     private static Logger log = LoggerFactory.getLogger(RepositoryTest.class);
-/*
-    @Test
-    public void testCreateRole() throws Exception {
-        LoginDAO dao = MyJdbi.authz();
-        
-        //create a new role
-        Role role = new Role();
-        role.setId(new UUID());
-        role.setRoleName("root");
-        role.setDescription("for testing only");
-        dao.insertRole(role.getId(), role.getRoleName(), role.getDescription());
 
-        log.debug("Created role {} with id {}", role.getRoleName(), role.getId()); // for example: Created role root with id 6a382588-ab03-4973-b751-0ae927e1a639
-
-        // add permissions to this role
-        RolePermission rolePermission = new RolePermission();
-        rolePermission.setRoleId(role.getId());
-        rolePermission.setPermitDomain("*");
-        rolePermission.setPermitAction("*");
-        rolePermission.setPermitSelection("*");
-        dao.insertRolePermission(rolePermission.getRoleId(), rolePermission.getPermitDomain(), rolePermission.getPermitAction(), rolePermission.getPermitSelection());
-        
-        dao.close();
-    }
-    */
-    
     @Test
     public void testCreateUser() throws Exception {
         File userFile = new File("target/users.txt");

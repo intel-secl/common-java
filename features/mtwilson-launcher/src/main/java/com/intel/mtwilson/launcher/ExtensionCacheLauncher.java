@@ -35,8 +35,7 @@ public class ExtensionCacheLauncher extends ExtensionLauncher implements Runnabl
      */
     public ExtensionCacheLauncher() {
         // look for java extension cache file
-        //Subfolder configuration = new Subfolder("configuration", new Home());
-        String cachePath = Folders.configuration() + File.separator + "extensions.cache"; //MyFilesystem.getApplicationFilesystem().getConfigurationPath() + File.separator + "extensions.cache";
+        String cachePath = Folders.configuration() + File.separator + "extensions.cache";
         log.debug("default extension cache file: {}", cachePath);
         cacheFile = new File(cachePath);
         registrars = new Registrar[] { new ImplementationRegistrar() } ;        

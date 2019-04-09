@@ -4,12 +4,10 @@
  */
 package com.intel.dcg.io;
 
-import com.intel.dcsg.cpg.io.Copyable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *

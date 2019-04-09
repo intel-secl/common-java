@@ -16,7 +16,6 @@ public class Base64Util {
     public final static String BASE64 = "(?:[a-zA-Z0-9+/]{4})*(?:[a-zA-Z0-9+/]{2}==|[a-zA-Z0-9+/]{3}=)?";
     public final static String NON_BASE64 = "[^a-zA-Z0-9+/=]";
     public final static String BASE64_WHITESPACE = "[\\s]+"; // spaces only
-//    private final static Pattern base64Charset = Pattern.compile("[a-zA-Z0-9+/=]"); 
     private final static Pattern base64Pattern = Pattern.compile("^"+BASE64+"$");
 
     /**

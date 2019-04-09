@@ -6,7 +6,6 @@ package com.intel.dcsg.cpg.crypto.rfc822;
 
 import com.intel.dcsg.cpg.crypto.Aes;
 import com.intel.dcsg.cpg.crypto.CryptographyException;
-import com.intel.dcsg.cpg.crypto.rfc822.AesMessageWriter;
 import com.intel.dcsg.cpg.rfc822.Message;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;

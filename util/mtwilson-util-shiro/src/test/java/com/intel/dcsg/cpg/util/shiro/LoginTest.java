@@ -18,7 +18,6 @@ public class LoginTest {
     
     @BeforeClass
     public static void init() {
-//        Login.superuser();
         Login.user("document:read");
     }
     

@@ -23,9 +23,7 @@ import java.security.cert.X509Certificate;
 public class PublicKeyX509CertificateStore extends AbstractKeyStore implements Closeable {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PublicKeyX509CertificateStore.class);
-//    private char[] keystorePassword;
     private KeyStore keystore;
-//    private KeyProtectionDelegate keyProtectionDelegate;
 
     /**
      * 
@@ -37,24 +35,17 @@ public class PublicKeyX509CertificateStore extends AbstractKeyStore implements C
      */
     public PublicKeyX509CertificateStore(String keystoreType, File keystoreFile, char[] keystorePassword) throws KeyStoreException, IOException {
         super(keystoreType, keystoreFile, keystorePassword);
-//        super.setKeyProtectionDelegate(new SinglePasswordKeyProtectionDelegate(keystorePassword));
         this.keystore = super.keystore();
-//        this.keystorePassword = keystorePassword;
-//        this.keyProtectionDelegate = new SinglePasswordKeyProtectionDelegate(keystorePassword);
     }
+
     public PublicKeyX509CertificateStore(String keystoreType, Resource keystoreResource, char[] keystorePassword) throws KeyStoreException, IOException {
         super(keystoreType, keystoreResource, keystorePassword);
-//        super.setKeyProtectionDelegate(new SinglePasswordKeyProtectionDelegate(keystorePassword));
         this.keystore = super.keystore();
-//        this.keystorePassword = keystorePassword;
-//        this.keyProtectionDelegate = new SinglePasswordKeyProtectionDelegate(keystorePassword);
     }
+
     public PublicKeyX509CertificateStore(String keystoreType, Resource keystoreResource, Password keystorePassword) throws KeyStoreException, IOException {
         super(keystoreType, keystoreResource, keystorePassword);
-//        super.setKeyProtectionDelegate(new SinglePasswordKeyProtectionDelegate(keystorePassword));
         this.keystore = super.keystore();
-//        this.keystorePassword = keystorePassword;
-//        this.keyProtectionDelegate = new SinglePasswordKeyProtectionDelegate(keystorePassword);
     }
 
     /**

@@ -4,10 +4,7 @@
  */
 package com.intel.dcsg.cpg.authz.token;
 
-import com.intel.dcsg.cpg.crypto.key.HashMapMutableSecretKeyRepository;
-import com.intel.dcsg.cpg.crypto.Aes;
 import com.intel.dcsg.cpg.crypto.CryptographyException;
-import com.intel.dcsg.cpg.crypto.key.KeyNotFoundException;
 import com.intel.dcsg.cpg.crypto.key.MessageIntegrityException;
 import com.intel.dcsg.cpg.io.UUID;
 import com.intel.dcsg.cpg.performance.AlarmClock;
@@ -16,9 +13,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
-import javax.crypto.SecretKey;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.junit.Test;

@@ -49,11 +49,9 @@ public class PBECryptoCodec implements CryptoCodec {
             byte[] salt = random.nextBytes(saltN);
             log.debug("got {} salt bytes: {}", salt.length, salt);
             log.debug("key length {}", protection.getKeyLengthBits());
-//            SecretKey dek = createSecretKey(salt); // throws InvalidKeySpecException, NoSuchAlgorithmException
             SecretKey dek = secretKeyGenerator.generateSecretKey(password, salt, protection);
             // and use the key to encrypt the message
             AlgorithmParameterSpec dekParams = new PBEParameterSpec(salt, protection.getIterations()); // need to define the algorithm parameter specs because the cipher receives the Key interface which is generic... so it doesn't know about the parameters that are embedded in it
-//            Cipher cipher = Cipher.getInstance(algorithm); // throws NoSuchAlgorithmException, NoSuchPaddingException ; envelopeAlgorithm like "PBEWithHmacSHA1AndDESede/CBC/PKCS5Padding" 
             log.debug("algorithm {} cipher {}", protection.getAlgorithm(), protection.getCipher());
             Cipher cipher = Cipher.getInstance(protection.getCipher());  // cipher like AES/OFB8/NoPadding
             cipher.init(Cipher.ENCRYPT_MODE, dek, dekParams); // throws InvalidKeyException, InvalidAlgorithmParameterException        
@@ -73,11 +71,9 @@ public class PBECryptoCodec implements CryptoCodec {
             // first get the salt bytes and create the secret key
             byte[] salt = new byte[saltN];
             System.arraycopy(ciphertext, 0, salt, 0, saltN);
-//            SecretKey dek = createSecretKey(salt); // throws InvalidKeySpecException, NoSuchAlgorithmException
             SecretKey dek = secretKeyGenerator.generateSecretKey(password, salt, protection);
             // and use the key to decrypt the message
             AlgorithmParameterSpec dekParams = new PBEParameterSpec(salt, protection.getIterations()); // need to define the algorithm parameter specs because the cipher receives the Key interface which is generic... so it doesn't know about the parameters that are embedded in it
-//            Cipher cipher = Cipher.getInstance(algorithm); // throws NoSuchAlgorithmException, NoSuchPaddingException ; envelopeAlgorithm like "PBEWithHmacSHA1AndDESede/CBC/PKCS5Padding" 
             Cipher cipher = Cipher.getInstance(protection.getCipher()); // for example AES/OFB8/NoPadding
             cipher.init(Cipher.DECRYPT_MODE, dek, dekParams); // throws InvalidKeyException, InvalidAlgorithmParameterException
             byte[] plaintext = cipher.doFinal(ciphertext, saltN, ciphertext.length-saltN); // throws IllegalBlockSizeException, BadPaddingException, we're assuming the signature value is base64-encoded

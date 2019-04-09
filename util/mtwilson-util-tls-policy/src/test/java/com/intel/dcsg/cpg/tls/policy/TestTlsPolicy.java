@@ -40,7 +40,6 @@ public class TestTlsPolicy {
         jetty = new Server(port);
         jetty.start();
         jetty.setHandler(new HelloWorldHandler());
-//        SslContextFactory sslContextFactory = new SslContextFactory("server_keystore.jks");
     }
     
     @AfterClass

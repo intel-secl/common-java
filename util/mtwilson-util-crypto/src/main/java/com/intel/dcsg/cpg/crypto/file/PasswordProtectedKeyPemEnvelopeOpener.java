@@ -36,8 +36,7 @@ public class PasswordProtectedKeyPemEnvelopeOpener {
     private static final Logger log = LoggerFactory.getLogger(PasswordProtectedKeyPemEnvelopeOpener.class);
     private String password;    
     private SecretKeyFactory secretKeyFactory;
-//    private String algorithm;
-    
+
     /**
      * 
      * @param password password to be used to open PasswordKeyEnvelope objects; must be same as the password used to create them using PasswordKeyEnvelopeFactory
@@ -69,10 +68,6 @@ public class PasswordProtectedKeyPemEnvelopeOpener {
             initSecretKeyFactory(envelope.getEncryptionAlgorithm());
             PasswordHash envelopePasswordHash = PasswordHash.valueOf(envelope.getEncryptionKeyId());
             PasswordHash recipientPasswordHash = new PasswordHash(password, envelopePasswordHash.getSalt());
-            //do not log senstive info
-            //log.debug("envelope password hash: {}", envelopePasswordHash.toString());
-            //log.debug("recipient password hash: {}", recipientPasswordHash.toString());
-            //log.debug("envelope salt length: {}", envelopePasswordHash.getSalt().length);
             if( !Arrays.equals(envelopePasswordHash.getHash(), recipientPasswordHash.getHash()) ) { throw new IllegalArgumentException("PasswordKeyEnvelope created with "+envelopePasswordHash+" cannot be unsealed using password corresponding to "+recipientPasswordHash); }
             // derive the password-based key-encryption key 
             SecretKey kek = secretKeyFactory.generateSecret(new PBEKeySpec(password.toCharArray(), envelopePasswordHash.getSalt(), PasswordProtectedKeyPemEnvelopeFactory.PBE_ITERATIONS, PasswordProtectedKeyPemEnvelopeFactory.PBE_KEY_SIZE)); // XXX TODO need to move these parameters from constants to parameters in the file... additional attribtues in the header maybe like envelopeAlgorithm maybe?  OR need to find out what are the default values, and if they are acceptable just use that and do not specify it

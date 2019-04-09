@@ -5,7 +5,6 @@
 package com.intel.dcsg.cpg.crypto;
 
 import com.intel.dcsg.cpg.io.ByteArray;
-import java.io.UnsupportedEncodingException;
 import org.junit.Test;
 import static org.junit.Assert.*;
 /**
@@ -131,7 +130,6 @@ public class Sha1DigestTest {
     @Test
     public void testFindHash() {
         Sha1Digest tag = Sha1Digest.valueOfHex("de8990b384d71983a7646e65326a699acf463d3c");
-//        Sha1Digest tag = Sha1Digest.ZERO; //valueOfHex("de8990b384d71983a7646e65326a699acf463d3c");
         Sha1Digest target = Sha1Digest.valueOfHex("D0DA0B51DC5253D468DA371A4D16322BBBCEAD1E");
         Sha1Digest result;
         int size;
@@ -153,7 +151,6 @@ public class Sha1DigestTest {
     @Test
     public void testFindHash2() {
         Sha1Digest tag = Sha1Digest.valueOfHex("de8990b384d71983a7646e65326a699acf463d3c");
-//        Sha1Digest tag = Sha1Digest.ZERO; //valueOfHex("de8990b384d71983a7646e65326a699acf463d3c");
         Sha1Digest target = Sha1Digest.valueOfHex("D0DA0B51DC5253D468DA371A4D16322BBBCEAD1E");
         Sha1Digest result;
         int size;

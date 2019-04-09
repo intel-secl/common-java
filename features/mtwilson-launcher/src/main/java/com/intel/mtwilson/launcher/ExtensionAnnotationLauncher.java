@@ -12,7 +12,6 @@ import com.intel.mtwilson.launcher.ext.annotations.Shutdown;
 import com.intel.mtwilson.launcher.ext.annotations.Startup;
 import com.intel.mtwilson.launcher.ext.annotations.Validate;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 

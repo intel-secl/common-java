@@ -4,7 +4,6 @@
  */
 package com.intel.dcsg.cpg.crypto.key;
 
-//import com.intel.dcsg.cpg.crypto.CryptographyException;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -35,8 +34,6 @@ public abstract class CipherCodec<T> {
 
     private final transient EncryptionKeySource encryptionKeySource;
     private final transient Protection protection;
-//    private transient Cipher cipher;
-//    private transient MessageDigest md;
     private final transient RandomSource random;
     private final transient HashMap<String,Cipher> ciphers;
     private final transient HashMap<String,MessageDigest> digests;
@@ -89,23 +86,13 @@ public abstract class CipherCodec<T> {
         return md;
     }
     
-    /*
-    private void init() throws NoSuchAlgorithmException, NoSuchPaddingException {
-        cipher = Cipher.getInstance(String.format("%s/%s/%s", protection.algorithm, protection.mode, protection.padding)); // throws NoSuchAlgorithmException, NoSuchPaddingException
-        md = MessageDigest.getInstance(protection.digestAlgorithm);
-    }*/
-    
-    public final synchronized byte[] encrypt(T object) throws GeneralSecurityException /*CryptographyException*/ {
+    public final synchronized byte[] encrypt(T object) throws GeneralSecurityException {
         EncryptionKey key = encryptionKeySource.getEncryptionKey(protection);
         Plaintext plaintext = new Plaintext();
-//        plaintext.header = formatPlaintextHeader(object);
         plaintext.message = formatPlaintextMessage(object);
         plaintext.protection = key.protection;
-//        Encrypted encrypted = new Encrypted();
-//        try {
-            if (/*plaintext.*/protection.digestAlgorithm != null) { // SHA-256
+            if (protection.digestAlgorithm != null) { // SHA-256
                 MessageDigest md = getMessageDigest(key.protection);  // throws NoSuchAlgorithmException
-//                if( plaintext.header != null ) { md.update(plaintext.header); }
                 plaintext.digest = md.digest(plaintext.message);
             }
 
@@ -120,10 +107,7 @@ public abstract class CipherCodec<T> {
             encrypted.keyId = key.getKeyId();
             encrypted.iv = iv;
             encrypted.message = ciphertext;
-            return formatCiphertext(encrypted, object); // ByteArray.concat(iv, ciphertext);
-//        } catch (GeneralSecurityException e) { // includes InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException
-//            throw new CryptographyException(e);
-//        }
+            return formatCiphertext(encrypted, object);
     }
 
     private byte[] generateIV() {
@@ -227,7 +211,6 @@ public abstract class CipherCodec<T> {
      * @throws CryptographyException 
      */
     public final synchronized T decrypt(byte[] ciphertext) throws GeneralSecurityException /*CryptographyException*/, KeyNotFoundException {
-//        try {
             Ciphertext encrypted = parseCiphertext(ciphertext); // split up a byte array  into an iv, and actual ciphertext to decrypt
             EncryptionKey key;
             Cipher cipher;
@@ -261,9 +244,6 @@ public abstract class CipherCodec<T> {
                 }
             }
             return parsePlaintextMessage(plaintext.getMessage());
-//        } catch (GeneralSecurityException e) {
-//            throw new CryptographyException(e);
-//        }
     }
 
     /**

@@ -40,8 +40,6 @@ public class LauncherTest {
             log.debug("Module: {};active={}", module.getImplementationTitle() + "-" + module.getImplementationVersion(), (module.isActive() ? "yes" : "no"));
         }
         
-//        launcher.startEventLoop();
-
         // now deactivate them
         log.debug("Deactivating modules");
         for (Module module : container.getModules()) {

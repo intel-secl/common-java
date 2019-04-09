@@ -4,7 +4,6 @@
  */
 package com.intel.mtwilson.shiro.authc.token;
 
-import com.intel.dcsg.cpg.http.Query;
 import com.intel.mtwilson.shiro.authc.x509.*;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -12,9 +11,6 @@ import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.web.util.WebUtils;
 import com.intel.mtwilson.shiro.HttpAuthenticationFilter;
-import java.io.UnsupportedEncodingException;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Handles authentication via an HTTP Authorization header with the "Token" 

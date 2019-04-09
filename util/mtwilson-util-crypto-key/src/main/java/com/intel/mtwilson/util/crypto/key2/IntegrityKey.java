@@ -34,14 +34,11 @@ public class IntegrityKey extends IntegrityKeyAttributes {
     public IntegrityKey copy() {
         IntegrityKey newInstance = new IntegrityKey();
         newInstance.copyFrom(this);
-//        copy.digestKeyId = this.digestKeyId;
-//        copy.encoded = this.encoded;
         return newInstance;
     }
     
     public void copyFrom(IntegrityKey source) {
         super.copyFrom(source);
-//        this.keyId = source.keyId;
         this.encoded = source.encoded;
     }
 

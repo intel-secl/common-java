@@ -4,7 +4,6 @@
  */
 package com.intel.dcsg.cpg.crypto.digest;
 
-import com.intel.dcsg.cpg.crypto.digest.Digest;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Test;
 import static org.junit.Assert.*;

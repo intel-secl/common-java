@@ -22,10 +22,8 @@ public class ProtectionPolicy {
     protected HashSet<String> modes = new HashSet<String>(); // mode like "OFB8"
     protected HashSet<String> paddings = new HashSet<String>(); // padding like "NoPadding"
     protected int minKeyLengthBits = Integer.MAX_VALUE;
-//    protected int blockSizeBytes;
     protected HashSet<String> digestAlgorithms = new HashSet<String>(); // like "SHA-256" used for integrity protection; may be null if the content is not protected
-//    protected int digestSizeBytes; // 20 for SHA-1, 32 for SHA-256, ...
-    protected transient HashSet<String> ciphers = new HashSet<String>();    //  used to restrict COMBINATIONS of algorithm/mode/padding  instead of individual settings 
+    protected transient HashSet<String> ciphers = new HashSet<String>();    //  used to restrict COMBINATIONS of algorithm/mode/padding  instead of individual settings
 
     public HashSet<String> getAlgorithms() {
         return algorithms;

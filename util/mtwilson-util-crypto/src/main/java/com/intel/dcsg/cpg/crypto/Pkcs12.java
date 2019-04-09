@@ -122,8 +122,6 @@ public class Pkcs12 {
                 return new RsaCredentialX509(myPrivateKey, (X509Certificate)myCertificate); //CertificateEncodingException, NoSuchAlgorithmException
             }
             throw new IllegalArgumentException("Key has a certificate that is not X509: "+myCertificate.getType());
-            //PublicKey myPublicKey = pkEntry.getCertificate().getPublicKey();
-            //return new RsaCredential(myPrivateKey, myPublicKey);
         }
         // key pair not found
         throw new FileNotFoundException("Keystore does not contain the specified key");        

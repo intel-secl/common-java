@@ -23,7 +23,6 @@ import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 import org.apache.commons.io.IOUtils;
-//import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 
 /**
  * Reference: https://jersey.java.net/documentation/latest/message-body-workers.html

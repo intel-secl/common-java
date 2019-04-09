@@ -40,7 +40,6 @@ public class AuthorizationExceptionFilter implements Filter {
         catch(RuntimeException e) {
             log.debug("got exception class {}", e.getClass().getName());
             if( e instanceof AuthorizationException ) {
-//        catch(AuthorizationException e) { //parent of UnauthenticatedException, UnauthorizedException
             log.info("Denied access to resource: ", e.getMessage());
             Throwable cause = e.getCause();
             while(cause != null ) {

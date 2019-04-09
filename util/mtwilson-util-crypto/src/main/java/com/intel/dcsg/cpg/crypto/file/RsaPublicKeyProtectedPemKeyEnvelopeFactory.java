@@ -7,16 +7,11 @@ package com.intel.dcsg.cpg.crypto.file;
 import com.intel.dcsg.cpg.crypto.CryptographyException;
 import com.intel.dcsg.cpg.crypto.Md5Digest;
 import com.intel.dcsg.cpg.io.pem.Pem;
-import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 
 /**
  * The RsaKeyEnvelopeFactory creates RsaKeyEnvelope objects for various AES secret keys by encrypting those keys 
@@ -47,8 +42,6 @@ public class RsaPublicKeyProtectedPemKeyEnvelopeFactory {
     public static final String DEFAULT_ALGORITHM = "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"; // RSA encryption in ECB mode (since we expect to only have one block anyway) with OAEP padding that uses SHA-256 and MGF1
     private PublicKey publicKey;
     private String publicKeyId;
-//    private X509Certificate certificate;
-//    private String certificateFingerprint; // MD5 of the certificate
     private String algorithm = null;
     
     /**
@@ -59,8 +52,6 @@ public class RsaPublicKeyProtectedPemKeyEnvelopeFactory {
     public RsaPublicKeyProtectedPemKeyEnvelopeFactory(X509Certificate certificate) throws CryptographyException {
         try {
             this.algorithm = DEFAULT_ALGORITHM;
-//            this.certificate = certificate;
-//            this.certificateFingerprint = Md5Digest.digestOf(certificate.getEncoded()).toString();
             this.publicKey = certificate.getPublicKey();
             this.publicKeyId = Md5Digest.digestOf(certificate.getEncoded()).toString(); // maybe should be sha1 or sha256
         }

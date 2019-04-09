@@ -68,13 +68,11 @@ public class JaxrsClient {
                 if (queryParam.getValue() == null) {
                     continue;
                 }
-//                log.debug("queryParam {} = {}", queryParam.getKey(), queryParam.getValue()); // for example: queryParam nameContains = test
                 target = target.queryParam(queryParam.getKey(), queryParam.getValue());
             }
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException("Cannot generate query parameters", e);
         }
-//        log.debug("with query params: {}", target.getUri().toString()); // for example: with query params: http://localhost:8080/v2/files?nameContains=test
         return target;
     }
     

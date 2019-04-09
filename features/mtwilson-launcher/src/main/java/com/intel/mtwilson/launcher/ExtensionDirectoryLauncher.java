@@ -27,7 +27,6 @@ public class ExtensionDirectoryLauncher extends ExtensionLauncher implements Run
     
     private File javaFolder;
     private ClassLoader parentClassLoader;
-//    private MultiJarFileClassLoader applicationClassLoader;
     private ClassLoader applicationClassLoader;
     private Registrar[] registrars;
     
@@ -46,13 +45,9 @@ public class ExtensionDirectoryLauncher extends ExtensionLauncher implements Run
         parentClassLoader = Thread.currentThread().getContextClassLoader();
         if(parentClassLoader==null) { parentClassLoader = ExtensionDirectoryLauncher.class.getClassLoader(); }
         // look for java extension directory
-//        String javaPath = My.filesystem().getBootstrapFilesystem().getJavaPath(); // for example, /opt/mtwilson/java 
-//        Subfolder java = new Subfolder("java", new Home()); // for example /opt/mtwilson/java
-        String javaPath = Folders.application()+File.separator+"java";//java.getPath(); //MyFilesystem.getApplicationFilesystem().getBootstrapFilesystem().getJavaPath(); // for example, /opt/mtwilson/java
+        String javaPath = Folders.application()+File.separator+"java";
         log.debug("Default application java path: {}", javaPath);
-//        if( My.configuration().getmtwj)
         javaFolder = new File(javaPath);
-//        applicationClassLoader = new MultiJarFileClassLoader(parentClassLoader); 
         registrars = new Registrar[] { new ImplementationRegistrar() } ;
         
         log.debug("thread context class loader: {}", Thread.currentThread().getContextClassLoader().getClass().getName());
@@ -72,7 +67,6 @@ public class ExtensionDirectoryLauncher extends ExtensionLauncher implements Run
         return applicationClassLoader;
     }
 
-//    public void setApplicationClassLoader(MultiJarFileClassLoader applicationClassLoader) {
     public void setApplicationClassLoader(ClassLoader applicationClassLoader) {
         this.applicationClassLoader = applicationClassLoader;
     }
@@ -157,11 +151,7 @@ public class ExtensionDirectoryLauncher extends ExtensionLauncher implements Run
         while (it.hasNext()) {
             File jar = it.next();
             log.debug("Scanning {}", jar.getAbsolutePath());
-            try {/*
-                for(Registrar registrar : registrars) {
-                    ExtensionUtil.scan(registrar, new JarClassIterator(jar, applicationClassLoader));// we use our current classloader which means if any classes are already loaded we'll reuse them
-                }*/
-//                ExtensionUtil.scan(new JarClassIterator(jar, applicationClassLoader), registrars);
+            try {
                 Scanner scanner = new Scanner(registrars);
                 scanner.setThrowExceptions(false);
                 scanner.setThrowErrors(false);
@@ -170,8 +160,6 @@ public class ExtensionDirectoryLauncher extends ExtensionLauncher implements Run
             catch(Throwable e) { // catch ClassNotFoundException and NoClassDefFoundError 
                 log.error("Cannot read jar file {} because {}", jar.getAbsolutePath(), e.getClass().getName() + ": " + e.getMessage());
                 log.debug("Caught throwable", e);
-                //e.printStackTrace();
-                // log.error("Cannot read jar file {}", jar.getAbsolutePath());
             }
         }
         long time1 = System.currentTimeMillis();

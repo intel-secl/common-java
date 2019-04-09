@@ -4,16 +4,8 @@
  */
 package com.intel.dcsg.cpg.module;
 
-import com.intel.dcsg.cpg.module.annotations.Activate;
-import com.intel.dcsg.cpg.module.annotations.Deactivate;
-import com.intel.dcsg.cpg.module.annotations.Notice;
-import java.io.File;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,16 +19,10 @@ public class Container {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Container.class);
     private final HashSet<Module> modules = new HashSet<>();
     private final Whiteboard whiteboard = new Whiteboard();
-//    private final HashMap<Object,ComponentHolder> components = new HashMap<Object,ComponentHolder>();
-    
+
     public Set<Module> getModules() {
         return modules;
     }
-    /*
-    public ComponentHolder getComponent(Object object) {
-        return components.get(object);
-    }
-*/
 
     public boolean isActive(Module module) {
         return module != null && modules.contains(module) && module.isActive();
