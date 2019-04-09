@@ -5,7 +5,6 @@
 package com.intel.dcsg.cpg.console;
 
 import java.io.Console;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.ServiceConfigurationError;
@@ -85,8 +84,6 @@ public class Main {
             }
             // turn off jdk logging because sshj logs to console
             LogManager.getLogManager().reset();
-//        Logger globalLogger = Logger.getLogger(java.util.logging.Logger.GLOBAL_LOGGER_NAME);  
-//        globalLogger.setLevel(java.util.logging.Level.OFF);          
 
             try {
                 Command command = findCommand(commandName);
@@ -95,11 +92,9 @@ public class Main {
                     System.exit(1);
                 } else {
                     String[] subargs = Arrays.copyOfRange(args, 1, args.length);
-                    //            command.setContext(ctx);
                     ExtendedOptions getopt = new ExtendedOptions(subargs);
                     Configuration options = getopt.getOptions();
                     subargs = getopt.getArguments();
-                    //            command.setContext(ctx);
                     command.setOptions(options);
                     command.execute(subargs);
                     System.exit(0);

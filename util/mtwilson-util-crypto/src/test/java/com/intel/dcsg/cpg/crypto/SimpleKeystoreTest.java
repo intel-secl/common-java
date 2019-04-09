@@ -7,9 +7,7 @@ package com.intel.dcsg.cpg.crypto;
 import com.intel.dcsg.cpg.validation.Fault;
 import com.intel.dcsg.cpg.x509.X509Builder;
 import java.io.File;
-import java.security.KeyManagementException;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import org.junit.Test;
 
@@ -34,7 +32,6 @@ public class SimpleKeystoreTest {
         // create the subject key
         KeyPair subjectkey = RsaUtil.generateRsaKeyPair(2048);
         X509Builder builder = X509Builder.factory();
-//        builder.selfSigned(tlsDistinguishedName, tlskey);
         builder.issuerName(cacert);
         builder.issuerPrivateKey(cakey.getPrivate());
         builder.subjectName("CN=subject");

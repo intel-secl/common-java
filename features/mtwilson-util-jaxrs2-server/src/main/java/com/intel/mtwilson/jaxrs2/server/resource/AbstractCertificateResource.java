@@ -6,7 +6,6 @@ package com.intel.mtwilson.jaxrs2.server.resource;
 
 import com.intel.dcsg.cpg.validation.ValidationUtil;
 import com.intel.mtwilson.jaxrs2.CertificateDocument;
-import com.intel.mtwilson.jaxrs2.Document;
 import com.intel.mtwilson.jaxrs2.DocumentCollection;
 import com.intel.mtwilson.repository.FilterCriteria;
 import com.intel.mtwilson.repository.Locator;
@@ -17,7 +16,6 @@ import java.util.List;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;

@@ -14,7 +14,6 @@ import com.intel.dcsg.cpg.io.Copyable;
  * @author jbuhacoff
  */
 public class CipherKeyAttributes extends Attributes implements Copyable {
-//    public static enum Attributes { cipherAlgorithm, cipherKeyLength, cipherMode, cipherPaddingMode; }
     private String keyId;
     private String algorithm;
     private Integer keyLength;
@@ -27,12 +26,10 @@ public class CipherKeyAttributes extends Attributes implements Copyable {
      */
     public String getKeyId() {
         return keyId;
-//        return (String)attributes.get(Attributes.cipherKeyId.name());
     }
 
     public void setKeyId(String keyId) {
         this.keyId = keyId;
-//        attributes.put(Attributes.cipherKeyId.name(), cipherKeyId);
     }
     
     /**
@@ -41,12 +38,10 @@ public class CipherKeyAttributes extends Attributes implements Copyable {
      */
     public String getAlgorithm() {
         return algorithm;
-//        return (String)attributes.get(Attributes.cipherAlgorithm.name());
     }
 
     public void setAlgorithm(String algorithm) {
         this.algorithm = algorithm;
-//        attributes.put(Attributes.cipherAlgorithm.name(), cipherAlgorithm);
     }
 
     
@@ -59,12 +54,10 @@ public class CipherKeyAttributes extends Attributes implements Copyable {
      */
     public Integer getKeyLength() {
         return keyLength;
-//        return (Integer)attributes.get(Attributes.cipherKeyLength.toString());
     }
 
     public void setKeyLength(Integer keyLength) {
         this.keyLength = keyLength;
-//        attributes.put(Attributes.cipherKeyLength.name(), cipherKeyLength);
     }
     
     
@@ -79,12 +72,10 @@ public class CipherKeyAttributes extends Attributes implements Copyable {
      */    
     public String getMode() {
         return mode;
-//        return (String)attributes.get(Attributes.cipherMode.toString());
     }
 
     public void setMode(String mode) {
         this.mode = mode;
-//        attributes.put(Attributes.cipherMode.name(), cipherMode);
     }
 
     
@@ -95,25 +86,16 @@ public class CipherKeyAttributes extends Attributes implements Copyable {
      */
     public String getPaddingMode() {
         return paddingMode;
-//        return (String)attributes.get(Attributes.cipherPaddingMode.toString());
     }
 
     public void setPaddingMode(String paddingMode) {
         this.paddingMode = paddingMode;
-//        attributes.put(Attributes.cipherPaddingMode.name(), cipherPaddingMode);
     }
-
-    
 
     @Override
     public CipherKeyAttributes copy() {
         CipherKeyAttributes newInstance = new CipherKeyAttributes();
         newInstance.copyFrom(this);
-//        copy.attributes = super.copy().attributes;
-//        copy.cipherAlgorithm = this.cipherAlgorithm;
-//        copy.cipherKeyLength = this.cipherKeyLength;
-//        copy.cipherMode = this.cipherMode;
-//        copy.cipherPaddingMode = this.cipherPaddingMode;
         return newInstance;
     }
     

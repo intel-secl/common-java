@@ -20,7 +20,6 @@ public class RpcPrivResultMapper implements ResultSetMapper<RpcPriv> {
 
     @Override
     public RpcPriv map(int i, ResultSet rs, StatementContext sc) throws SQLException {
-//        UUID uuid = UUID.valueOf(rs.getBytes("uuid")); // use this when uuid is a binary type in database
         UUID uuid = UUID.valueOf(rs.getString("ID")); // use this when uuid is a char type in database
         RpcPriv rpc = new RpcPriv();
         rpc.setId(uuid);

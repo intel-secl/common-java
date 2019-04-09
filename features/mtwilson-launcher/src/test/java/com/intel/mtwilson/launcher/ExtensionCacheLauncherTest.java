@@ -12,7 +12,6 @@ import com.intel.mtwilson.launcher.ext.annotations.Background;
 import com.intel.mtwilson.launcher.ws.ext.RPC;
 import com.intel.mtwilson.launcher.ws.ext.V1;
 import com.intel.mtwilson.launcher.ws.ext.V2;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;

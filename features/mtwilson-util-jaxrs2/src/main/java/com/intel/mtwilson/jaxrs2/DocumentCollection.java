@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-//import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  * The "links" on a collection could be to prev/next pages in a paginated collection
@@ -20,7 +19,6 @@ import java.util.Map;
  * provided in the "linked" section.
  * @author jbuhacoff
  */
-//@JsonSerialize(include=JsonSerialize.Inclusion.NON_EMPTY) // jackson 1.9
 @JsonInclude(JsonInclude.Include.NON_EMPTY) // jackson 2.0
 public abstract class DocumentCollection<T> {
     private final HashMap<String,Object> meta = new HashMap<String,Object>();
@@ -39,7 +37,6 @@ public abstract class DocumentCollection<T> {
         return linked;
     }
 
-//    @org.codehaus.jackson.annotate.JsonIgnore // jackson 1.x
     @com.fasterxml.jackson.annotation.JsonIgnore // jackson 2.x
     public abstract List<T> getDocuments();
 }

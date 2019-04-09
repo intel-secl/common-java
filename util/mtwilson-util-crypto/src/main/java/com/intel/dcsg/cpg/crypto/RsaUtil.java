@@ -6,42 +6,18 @@ package com.intel.dcsg.cpg.crypto;
 
 import com.intel.dcsg.cpg.io.pem.Pem;
 import com.intel.dcsg.cpg.io.pem.PemLikeParser;
-import com.intel.dcsg.cpg.net.InternetAddress;
 import com.intel.dcsg.cpg.validation.InvalidModelException;
 import com.intel.dcsg.cpg.x509.X509Builder;
-import static com.intel.dcsg.cpg.x509.X509Util.decodeDerCertificate;
 import java.io.*;
-import java.math.BigInteger;
-import java.net.URL;
 import java.security.*;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.X509TrustManager;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.params.ClientPNames;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.conn.ssl.X509HostnameVerifier;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.BasicClientConnectionManager;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.security.x509.*;
@@ -182,14 +158,11 @@ public class RsaUtil {
         List<Pem> list = PemLikeParser.parse(text);
         for(Pem pem : list) {
             if( "PUBLIC KEY".equals(pem.getBanner()) ) {
-//                byte[] der = Base64.decodeBase64(pem.getContent());
                 byte[] der = pem.getContent();
                 return decodeDerPublicKey(der);
             }
         }
         return null;
-//        Pem pem = Pem.valueOf(text);
-//        return decodeDerPublicKey(pem.getContent());
     }
     
     /**
@@ -256,8 +229,6 @@ public class RsaUtil {
             }
         }
         return null;
-//        Pem pem = Pem.valueOf(text);
-//        return decodeDerPrivateKey(pem.getContent());
     }
     
     public static PrivateKey decodeDerPrivateKey(byte[] privateKeyBytes) throws CryptographyException {

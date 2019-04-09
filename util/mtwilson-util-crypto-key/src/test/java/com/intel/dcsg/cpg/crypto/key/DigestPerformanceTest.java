@@ -4,15 +4,7 @@
  */
 package com.intel.dcsg.cpg.crypto.key;
 
-//import com.intel.dcsg.cpg.crypto.CryptographyException;
-import com.intel.dcsg.cpg.crypto.key.EncryptionKeySource;
-import com.intel.dcsg.cpg.crypto.key.Protection;
-import com.intel.dcsg.cpg.crypto.key.ProtectionBuilder;
-import com.intel.dcsg.cpg.crypto.key.RandomSource;
 import java.security.MessageDigest;
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

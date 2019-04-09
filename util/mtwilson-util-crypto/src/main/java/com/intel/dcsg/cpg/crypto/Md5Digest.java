@@ -110,7 +110,6 @@ public class Md5Digest extends AbstractDigest {
      * @param text may be either hex or base64 representation of an MD5 digest
      * @return 
      */
-    //@org.codehaus.jackson.annotate.JsonCreator // jackson 1.x
     @com.fasterxml.jackson.annotation.JsonCreator // jackson 2.x
     public static Md5Digest valueOf(String text) {
         if( isValidHex(text) ) {

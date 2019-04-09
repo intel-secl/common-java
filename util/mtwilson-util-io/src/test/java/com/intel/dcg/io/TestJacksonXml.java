@@ -5,7 +5,6 @@
 package com.intel.dcg.io;
 import java.util.*;
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.dataformat.xml.*;
 import com.fasterxml.jackson.dataformat.xml.annotation.*;
 import java.io.IOException;
@@ -104,7 +103,7 @@ public static class Event {
         XmlMapper mapper = new XmlMapper();
         log.debug("Event log: {}", mapper.writeValueAsString(eventLog));
         //  <event-log xmlns=""><events><event><pcr>0</pcr><initial>0000000000000000000000000000000000000000</initial><measurement>0000000000000000000000000000000000000000</measurement><data>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</data></event><event><pcr>1</pcr><initial>1111111111111111111111111111111111111111</initial><measurement>1111111111111111111111111111111111111111</measurement><data>AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=</data></event></events></event-log>
-        
+
     }
     
 

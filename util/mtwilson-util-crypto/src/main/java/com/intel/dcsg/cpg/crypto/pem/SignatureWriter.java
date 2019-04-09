@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
 
 /**
@@ -46,7 +45,6 @@ public class SignatureWriter {
     
     // same as in HmacCredential
     public byte[] signature(byte[] document, SecretKey key, String signatureAlgorithm) throws NoSuchAlgorithmException, InvalidKeyException {
-//        SecretKeySpec key = new SecretKeySpec(secretkey.getEncoded(), signatureAlgorithm);
         Mac mac = Mac.getInstance(signatureAlgorithm); // a string like "HmacSHA256" ; throws NoSuchAlgorithmException
         mac.init(key); // throws InvalidKeyException
         return mac.doFinal(document);

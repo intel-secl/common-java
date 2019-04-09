@@ -4,7 +4,6 @@
  */
 package com.intel.dcsg.cpg.crypto.key.password;
 
-import com.intel.dcsg.cpg.crypto.key.Protection;
 import com.intel.dcsg.cpg.crypto.key.RandomSource;
 import com.intel.dcsg.cpg.io.ByteArray;
 import javax.crypto.Cipher;
@@ -46,7 +45,6 @@ public class PBKDFCryptoCodec implements CryptoCodec {
             int saltN = protection.getSaltBytes();
             // first create a new salt and secret key
             byte[] salt = random.nextBytes(saltN);
-//            SecretKey dek = createSecretKey(salt); // throws InvalidKeySpecException, NoSuchAlgorithmException
             SecretKey dek = secretKeyGenerator.generateSecretKey(password, salt, protection);
             log.debug("cipher {}", protection.getCipher());
             // and use the key to encrypt the message
@@ -77,7 +75,6 @@ public class PBKDFCryptoCodec implements CryptoCodec {
             byte[] iv = new byte[ivN];
             System.arraycopy(ciphertext, iv0, iv, 0, ivN);
 
-//            SecretKey dek = createSecretKey(salt); // throws InvalidKeySpecException, NoSuchAlgorithmException
             SecretKey dek = secretKeyGenerator.generateSecretKey(password, salt, protection);
 
             Cipher cipher = Cipher.getInstance(protection.getCipher()); // for example AES/OFB8/NoPadding

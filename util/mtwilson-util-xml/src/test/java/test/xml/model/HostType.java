@@ -48,7 +48,6 @@ public class HostType {
 
     @XmlAttribute(name = "Host_Name")
     protected String hostName;
-//    @XmlAttribute(name = "MLE_Info")
     protected String mleInfo;
     @XmlAttribute(name = "Created_On")
     @XmlSchemaType(name = "dateTime")

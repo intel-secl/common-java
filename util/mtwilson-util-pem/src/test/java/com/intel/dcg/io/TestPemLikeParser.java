@@ -6,10 +6,7 @@ package com.intel.dcg.io;
 
 import com.intel.dcsg.cpg.io.pem.PemLikeParser;
 import com.intel.dcsg.cpg.io.pem.Pem;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
-import org.apache.commons.codec.binary.Base64;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import org.slf4j.Logger;

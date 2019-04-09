@@ -192,9 +192,7 @@ public class KeystoreCertificateRepository implements MutableCertificateReposito
      * @return the X509 Certificate if found, or null if it was not found
      * @throws KeyManagementException  if there were errors opening, searching, or loading certificates from the keystore
      */
-//    public X509Certificate getCertificate(Md5Digest fingerprint) throws KeyManagementException {
     public X509Certificate getCertificate(String alias) throws KeyManagementException {
-//        String alias = fingerprint.toString(); // hex md5 fingerprint
         try {
             if( keystore.containsAlias(alias) ) {
                 if( keystore.isCertificateEntry(alias) ) {

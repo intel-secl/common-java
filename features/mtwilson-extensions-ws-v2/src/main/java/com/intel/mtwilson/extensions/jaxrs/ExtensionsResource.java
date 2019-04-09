@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
-//import javax.ejb.Stateless;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -24,8 +23,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
  * @author jbuhacoff
  */
 @V2
-//@Stateless
-@Path("/extensions") 
+@Path("/extensions")
 public class ExtensionsResource {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ExtensionsResource.class);
     private static final Pattern extensionClassName = Pattern.compile("^(?:[a-zA-Z0-9$.]*)$");

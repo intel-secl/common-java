@@ -4,16 +4,6 @@
  */
 package com.intel.mtwilson.shiro.authc.token;
 
-import com.intel.mtwilson.shiro.authc.x509.*;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
-import java.util.Arrays;
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;

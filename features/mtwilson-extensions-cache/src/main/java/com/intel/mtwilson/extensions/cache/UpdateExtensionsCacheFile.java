@@ -19,7 +19,6 @@ import com.intel.mtwilson.launcher.ws.ext.V2;
 import com.intel.mtwilson.setup.LocalSetupTask;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,12 +54,6 @@ public class UpdateExtensionsCacheFile extends LocalSetupTask {
     
     private String getCacheFilePath() {
         return Folders.configuration() + File.separator + "extensions.cache";
-        /*
-        Home home = new Home();
-        Subfolder configuration = new Subfolder("configuration", home);
-//        return MyFilesystem.getApplicationFilesystem().getConfigurationPath()+File.separator+"extensions.cache";
-        return configuration.getPath() + File.separator + "extensions.cache";
-        * */
     }
     
     public File getCacheFile() {
@@ -190,29 +183,6 @@ public class UpdateExtensionsCacheFile extends LocalSetupTask {
     protected void validate() throws Exception {
         if( checkFileExists("Extension cache file", getCacheFile().getAbsolutePath()) ) {
             
-            // first implementation was not good because it caused all the
-            // jars to be scanned 3 times: pre-validate, execute, post-validate.
-            
-            /*
-            // load the cache
-            Set<String> cache = loadCache();
-            // initialize the whiteboard
-            Set<String> extensions = getWhiteboardExtensions();
-            // compare the cache to the loaded extensions
-            HashSet<String> inCacheButNotPresent = new HashSet<>();
-            HashSet<String> presentButNotInCache = new HashSet<>();
-            inCacheButNotPresent.addAll(cache);
-            inCacheButNotPresent.removeAll(extensions);
-            presentButNotInCache.addAll(extensions);
-            presentButNotInCache.removeAll(cache);
-            if( !inCacheButNotPresent.isEmpty() ) {
-                validation("Extensions cache contains removed extensions: %s", StringUtils.join(", ", inCacheButNotPresent));
-            }
-            if( !inCacheButNotPresent.isEmpty() ) {
-                validation("Extensions cache missing added extensions: %s", StringUtils.join(", ", presentButNotInCache));
-            }
-            */
-            
             // second implementation compares date of extensions.cache file
             // to date of all jars that will be scanned - so it's much quicker
             // to determine if it's out of date;
@@ -278,7 +248,6 @@ public class UpdateExtensionsCacheFile extends LocalSetupTask {
         }
         HashSet<String> extensions = new HashSet<>();
         for(Class<?> clazz : set) {
-//            log.debug("Caching extension: {}", clazz.getName());
             extensions.add(clazz.getName());
         }
         return extensions;
@@ -291,22 +260,6 @@ public class UpdateExtensionsCacheFile extends LocalSetupTask {
         }        
     }
     
-    /*
-    private Set<String> loadCache() throws IOException {
-            HashSet<String> cache = new HashSet<>();
-            try(FileInputStream in = new FileInputStream(getCacheFile())) {
-                String text = IOUtils.toString(in);
-                String[] lines = text.split("\n");
-                for(String line : lines) {
-                    if( !line.trim().isEmpty() ) {
-                        cache.add(line.trim());
-                    }
-                }
-            }        
-        return cache;
-    }
-    */
-
     @Override
     protected void execute() throws Exception {
         if( checkFileExists("Extension cache file", getCacheFile().getAbsolutePath()) ) { 

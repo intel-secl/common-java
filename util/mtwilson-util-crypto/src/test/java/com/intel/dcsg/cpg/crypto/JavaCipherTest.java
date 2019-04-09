@@ -4,7 +4,6 @@
  */
 package com.intel.dcsg.cpg.crypto;
 
-import com.intel.dcsg.cpg.crypto.RandomUtil;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -51,10 +50,7 @@ public class JavaCipherTest {
         // test default settings
         String password = "password";
         PBEKeySpec pbeKeySpec = new PBEKeySpec(password.toCharArray());
-        //do not log senstive info
-        //log.debug("Password: {}", new String(pbeKeySpec.getPassword()));
-//        log.debug("Salt length: {}", pbeKeySpec.getSalt().length); // throws NullPointerException because salt was not set !!  which also means we can't auto-detect required salt length by not providing one... we need to just know.
-        log.debug("Salt base64: {}", Base64.encodeBase64String(pbeKeySpec.getSalt())); // null because salt was not set !!   
+        log.debug("Salt base64: {}", Base64.encodeBase64String(pbeKeySpec.getSalt())); // null because salt was not set !!
         log.debug("Iteration count:: {}", pbeKeySpec.getIterationCount()); // zero because it was not set !!
         log.debug("Key length: {}", pbeKeySpec.getKeyLength()); // zero because it was not set !!
 
@@ -63,9 +59,6 @@ public class JavaCipherTest {
         log.debug("Secret key algorithm: {}", secretKey.getAlgorithm());
         log.debug("Secret key base64: {}", Base64.encodeBase64String(secretKey.getEncoded())); //   cGFzc3dvcmQ=    ... ALWAYS the same value because we did not set a salt, and it's using ZERO iterations probably
         
-        /*
-        SecretKey secretKey = secretKeyFactory.generateSecret(new PBEKeySpec(password.toCharArray(), salt, iterations, keybits)); // throws InvalidKeySpecException XXX is the 56-bit DES key length defined by a constant somewhere? use that instead, for clarity        
-*/
     }
     
     /**
@@ -110,12 +103,10 @@ public class JavaCipherTest {
         long startTime = System.currentTimeMillis();
         long currentTime = System.currentTimeMillis();
         int iterationCount = Integer.MAX_VALUE-1;
-        // byte[] salt = new byte[] { 0,0,0,0, 0,0,0,0 }         
         byte[] salt = new byte[8];
         SecureRandom rnd = RandomUtil.getSecureRandom();
         rnd.nextBytes(salt);
         while(iterationCount < Integer.MAX_VALUE) { //  do this to find out in one step what is the delay when you use Integer.MAX_VALUE iterations
-//         while(currentTime < startTime+100) {    // do this to start at one iteration and work your way up... warning... it is futile on modern systems, since Integer.MAX_VALUE produced just 1ms delay
             startTime = System.currentTimeMillis();
             iterationCount++;
             PBEKeySpec pbeKeySpecX = new PBEKeySpec(password.toCharArray(), salt, iterationCount, 56); // a keyspec with no salt (as above) and variable iteration cont; 
@@ -175,14 +166,11 @@ public class JavaCipherTest {
         long startTime = System.currentTimeMillis();
         long currentTime = System.currentTimeMillis();
         int iterationCount = 1;//Integer.MAX_VALUE-1;
-//        HashMap<Integer,Double> perfdata = new HashMap<Integer,Double>();  //  iteration count -> avg cipher time
          byte[] salt = new byte[] { 0,0,0,0, 0,0,0,0 };
-//        byte[] salt = new byte[8];
         SecureRandom rnd = RandomUtil.getSecureRandom();
         rnd.nextBytes(salt);
         PBEKeySpec pbeKeySpecX = new PBEKeySpec(password.toCharArray(), salt, iterationCount, 56); // a keyspec with no salt (as above) and variable iteration cont; 
         SecretKey secretKeyX = secretKeyFactory.generateSecret(pbeKeySpecX);             // throws InvalidKeySpecException
-//         while(currentTime < startTime+100) {    // do this to start at one iteration and work your way up... warning... it is futile on modern systems, since Integer.MAX_VALUE produced just 1ms delay
          while(currentTime < startTime+100 && iterationCount < Integer.MAX_VALUE) {    // do this to start at one iteration and work your way up... warning... it is futile on modern systems, since Integer.MAX_VALUE produced just 1ms delay
              // try 5 times with each iteration count setting to get an average value
              double avgElapsedTime = 0.0;
@@ -208,8 +196,7 @@ public class JavaCipherTest {
         String password = "password";
         PBEKeySpec pbeKeySpec = new PBEKeySpec(password.toCharArray());
         log.debug("Password: {}", new String(pbeKeySpec.getPassword()));
-//        log.debug("Salt length: {}", pbeKeySpec.getSalt().length); // throws NullPointerException because salt was not set !!  which also means we can't auto-detect required salt length by not providing one... we need to just know.
-        log.debug("Salt base64: {}", Base64.encodeBase64String(pbeKeySpec.getSalt())); // null because salt was not set !!   
+        log.debug("Salt base64: {}", Base64.encodeBase64String(pbeKeySpec.getSalt())); // null because salt was not set !!
         log.debug("Iteration count:: {}", pbeKeySpec.getIterationCount()); // zero because it was not set !!
         log.debug("Key length: {}", pbeKeySpec.getKeyLength()); // zero because it was not set !!
 
@@ -227,10 +214,6 @@ public class JavaCipherTest {
                 break;
             } 
         }
-         
-        /*
-        SecretKey secretKey = secretKeyFactory.generateSecret(new PBEKeySpec(password.toCharArray(), salt, iterations, keybits)); // throws InvalidKeySpecException XXX is the 56-bit DES key length defined by a constant somewhere? use that instead, for clarity        
-*/
     }
     
  /**
@@ -257,15 +240,13 @@ public class JavaCipherTest {
             keybits += 8;
             char[] password = new char[keybits/8];
             for(int i=0; i<password.length; i++) { password[i] = 'a'; }
-//        String password = "passwordpasswordpassword";  // 24 bytes... used directly as the desede key ???
             try {
                 PBEKeySpec pbeKeySpecX = new PBEKeySpec(password , salt, 1 , 192); // a keyspec with no salt (as above) and variable iteration cont; 
                 SecretKey secretKey = secretKeyFactory.generateSecret(pbeKeySpecX);             // throws InvalidKeySpecException
-//                SecretKey secretKeyX = new SecretKeySpec(secretKey.getEncoded(), "PBEWithMD5AndDESede"); // hmmm... why dowe need to do this extra step??
                 AlgorithmParameterSpec params = new PBEParameterSpec(salt, 1); // need to define the algorithm parameter specs because the cipher receives the Key interface which is generic... so it doesn't know about the parameters that are embedded in it
                 Cipher cipher = Cipher.getInstance("PBEWithMD5AndTripleDES"); // throws NoSuchAlgorithmException, NoSuchPaddingException ; envelopeAlgorithm like "PBEWithHmacSHA1AndDESede/CBC/PKCS5Padding" 
                 cipher.init(Cipher.ENCRYPT_MODE, secretKey, params); // throws InvalidKeyException, InvalidAlgorithmParameterException
-                /* byte[] ciphertext = */ cipher.doFinal(plaintextInput.getBytes()); // throws IllegalBlockSizeException, BadPaddingException;  ignore the returned cipher text, we are only interested in the performance here 
+                cipher.doFinal(plaintextInput.getBytes()); // throws IllegalBlockSizeException, BadPaddingException;  ignore the returned cipher text, we are only interested in the performance here
                 log.debug("key length {} is valid!", keybits);
             }
             catch(Exception e) {

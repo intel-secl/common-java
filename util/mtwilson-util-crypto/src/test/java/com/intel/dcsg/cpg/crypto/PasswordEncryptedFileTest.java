@@ -39,7 +39,6 @@ N8kemROReNZBtAggOnhYLL8GLjsLLWAnmuCrF+S18EaUCno+qxJryvhEG00H9l7O59/s6kwy0h4=
         PasswordProtection protection = PasswordProtectionBuilder.factory().digestAlgorithm("SHA-256").keyAlgorithm("PBEWithSHA1AndDESede").mode("CBC").padding("PKCS5Padding").build();
         log.debug("algorithm {}", protection.getAlgorithm());
         log.debug("cipher {}", protection.getCipher());
-//        String content = "hello world";
         String content = "foo=bar\nbaz=quuzx\n";
         String password = "password";
         ByteArrayResource resource = new ByteArrayResource();

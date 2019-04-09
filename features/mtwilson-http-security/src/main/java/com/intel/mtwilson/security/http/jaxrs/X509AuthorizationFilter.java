@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 package com.intel.mtwilson.security.http.jaxrs;
-//import com.intel.mountwilson.http.security.adapter.*;
 import javax.ws.rs.client.ClientRequestFilter;
 import javax.annotation.Priority;
 import javax.ws.rs.client.ClientRequestContext;
@@ -20,7 +19,6 @@ import java.security.SignatureException;
 import java.util.HashMap;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 
@@ -91,11 +89,9 @@ public class X509AuthorizationFilter implements ClientRequestFilter {
                 final MessageBodyWriter messageBodyWriter =
                     workers.getMessageBodyWriter(requestContext.getEntityClass(), requestContext.getEntityClass(),
                     new Annotation[]{}, requestContext.getMediaType());
-                //public void writeTo(T t, Class<?> type, Type type1, Annotation[] antns, MediaType mt, MultivaluedMap<String, Object> mm, OutputStream out) throws IOException, WebApplicationException;
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 messageBodyWriter.writeTo(requestContext.getEntity(), requestContext.getEntityClass(), requestContext.getEntityType(), requestContext.getEntity().getClass().getAnnotations(), requestContext.getMediaType(), headers, out);
                 header = auth.getAuthorization(requestContext.getMethod(), requestContext.getUri().toURL().toString(), map, new String(out.toByteArray(),Charset.forName("UTF-8")));            
-                //header = auth.getAuthorization(requestContext.getMethod(), requestContext.getUri().toURL().toString(), map, requestContext.getEntity().toString());
             }
             
             // the authorization class adds Date header if we don't already have it, and it adds an X-Nonce header which we need to include in our request

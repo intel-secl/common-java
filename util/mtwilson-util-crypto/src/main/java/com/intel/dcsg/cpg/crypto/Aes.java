@@ -5,8 +5,6 @@
 package com.intel.dcsg.cpg.crypto;
 
 import com.intel.dcsg.cpg.io.ByteArray;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -227,13 +225,7 @@ public class Aes {
         random.nextBytes(iv);
         return iv;
     }
-    
-    /*
-    public SecretKey generateKey() throws CryptographyException {
-        return generateKeyWithLength(keyLengthBits);
-    }
-    */
-    
+
     public static SecretKey generateKey(int lengthInBits) throws CryptographyException {
         try {
             if( lengthInBits != 128 && lengthInBits != 192 && lengthInBits != 256 ) {

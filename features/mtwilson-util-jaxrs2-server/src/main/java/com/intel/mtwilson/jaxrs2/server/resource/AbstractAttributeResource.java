@@ -6,14 +6,10 @@ package com.intel.mtwilson.jaxrs2.server.resource;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.intel.mtwilson.jaxrs2.mediatype.CryptoMediaType;
 import com.intel.mtwilson.jaxrs2.server.PATCH;
-import com.intel.dcsg.cpg.io.UUID;
 import com.intel.dcsg.cpg.validation.ValidationUtil;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import com.intel.mtwilson.jaxrs2.Document;
 import com.intel.mtwilson.jaxrs2.DocumentCollection;
@@ -22,7 +18,6 @@ import com.intel.mtwilson.repository.Locator;
 import com.intel.mtwilson.jaxrs2.Patch;
 import com.intel.mtwilson.jaxrs2.PatchLink;
 import com.intel.mtwilson.jaxrs2.mediatype.DataMediaType;
-import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.WebApplicationException;
@@ -58,15 +53,6 @@ public abstract class AbstractAttributeResource<T extends Document, C extends Do
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AbstractAttributeResource.class);
     private ObjectMapper mapper = new ObjectMapper(); // for debugging only
-/*
-    private SimpleRepository<T,C,F,L> repository;
-    
-    public void setRepository(SimpleRepository<T,C,F,L> repository) {
-        this.repository = repository;
-    } 
-    
-    protected SimpleRepository<T,C,F,L> getRepository() { return repository; }
-    */
     protected abstract DocumentRepository<T,C,F,L> getRepository();
     
 
@@ -81,22 +67,9 @@ public abstract class AbstractAttributeResource<T extends Document, C extends Do
      * @param id
      * @return
      */
-//    @Path("/{id}") //
     @GET
     public T retrieveOne(@BeanParam L locator) {
         try { log.debug("retrieveOne: {}", mapper.writeValueAsString(locator)); } catch(JsonProcessingException e) { log.debug("retrieveOne: cannot serialize locator: {}", e.getMessage()); }
-        /*
-        T item = getRepository().retrieve(id); // subclass is responsible for validating the id in whatever manner it needs to;  most will return null if !UUID.isValid(id)  but we don't do it here because a resource might want to allow using something other than uuid as the url key, for example uuid OR hostname for hosts
-        if (item == null) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND); 
-        }*/
-        /*
-//        C collection = getRepository().search(selector);
-//        if( collection.getDocuments().isEmpty() ) {            
-//            throw new WebApplicationException(Response.Status.NOT_FOUND); 
-//        }
-//        T item = collection.getDocuments().get(0);
-* */
         T existing = getRepository().retrieve(locator); // subclass is responsible for validating the id in whatever manner it needs to;  most will return null if !UUID.isValid(id)  but we don't do it here because a resource might want to allow using something other than uuid as the url key, for example uuid OR hostname for hosts
         if (existing == null) {
             throw new WebApplicationException(Response.Status.NOT_FOUND); 
@@ -118,12 +91,10 @@ public abstract class AbstractAttributeResource<T extends Document, C extends Do
      * @param item
      * @return
      */
-//    @Path("/{id}")
     @PUT
     public T storeOne(@BeanParam L locator, T item) {
         try { log.debug("storeOne: {}", mapper.writeValueAsString(locator)); } catch(JsonProcessingException e) { log.debug("storeOne: cannot serialize locator: {}", e.getMessage()); }
         ValidationUtil.validate(item);
-//        item.setId(UUID.valueOf(id));
         locator.copyTo(item);
         T existing = getRepository().retrieve(locator); // subclass is responsible for validating id
         if (existing == null) {
@@ -147,7 +118,6 @@ public abstract class AbstractAttributeResource<T extends Document, C extends Do
      * @param id
      * @return
      */
-//    @Path("/{id}")
     @PATCH
     @Consumes({DataMediaType.APPLICATION_RELATIONAL_PATCH_JSON})
     public T patchOne(@BeanParam L locator, Patch<T, F, P>[] patchArray) {
@@ -166,9 +136,7 @@ public abstract class AbstractAttributeResource<T extends Document, C extends Do
             }
 
         }
-        //return new Host();
-//        return patch(null);
-        return null; 
+        return null;
     }
 
 }

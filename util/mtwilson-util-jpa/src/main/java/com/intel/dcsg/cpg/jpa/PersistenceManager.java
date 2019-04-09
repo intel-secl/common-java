@@ -14,7 +14,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,16 +29,13 @@ import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.*;
 import org.apache.commons.dbcp.managed.BasicManagedDataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.jotm.Current;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
@@ -126,30 +122,14 @@ public abstract class PersistenceManager implements ServletContextListener {
         log.info("Servlet Context path {}", sce.getServletContext().getContextPath()); // like /WLMService
         while (attrs.hasMoreElements()) {
             String attr = attrs.nextElement();
-//            log.info("Servlet Context attribute: {} = {}", new String[] { attr, sce.getServletContext().getAttribute(attr).toString() }); // attributes are not necessarily strings... some may be boolean or something else
             log.debug("Servlet Context attribute: {}", attr);
         }
         Enumeration<String> initparams = sce.getServletContext().getInitParameterNames();
         while (initparams.hasMoreElements()) {
             String param = initparams.nextElement();
-//            log.info("Servlet Context init param: {} = {}", new String[] { param, sce.getServletContext().getInitParameter(param).toString() });
             log.debug("Servlet Context init param: {}", param);
         }
 
-        /*
-         // close any factories that may already be open...
-         for(String factoryName : factories.keySet()) {
-         EntityManagerFactory factory = factories.get(factoryName);
-         if( factory != null && factory.isOpen() ) {
-         log.info("PersistenceManager closing factory {} in contextInitialized", factoryName);
-         factory.close();
-         }
-         factories.remove(factoryName);
-         }
-         // create factories according to the subclass implementation
-         configure();
-         */
-//        System.out.println(String.format("PersistenceManager: Context initialized, EntityManagerFactory is %s", entityManagerFactory.isOpen() ? "open" : "closed"));
     }
 
     @Override
@@ -188,7 +168,6 @@ public abstract class PersistenceManager implements ServletContextListener {
      * @return
      */
     public static EntityManagerFactory createFactory(String persistenceUnitName, Properties properties) {
-//            EntityManagerFactory factory = Persistence.createEntityManagerFactory(persistenceUnitName,properties); // use provided JPA implementation (EclipseLink) which does not maintain the connection pool propertly
         EntityManagerFactory factory = createEntityManagerFactory(persistenceUnitName, properties); // create our own with Apache DBCP and Commons Pool
         return factory;
     }
@@ -294,17 +273,6 @@ public abstract class PersistenceManager implements ServletContextListener {
         }
         throw new FileNotFoundException("Cannot find persistence.xml for " + persistenceUnitName);
     }
-    /*
-     private static void loadAllPersistenceUnits() throws IOException {
-     ClassLoader cl = PersistenceManager.class.getClassLoader();
-     log.info("Loading all persistence.xml files in classpath using classloader: {}", cl.getClass().getName());
-     ArrayList<URL> list = new ArrayList<URL>();
-     list.addAll(getResources(cl, "META-INF/persistence.xml"));
-     for(URL url : list) {
-     CustomPersistenceUnitInfoImpl p = readPersistenceXml(url);
-     persistenceInfoMap.put(p.getPersistenceUnitName(), p);
-     }
-     }*/
 
     private static void loadPersistenceUnit(String persistenceUnitName) throws IOException {
         ClassLoader cl = PersistenceManager.class.getClassLoader();
@@ -325,16 +293,6 @@ public abstract class PersistenceManager implements ServletContextListener {
         List<URL> list = Collections.list(urls);
         return list;
     }
-
-    /*
-    private static List<String> listNodeValues(NodeList nodeset) {
-        ArrayList<String> list = new ArrayList<>();
-        for (int i = 0; i < nodeset.getLength(); i++) {
-            list.add(nodeset.item(i).getNodeValue());
-        }
-        return list;
-    }
-    */
 
     private static CustomPersistenceUnitInfoImpl readPersistenceXml(URL url) throws IOException {
         log.debug("Loading {}", url.toExternalForm());
@@ -360,29 +318,9 @@ public abstract class PersistenceManager implements ServletContextListener {
             documentBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl",true);
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
             Document document = documentBuilder.parse(in);
-//            log.debug("document element tag name: "+document.getDocumentElement().getTagName());
 
             // create a persistence unit info object and fill it in with information we find in persistence.xml
             CustomPersistenceUnitInfoImpl p = new CustomPersistenceUnitInfoImpl();
-            // XXX TODO prefer to use XPath or maybe commons-digest parser but right now it's not working
-/*            
-             XPathFactory  factory=XPathFactory.newInstance();
-             XPath xPath=factory.newXPath();
-
-             //            XPathExpression  persistenceUnitXPath = xPath.compile("/persistence/persistence-unit[1]"); // XXX currently supporting only one persistence-unit per file
-             //            Node persistenceUnit = (Node)persistenceUnitXPath.evaluate(document.getDocumentElement(), XPathConstants.NODE);
-            
-             XPathExpression  unitNameXPath = xPath.compile("/persistence-unit/@name"); // don't need prefix /persistence/persistence-unit  because we're already lookint at that node when we evaluate
-             XPathExpression  transactionTypeXPath = xPath.compile("/persistence-unit/@transaction-type");
-             XPathExpression  providerXPath = xPath.compile("/persistence-unit/provider"); //journal/article[@date='January-2004']/title");
-             XPathExpression  classListXPath = xPath.compile("/persistence-unit/class"); //journal/article[@date='January-2004']/title");
-            
-             String unitName = unitNameXPath.evaluate(document.getDocumentElement());
-             String transactionType = transactionTypeXPath.evaluate(document.getDocumentElement());
-             String provider = providerXPath.evaluate(document.getDocumentElement());
-             NodeList classListNodeset = (NodeList) classListXPath.evaluate(document.getDocumentElement(), XPathConstants.NODESET);
-             List<String> classList = listNodeValues(classListNodeset);
-             */
 
             NodeList persistenceUnitNodes = document.getElementsByTagName("persistence-unit"); // XXX TODO there could be more than one in a file;  we may need to return a List<CustomPersistenceUnitInfoImpl> from this function instead of just one
             String unitName = persistenceUnitNodes.item(0).getAttributes().getNamedItem("name").getTextContent();
@@ -412,10 +350,7 @@ public abstract class PersistenceManager implements ServletContextListener {
             throw new IOException("Cannot initialize XML parser", e);
         } catch (SAXException e) {
             throw new IOException("Cannot parse XML document", e);
-        }/*
-         catch(XPathExpressionException e) {
-         throw new IOException("Cannot initialize XPATH engine", e);
-         }*/
+        }
 
     }
 
@@ -435,9 +370,7 @@ public abstract class PersistenceManager implements ServletContextListener {
         ds.setAccessToUnderlyingConnectionAllowed(true);
         ds.setConnectionInitSqls(Collections.EMPTY_LIST);
         ds.setDefaultAutoCommit(true);
-//        ds.setDefaultCatalog("mw_as"); // not needed when using the url...
         ds.setDefaultReadOnly(false);
-//        ds.setDefaultTransactionIsolation(0);
         ds.setDriverClassLoader(ClassLoader.getSystemClassLoader());
         ds.setDriverClassName(jpaProperties.getProperty("javax.persistence.jdbc.driver"));
 
@@ -453,8 +386,6 @@ public abstract class PersistenceManager implements ServletContextListener {
         ds.setMaxWait(-1); // wait indefinitely for a new connection from the pool;  this is the default
         
         ds.setLogAbandoned(true);
-//        ds.setLogWriter(null); // null disables logging; TODO: see if we can get a PrintWriter from slf4j... and for some reason calls createDataSource() whic hdoesn't make sense
-//        ds.setLoginTimeout(30); // in seconds ;   not supported by basicdatasource... and for some reason calls createDataSource() whic hdoesn't make sense
         ds.setMaxOpenPreparedStatements(50); // no limit
         ds.setMinEvictableIdleTimeMillis(1000 * 60 * 1); // (milliseconds) connection may be idle up to 1 minutes before being evicted
         ds.setNumTestsPerEvictionRun(numTestsPerEvictionRun); // how many connections to test each time
@@ -480,13 +411,7 @@ public abstract class PersistenceManager implements ServletContextListener {
         ds.setTimeBetweenEvictionRunsMillis(1000 * 60); // (milliseconds) check which idle connections should be evicted once every minute
         ds.setUrl(jpaProperties.getProperty("javax.persistence.jdbc.url"));
         ds.setUsername(jpaProperties.getProperty("javax.persistence.jdbc.user"));
-//        ds.setValidationQueryTimeout(2); // (seconds) how long to wait on a result for the validation query before giving up ; disabling because postgres 9.1 jdbc4 driver doesn't implement this
-//        DataSourceConnectionFactory connectionFactory = new DataSourceConnectionFactory(dataSource, dbUsername, dbPassowrd);
-//        PoolableConnectionFactory dbcpFactory = new PoolableConnectionFactory(connectionFactory, pool, validationQuery, validationQueryTimeoutSeconds, false, false);
-//        poolingDataSource = new PoolingDataSource(pool);
         ds.setTransactionManager(tm);
-
-//        return ds;
 
         ValidatingConnectionPool connectionPool = new ValidatingConnectionPool();
         if ((validateOnBorrow || validateOnReturn) && validationQuery != null) {

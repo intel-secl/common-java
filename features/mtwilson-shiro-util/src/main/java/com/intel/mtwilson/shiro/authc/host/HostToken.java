@@ -4,7 +4,6 @@
  */
 package com.intel.mtwilson.shiro.authc.host;
 
-import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.HostAuthenticationToken;
 
 /**

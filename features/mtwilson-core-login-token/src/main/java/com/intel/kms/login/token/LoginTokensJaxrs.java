@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.NotAuthorizedException;
 import com.intel.dcsg.cpg.validation.ValidationUtil;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -118,8 +117,6 @@ public class LoginTokensJaxrs {
         PrincipalCollection principals = currentUser.getPrincipals();
         Collection<UsernameWithPermissions> usernames = principals.byType(UsernameWithPermissions.class);
         UsernameWithPermissions usernameWithPermissions = LoginTokenUtils.getFirstElementFromCollection(usernames);
-//        UserId userId = getFirstElementFromCollection(userIds);
-//        LoginPasswordId loginPasswordId = getFirstElementFromCollection(loginPasswordIds);
         if (usernameWithPermissions == null /* || userId == null || loginPasswordId == null */) {
             log.error("One of the required parameters is missing. Login request cannot be processed");
             throw new IllegalStateException();
@@ -229,7 +226,6 @@ public class LoginTokensJaxrs {
             }
         }
         log.info("Expiry date before enxtension  :  " + tokenCredential.getNotAfter());
-//        tokenCredential.setNotAfter(LoginTokenUtils.getExpirationDate(new Date(), configuration));
         log.info("Expiry date extended to :  " + updatedToken.getNotAfter());
 
         // include token in response headers      

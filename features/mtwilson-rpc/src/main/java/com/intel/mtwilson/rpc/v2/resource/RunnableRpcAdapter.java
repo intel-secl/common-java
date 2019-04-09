@@ -4,17 +4,14 @@
  */
 package com.intel.mtwilson.rpc.v2.resource;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.intel.dcsg.cpg.validation.Fault;
-import com.intel.mtwilson.patch.PatchException;
 import com.intel.mtwilson.patch.PatchUtil;
 import com.intel.mtwilson.rpc.faults.InvalidRpcInput;
 import com.intel.mtwilson.rpc.faults.RpcFailed;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Given an @RPC instance that implements Runnable, this class organizes
@@ -53,21 +50,17 @@ public class RunnableRpcAdapter implements RpcAdapter<Object,Object> {
         return rpcInstance.getClass();
     }
     @Override
-    public Class/*<T>*/ getOutputClass() {
+    public Class getOutputClass() {
         return rpcInstance.getClass();
     }
     // this method will receive the input object which was deserialized from
     // the client's request body - and is the same type we returned in 
     // getInputClass
     @Override
-    public void setInput(Object/*T*/ input) {
+    public void setInput(Object input) {
         // use beanutils to copy the properties we need
         try {
-//            Map<String,Object> diff = PatchUtil.diff(input, rpcInstance);
-//            log.debug("Going to copy input to rpc instance: {}", mapper.writeValueAsString(input)); // throws 
-//            PatchUtil.apply(diff, rpcInstance); // throws JsonProcessingException
             PatchUtil.copy(input, rpcInstance);
-//            log.debug("RPC instance is now: {}", mapper.writeValueAsString(rpcInstance));
         }
         catch(Exception e) {
             log.error("Error while setting task input: {}", e.getMessage());

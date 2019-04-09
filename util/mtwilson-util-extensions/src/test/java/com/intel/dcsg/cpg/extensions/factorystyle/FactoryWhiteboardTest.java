@@ -7,13 +7,6 @@ package com.intel.dcsg.cpg.extensions.factorystyle;
 import com.intel.dcsg.cpg.extensions.ExtensionNotFoundException;
 import com.intel.dcsg.cpg.extensions.Extensions;
 import com.intel.dcsg.cpg.extensions.WhiteboardExtensionProvider;
-import com.intel.dcsg.cpg.extensions.factorystyle.Telephone;
-import com.intel.dcsg.cpg.extensions.factorystyle.InternetTelephoneFactory;
-import com.intel.dcsg.cpg.extensions.factorystyle.TraditionalTelephoneFactory;
-import com.intel.dcsg.cpg.extensions.factorystyle.AcmeTelephoneFactory;
-import com.intel.dcsg.cpg.extensions.factorystyle.VoipFactory;
-import com.intel.dcsg.cpg.extensions.factorystyle.Voip;
-import com.intel.dcsg.cpg.extensions.factorystyle.TelephoneFactory;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -137,9 +130,6 @@ public class FactoryWhiteboardTest {
         WhiteboardExtensionProvider.register(TelephoneFactory.class, InternetTelephoneFactory.class);
         WhiteboardExtensionProvider.register(TelephoneFactory.class, TraditionalTelephoneFactory.class);
         TelephoneFactory factory = Extensions.require(TelephoneFactory.class, Integer.valueOf(5)); // throws ServiceNotFoundException because the context for telephone factory is string not integer
-//        Telephone landline = factory.create(Integer.valueOf(5)); // cannot actually do this because of compile-time type checking
-//        log.debug("Got telephone: {}", landline.getClass().getName());
-//        log.debug("Calling: {}", landline.call("111-222-3333"));
         log.debug("Got factory class {}", factory.getClass().getName()); // shouldn't get here
         fail("Should have thrown exception ServiceNotFoundException: Wrong context class java.lang.Integer for implementation com.intel.dcsg.cpg.whiteboard.TraditionalTelephoneFactory");
     }

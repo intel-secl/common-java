@@ -6,8 +6,6 @@ package com.intel.mtwilson.shiro.authc.x509;
 
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.ServletRequest;
@@ -15,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.web.util.WebUtils;
@@ -72,7 +69,6 @@ public class X509AuthenticationFilter extends HttpAuthenticationFilter {
             
             RsaSignatureInput signatureInput = getSignatureInputFromHttpRequest(httpRequest, authorization);
             String content = signatureInput.toString(); // may throw IllegalArgumentException if any required field is null or invalid
-//            log.debug("Document content (signature input):\n'{}'\n", content);
             byte[] document = content.getBytes("UTF-8");
             byte[] signature = Base64.decodeBase64(authorization.signatureBase64);
             String signatureAlgorithm = signatureAlgorithm(authorization.signatureAlgorithm);
@@ -194,15 +190,9 @@ public class X509AuthenticationFilter extends HttpAuthenticationFilter {
     }
 
     private String getOidForAlgorithm(String digestAlgorithm) {
-//        if( "MD5".equalsIgnoreCase(algorithm) ) {
-//            return "1.2.840.113549.2.5";
-//        }
         if ("SHA-1".equalsIgnoreCase(digestAlgorithm) || "SHA1".equalsIgnoreCase(digestAlgorithm)) {
             return "1.3.14.3.2.26";
         }
-//        if( "SHA1withRSA".equalsIgnoreCase(algorithm) ) {
-//            return "1.3.14.3.2.29";
-//        }
         if ("SHA-256".equalsIgnoreCase(digestAlgorithm) || "SHA256".equalsIgnoreCase(digestAlgorithm)) {
             return "2.16.840.1.101.3.4.2.1";
         }

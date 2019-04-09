@@ -65,6 +65,5 @@ public interface Repository<T, L extends Locator<T>> {
      * @throws RepositoryDeleteException if an error occurs while trying to delete the item
      */
     void delete(L locator);
-//    void delete(String id);
 
 }

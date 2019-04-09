@@ -89,9 +89,7 @@ public class TlsConnection {
         if( sslContext == null || sslSocketFactory == null ) { 
             sslContext = TlsUtil.findBestContext(tlsPolicy);  // throws NoSuchAlgorithmException
             log.trace("init with SSLContext class {} hashcode {}", sslContext.getClass().getName(), sslContext.hashCode());
-//            KeyManager[] kms = null;
             TrustManager[] tms = new TrustManager[] { tlsPolicy.getTrustManager() };
-//            sslContext.init(kms, tms, RandomUtil.getSecureRandom()); //kms always null: klocwork 88
             sslContext.init(null, tms, RandomUtil.getSecureRandom());
             sslSocketFactory = sslContext.getSocketFactory();
         }        
@@ -132,14 +130,7 @@ public class TlsConnection {
         }
         throw new IllegalArgumentException("Unsupported class "+urlConnection.getClass().getName()+" for protocol "+url.getProtocol());
     }
-    
-//    public void setStaticDefaults() throws IOException, NoSuchAlgorithmException, KeyManagementException {
-//        init();
-//        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory()); // TODO: not clear if it will be possible to create a socket factory that is tlspolicy-aware ; for now using the default Java socket factory        
-//        HttpsURLConnection.setDefaultHostnameVerifier(TlsPolicyManager.getInstance().getHostnameVerifier()); // using TlsPolicyManager because this default verifier is shared among new connections        
-//    }
 
-    
     /**
      * Caller must close socket when done.
      *
@@ -218,7 +209,6 @@ public class TlsConnection {
                 .append(url.getHost())
                 .append(url.getPort())
                 .append(tlsPolicy.getClass().getName())
-//                .append(tlsPolicy.getCertificateRepository())
                 .append(tlsPolicy.getProtocolSelector())
                 .toHashCode();
     }
@@ -249,7 +239,6 @@ public class TlsConnection {
                 .append(url.getHost(), rhs.url.getHost())
                 .append(url.getPort(), rhs.url.getPort())
                 .append(tlsPolicy.getClass().getName(), rhs.tlsPolicy.getClass().getName())
-//                .append(tlsPolicy.getCertificateRepository(), rhs.tlsPolicy.getCertificateRepository())
                 .append(tlsPolicy.getProtocolSelector(), rhs.tlsPolicy.getProtocolSelector())
                 .isEquals(); // XXX TODO see note in hashCode about comparing the tls policy
     }

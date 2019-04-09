@@ -18,7 +18,6 @@ import java.util.Date;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
-import static org.junit.Assert.*;
 import org.junit.Test;
 
 /**

@@ -87,45 +87,4 @@ public class TlsPolicyFactoryTest {
         TlsPolicy tlsPolicy = factory.create(p);
         assertEquals(InsecureTlsPolicy.class.getName(), tlsPolicy.getClass().getName());
     }
-    
-    /*
-    @Test
-    public void testCreateTrustFirstCertificateTlsPolicy() {
-        Properties p = new Properties();
-        p.setProperty("tls.policy.name", "TRUST_FIRST_CERTIFICATE");
-        p.setProperty("tls.policy.keystore.file", System.getProperty("user.home", ".")+File.separator+"test.jks");
-        p.setProperty("tls.policy.keystore.password", "changeit");
-        MtWilsonTlsPolicyFactory factory = new MtWilsonTlsPolicyFactory();
-        TlsPolicy tlsPolicy = factory.create(p);
-        assertEquals(TrustKnownCertificateTlsPolicy.class.getName(), tlsPolicy.getClass().getName());
-        assertEquals(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER.getClass().getName(),tlsPolicy.getHostnameVerifier().getClass().getName());
-        assertEquals(TrustKnownCertificateTlsPolicy.class.getName(), tlsPolicy.getTrustManager().getClass().getName());
-    }
-
-    @Test
-    public void testCreateTrustKnownCertificateTlsPolicy() {
-        Properties p = new Properties();
-        p.setProperty("tls.policy.name", "TRUST_KNOWN_CERTIFICATE");
-        p.setProperty("tls.policy.keystore.file", System.getProperty("user.home", ".")+File.separator+"test.jks");
-        p.setProperty("tls.policy.keystore.password", "changeit");
-        MtWilsonTlsPolicyFactory factory = new MtWilsonTlsPolicyFactory();
-        TlsPolicy tlsPolicy = factory.create(p);
-        assertEquals(TrustKnownCertificateTlsPolicy.class.getName(), tlsPolicy.getClass().getName());
-        assertEquals(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER.getClass().getName(),tlsPolicy.getHostnameVerifier().getClass().getName());
-        assertEquals(TrustKnownCertificateTlsPolicy.class.getName(), tlsPolicy.getTrustManager().getClass().getName());
-    }
-    
-    @Test
-    public void testCreateStrictTlsPolicy() {
-        Properties p = new Properties();
-        p.setProperty("tls.policy.name", "STRICT");
-        p.setProperty("tls.policy.keystore.file", System.getProperty("user.home", ".")+File.separator+"test.jks");
-        p.setProperty("tls.policy.keystore.password", "changeit");
-        MtWilsonTlsPolicyFactory factory = new MtWilsonTlsPolicyFactory();
-        TlsPolicy tlsPolicy = factory.create(p);
-        assertEquals(StrictTlsPolicy.class.getName(), tlsPolicy.getClass().getName());
-        assertEquals(SSLSocketFactory.STRICT_HOSTNAME_VERIFIER.getClass().getName(),tlsPolicy.getHostnameVerifier().getClass().getName());
-        assertEquals(StrictTlsPolicy.class.getName(), tlsPolicy.getTrustManager().getClass().getName());
-    }
-    */
 }

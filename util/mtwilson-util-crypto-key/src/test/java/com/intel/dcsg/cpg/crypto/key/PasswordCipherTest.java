@@ -4,14 +4,12 @@
  */
 package com.intel.dcsg.cpg.crypto.key;
 
-//import com.intel.dcsg.cpg.crypto.PasswordCipher;
 import com.intel.dcsg.cpg.crypto.key.password.PBECryptoCodec;
 import com.intel.dcsg.cpg.crypto.key.password.PBESecretKeyGenerator;
 import com.intel.dcsg.cpg.crypto.key.password.PBKDFCryptoCodec;
 import com.intel.dcsg.cpg.crypto.key.password.PasswordCryptoCodecFactory;
 import com.intel.dcsg.cpg.crypto.key.password.PasswordProtection;
 import com.intel.dcsg.cpg.crypto.key.password.PasswordProtectionBuilder;
-//import com.intel.dcsg.cpg.crypto.PasswordCipher.CipherInfo;
 import org.apache.commons.codec.binary.Base64;
 import static org.junit.Assert.*;
 import org.junit.Test;
@@ -25,9 +23,6 @@ import org.slf4j.LoggerFactory;
 public class PasswordCipherTest {
     private Logger log = LoggerFactory.getLogger(getClass());
     
-//        setAlgorithm("PBEWithMD5AndDES/CBC/PKCS5Padding"); // kind of a weak default but my system doesn't have the newer  PBKDF2... // PBEWithSHA1AndDESede
-//        setAlgorithm("PBEWithSHA1AndDESede/CBC/PKCS5Padding"); // kind of a weak default but my system doesn't have the newer  PBKDF2... // PBEWithSHA1AndDESede
-    
     /**
      * Example output:
 2014-03-03 17:10:26,948 DEBUG [main] c.i.d.c.c.PasswordCipherTest [PasswordCipherTest.java:28] encrypted hello world to C4ET9dyzebEhLG850ehOnhzABA34sWqD
@@ -40,8 +35,7 @@ public class PasswordCipherTest {
         String input = "hello world";
         PasswordProtection protection = PasswordProtectionBuilder.factory().algorithm("PBEWithMD5AndDES").digestAlgorithm("SHA-256").keyAlgorithm("PBEWithMD5AndDES").mode("CBC").padding("PKCS5Padding").build();
         PBECryptoCodec cipher = new PBECryptoCodec("password", protection);
-//        PasswordCipher cipher = new PasswordCipher("password");
-        String output1 = Base64.encodeBase64String(cipher.encrypt(input.getBytes())); // for example: yP+0upNme0MZVdAgYAnst1PTDAG2PviC 
+        String output1 = Base64.encodeBase64String(cipher.encrypt(input.getBytes())); // for example: yP+0upNme0MZVdAgYAnst1PTDAG2PviC
         log.debug("encrypted {} to {}", input, output1);
         String output2 = Base64.encodeBase64String(cipher.encrypt(input.getBytes())); // for example: /AhjOh17Hm9mr0dd0Bu8dUjKyJkyyBvO
         log.debug("encrypted {} to {}", input, output2);
@@ -58,9 +52,7 @@ public class PasswordCipherTest {
         String input = "hello world";
         PasswordProtection protection = PasswordProtectionBuilder.factory().aes(128).digestAlgorithm("SHA-256").keyAlgorithm("PBKDF2WithHmacSHA1").mode("CBC").padding("PKCS5Padding").build();
         PBKDFCryptoCodec cipher = new PBKDFCryptoCodec("password", protection);
-//        PasswordCipher cipher = new PasswordCipher("password");
-//        cipher.setAlgorithm("PBKDF2WithHmacSHA1AndAES128/CBC/PKCS5Padding");
-        String output1 = Base64.encodeBase64String(cipher.encrypt(input.getBytes())); // for example: MloHljWIRCZqsHgKaBMnRcW72+8hmoGbadLzPDFJhQBVHDRpiWJ8MrClP5OoJ6Qm 
+        String output1 = Base64.encodeBase64String(cipher.encrypt(input.getBytes())); // for example: MloHljWIRCZqsHgKaBMnRcW72+8hmoGbadLzPDFJhQBVHDRpiWJ8MrClP5OoJ6Qm
         log.debug("encrypted {} to {}", input, output1);
         String output2 = Base64.encodeBase64String(cipher.encrypt(input.getBytes())); // for example: pOV4bDv/AuYpWoYpuNe2CPrbRyPS8DCF832y6Qqxrf6wf0/Rng4W+FI2BQ86scoe
         log.debug("encrypted {} to {}", input, output2);
@@ -72,9 +64,7 @@ public class PasswordCipherTest {
         String input = "hello world";
         PasswordProtection protection = PasswordProtectionBuilder.factory().aes(256).block().sha256().pbkdf2WithHmacSha1().saltBytes(8).iterations(1000).build();
         PBKDFCryptoCodec cipher = new PBKDFCryptoCodec("password", protection);
-//        PasswordCipher cipher = new PasswordCipher("password");
-//        cipher.setAlgorithm("PBKDF2WithHmacSHA1AndAES128/CBC/PKCS5Padding");
-        String output1 = Base64.encodeBase64String(cipher.encrypt(input.getBytes())); // for example: MloHljWIRCZqsHgKaBMnRcW72+8hmoGbadLzPDFJhQBVHDRpiWJ8MrClP5OoJ6Qm 
+        String output1 = Base64.encodeBase64String(cipher.encrypt(input.getBytes())); // for example: MloHljWIRCZqsHgKaBMnRcW72+8hmoGbadLzPDFJhQBVHDRpiWJ8MrClP5OoJ6Qm
         log.debug("encrypted {} to {}", input, output1);
         String output2 = Base64.encodeBase64String(cipher.encrypt(input.getBytes())); // for example: pOV4bDv/AuYpWoYpuNe2CPrbRyPS8DCF832y6Qqxrf6wf0/Rng4W+FI2BQ86scoe
         log.debug("encrypted {} to {}", input, output2);
@@ -86,7 +76,6 @@ public class PasswordCipherTest {
         String input = "hello world";
         PasswordProtection protection = PasswordProtectionBuilder.factory().digestAlgorithm("SHA-256").keyAlgorithm("PBEWithMD5AndDES").mode("CBC").padding("PKCS5Padding").build();
         PBECryptoCodec cipher = new PBECryptoCodec("password", protection);
-//        PasswordCipher cipher = new PasswordCipher("password");
         String ciphertext1 = Base64.encodeBase64String(cipher.encrypt(input.getBytes())); // for example "yP+0upNme0MZVdAgYAnst1PTDAG2PviC";
         String ciphertext2 = Base64.encodeBase64String(cipher.encrypt(input.getBytes())); // for example "/AhjOh17Hm9mr0dd0Bu8dUjKyJkyyBvO";
         String output1 = new String(cipher.decrypt(Base64.decodeBase64(ciphertext1))); // should be same as input: "hello world"
@@ -101,7 +90,6 @@ public class PasswordCipherTest {
         String input = "hello world";
         PasswordProtection protection = PasswordProtectionBuilder.factory().aes(128).digestAlgorithm("SHA-256").keyAlgorithm("PBKDF2WithHmacSHA1").iterations(1000).saltBytes(16).mode("CBC").padding("PKCS5Padding").build();
         PBKDFCryptoCodec cipher = new PBKDFCryptoCodec("password", protection);
-//        PasswordCipher cipher = new PasswordCipher("password");
         String ciphertext1 = Base64.encodeBase64String(cipher.encrypt(input.getBytes())); // for example "t7FFzkqCWmv4aN+8UTMHAbtLHWC3yIdEo4V0PMiXR3VOSidetQIGiPFHQIUZ7kWg";
         String ciphertext2 = Base64.encodeBase64String(cipher.encrypt(input.getBytes())); // for example "yUBIj7ZC5zq5WS8rBdOKO9ktRjMTeAaweA5kyPTFyoSZzatHMUwQB4T6Ayf7AA/n";
         String output1 = new String(cipher.decrypt(Base64.decodeBase64(ciphertext1))); // should be same as input: "hello world"
@@ -114,9 +102,6 @@ public class PasswordCipherTest {
     @Test
     public void testValueOfCipherInfoEnum() {
         PasswordProtection protection = PasswordProtectionBuilder.factory().aes(128).digestAlgorithm("SHA-256").keyAlgorithm("PBEWithMD5AndDES").mode("CBC").padding("PKCS5Padding").build();
-//        PBECryptoCodec cipher = new PBECryptoCodec("password", protection);
-//        PasswordCipher cipher = new PasswordCipher("password");
-//        CipherInfo info = PasswordCipher.CipherInfo.valueOf("PBEWithMD5AndDES");
         log.debug("PBEWithMD5AndDES key bits: {}", protection.getKeyLengthBits());
         log.debug("PBEWithMD5AndDES salt bytes: {}", protection.getSaltBytes());
     }
@@ -132,13 +117,7 @@ public class PasswordCipherTest {
             log.debug("Known key algorithm: {}", i.name());
         }
     }
-    
-    
-//    @Test(expected=IllegalArgumentException.class)
-//    public void testUnknownCipherInfo() {        
-//        CipherInfo nonexistent = PasswordCipher.CipherInfo.valueOf("UnknownCipher"); // throws IllegalArgumentException
-//    }
-    
+
     /**
      * Test of the benchmark feature in PasswordCipher to help pick a suitable
      * number of iterations based on the performance of the local machine.
@@ -222,11 +201,7 @@ public class PasswordCipherTest {
     @Test
     public void testGuessSuitableIterationCount() throws Exception { // not found: PBKDF2WithHMACSHA1
         PasswordProtection protection = PasswordProtectionBuilder.factory().aes(128).digestAlgorithm("SHA-256").keyAlgorithm("PBEWithMD5AndDES").mode("CBC").padding("PKCS5Padding").build();
-//        PBECryptoCodec cipher = new PBECryptoCodec("password", protection);
         PBESecretKeyGenerator secretKeyGenerator = new PBESecretKeyGenerator();
-//        PasswordCipher cipher = new PasswordCipher("password");
-//       CipherInfo info = PasswordCipher.CipherInfo.valueOf("PBEWithMD5AndDES"); // works: PBEWithMD5AndDES, PBEWithMD5AndTripleDES , PBEWithSHA1AndDESede
-//        PasswordCipher cipher = new PasswordCipher("password");
         int numIterations = secretKeyGenerator.benchmarkIterationCount("password", protection, 1000.0);  // find how many iterations are necessary in order to cause the encryption operation to take at least 1000ms
         log.debug("suggested iterations: {}", numIterations);
     }

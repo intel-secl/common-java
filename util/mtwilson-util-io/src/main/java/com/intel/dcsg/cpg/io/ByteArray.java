@@ -7,8 +7,6 @@ package com.intel.dcsg.cpg.io;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Scanner;
-//import org.apache.commons.lang3.builder.EqualsBuilder;
-//import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * @since 0.1
@@ -82,14 +80,7 @@ public class ByteArray {
     public ByteArray subarray(int offset, int length) {
         return new ByteArray(subarray(array, offset, length));
     }
-    /*
-    public static byte[] concat(byte[] a, byte[] b) {
-        byte[] result = new byte[a.length + b.length];
-        System.arraycopy(a, 0, result, 0, a.length);
-        System.arraycopy(b, 0, result, a.length, b.length);
-        return result;
-    }
-    */
+
     public static byte[] concat(byte[]... arrays) {
         int resultsize = 0;
         for(int i=0; i<arrays.length; i++) { 
@@ -179,7 +170,6 @@ public class ByteArray {
      */
     @Override
     public int hashCode() {
-//        return new HashCodeBuilder(13,25).append(array).toHashCode();
         return array.hashCode();
     }
     

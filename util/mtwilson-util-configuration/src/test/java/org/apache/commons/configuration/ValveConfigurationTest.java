@@ -7,8 +7,6 @@ package org.apache.commons.configuration;
 import com.intel.dcsg.cpg.configuration.CommonsKeyTransformerConfiguration;
 import com.intel.dcsg.cpg.configuration.CommonsValveConfiguration;
 import com.intel.mtwilson.text.transform.AllCapsNamingStrategy;
-import org.apache.commons.configuration.CompositeConfiguration;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;

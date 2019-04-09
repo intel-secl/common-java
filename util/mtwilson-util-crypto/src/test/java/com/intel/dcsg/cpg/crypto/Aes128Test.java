@@ -4,18 +4,14 @@
  */
 package com.intel.dcsg.cpg.crypto;
 
-import com.intel.dcsg.cpg.crypto.CryptographyException;
-import com.intel.dcsg.cpg.crypto.Aes128;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Random;
-import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
 import static org.junit.Assert.*;
 import org.junit.Test;

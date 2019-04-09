@@ -70,9 +70,7 @@ public class CodecTest {
         
         Fruit soldApple2 = (Fruit)codec.decode(codec.encode(soldApple)); // what it actually returns is a MarketFruit class, we just cast it to Fruit which is legal
         log.debug("soldApple2: {}", new String(codec.encode(soldApple2), Charset.forName("UTF-8")));// soldApple2: {"@class":"com.intel.dcsg.cpg.codec.CodecTest$MarketFruit","name":"apple","color":"red","marketName":"corner market"}
-//        MarketFruit apple2 = (MarketFruit)codec.decode(codec.encode(apple)); // other way wouldn't work,  you can't cast Fruit to MarketFruit
-//        log.debug("apple2: {}", new String(codec.encode(apple2), Charset.forName("UTF-8")));
-        
+
     }
     
     public static class Animal {

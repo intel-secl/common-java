@@ -4,12 +4,8 @@
  */
 package com.intel.dcsg.cpg.authz.token;
 
-import com.intel.dcsg.cpg.crypto.Aes;
-import com.intel.dcsg.cpg.crypto.CryptographyException;
 import com.intel.dcsg.cpg.crypto.key.CipherCodec;
-//import com.intel.dcsg.cpg.crypto.key.Decrypted;
 import com.intel.dcsg.cpg.crypto.key.Ciphertext;
-import com.intel.dcsg.cpg.crypto.key.EncryptionKey;
 import com.intel.dcsg.cpg.crypto.key.EncryptionKeySource;
 import com.intel.dcsg.cpg.crypto.key.Plaintext;
 import com.intel.dcsg.cpg.crypto.key.Protection;
@@ -19,9 +15,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 
 /**
  *
@@ -111,19 +104,8 @@ public class TokenCipherCodec extends CipherCodec<Token> {
             encrypted.setKeyId(keyId);
             encrypted.setMessage(content);
             }
-            
-            
-            // hard-coded values for token version 1:
+
             encrypted.setProtection(getProtection());
-            /*
-            Protection protection = new Protection();
-            protection.setAlgorithm("AES");
-            protection.setBlockSizeBytes(16);
-            protection.setDigestAlgorithm("SHA-256");
-            protection.setKeyLengthBits(128);
-            protection.setMode("OFB8");
-            protection.setPadding("NoPadding");
-            */
             return encrypted;
         }
         catch (IOException e) {
@@ -139,13 +121,6 @@ public class TokenCipherCodec extends CipherCodec<Token> {
         plaintext.setMessage( ByteArray.subarray(decrypted, 0, decrypted.length-mdlength) );
         plaintext.setDigest( ByteArray.subarray(decrypted, decrypted.length-mdlength, mdlength) );
         return plaintext;
-        /*
-        catch(NoSuchAlgorithmException e) {
-            log.error("Token version 1 requires SHA-256");
-            throw new UnsupportedTokenVersionException((byte)1, e);
-        }
-         * 
-         */
     }
 
     @Override
@@ -163,21 +138,15 @@ public class TokenCipherCodec extends CipherCodec<Token> {
                 throw new IllegalArgumentException("Invalid token");
             }
             long timestamp = in.readLong();
-            /*
-            if( expired(timestamp) ) {
-                throw new IllegalArgumentException("Invalid token"); // expired
-            }*/
             short contentLength = in.readShort();
             byte[] content = new byte[contentLength];
             int confirmContentLength = in.read(content);
             if (confirmContentLength != contentLength) {
                 throw new IllegalArgumentException("Invalid token");
             }
-//            byte[] content = new String(_userId, Charset.forName("UTF-8"));
-            
+
             // prepare the token; application needs to know key id (might be linked to a security context such as user session, server cluster, etc), nonce (optionally to prevent replay attacks), timestamp (to decide if it's expired), and content (the protected message embedded in the token)
                     Token token = new Token();
-//                    token.setKeyId(keyId);
                     token.setNonce(nonce);
                     token.setTimestamp(timestamp);
                     token.setContent(content);

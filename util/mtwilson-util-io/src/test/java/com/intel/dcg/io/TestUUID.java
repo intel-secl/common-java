@@ -4,13 +4,7 @@
  */
 package com.intel.dcg.io;
 
-import com.intel.dcsg.cpg.io.ByteArrayResource;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.math.BigInteger;
 import com.intel.dcsg.cpg.io.UUID;
 import org.junit.Test;
@@ -96,11 +90,9 @@ public class TestUUID {
      */
     @Test
     public void testUUIDCreation() {
-//        for (int i=0; i<Integer.MAX_VALUE; i++) { // was successful but takes a long time so disabled to prevent stalling a build
         for (int i=0; i<1000; i++) {
             UUID uuid = new UUID();
             try {
-                //log.debug(uuid.toString());
                 uuid.toString();
             }
             catch(Exception e) {
@@ -116,11 +108,9 @@ public class TestUUID {
     
     @Test
     public void testUUIDCreationWithJavaUtilUuid() {
-//        for (int i=0; i<Integer.MAX_VALUE; i++) { // was successful but takes a long time so disabled to prevent stalling a build
         for (int i=0; i<1000; i++) {
             UUID uuid = UUID.valueOf(java.util.UUID.randomUUID());
             try {
-//                log.debug(uuid.toString());
                 uuid.toString();
             }
             catch(Exception e) {

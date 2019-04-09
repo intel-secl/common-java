@@ -19,11 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicHeaderElement;
-import org.apache.http.message.BasicHeaderValueParser;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.message.ParserCursor;
-import org.apache.http.util.CharArrayBuffer;
-import org.glassfish.jersey.message.MessageBodyWorkers;
 
 /**
  *
@@ -47,29 +43,7 @@ public class RpcUtil {
      * existing, by that time the messagebodyworkers will already be
      * set here and a background RpcInvoker will be able to use it.
      */
-//    private static MessageBodyWorkers messageBodyWorkers = null;
-    
-    /**
-     * Will set the static variable messageBodyWorkers only if it has
-     * not yet been set. 
-     * 
-     * @param mbw injected by Jersey via @Context
-     */
-//    public static void offerMessageBodyWorkers(MessageBodyWorkers mbw) {
-//        if( messageBodyWorkers == null ) {
-//            messageBodyWorkers = mbw;
-//        }
-//    }
-    /**
-     * 
-     * @return static variable messageBodyWorkers, or null if it has not been set
-     */
-//    public static MessageBodyWorkers getMessageBodyWorkers() {
-//        return messageBodyWorkers;
-//    }
-    
-    
-    
+
     private static RpcAdapter createAdapter(Object rpcObject) throws InstantiationException, IllegalAccessException {
         Object rpcInstance = rpcObject.getClass().newInstance(); // create a new instance of the RPC object to prevent multi-threaded access to the same instance where client A invokes RPC and sets inputs and then client B invokes RPC and sets inputs and then client A gets the result of client B's inputs
         if( rpcInstance instanceof Callable ) {
@@ -136,22 +110,9 @@ public class RpcUtil {
      * accept can look like this: "application/json;0.9, application/xml;0.8, text/plain";
      */
     public static String getPreferredTypeFromAccept(String accept) {
-        if( accept == null || accept.isEmpty() ) { return "*/*"; } // or should we default to json or xml? 
-        // this way doesn't work:
+        if( accept == null || accept.isEmpty() ) { return "*/*"; } // or should we default to json or xml?
         // java.lang.IllegalArgumentException: Error parsing media type 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
         // Caused by: java.text.ParseException: Expected separator ';' instead of ','
-        /*
-        CharArrayBuffer buffer = new CharArrayBuffer(accept.length());
-        buffer.append(accept);
-        BasicHeaderValueParser parser = new BasicHeaderValueParser();
-        HeaderElement[] headerElements = parser.parseElements(buffer, new ParserCursor(0,accept.length()));
-        // sample headerElements structure:
-        //     [{"name":"application/json","value":null,"parameters":[{"name":"0.9","value":null}],"parameterCount":1},{"name":"application/xml","value":null,"parameters":[{"name":"0.8","value":null}],"parameterCount":1},{"name":"text/plain","value":null,"parameters":[],"parameterCount":0},{"name":" * / * ","value":null,"parameters":[],"parameterCount":0}]
-        // sort according to ascending priority  ... so most preferred wil be at the end of the array
-        Arrays.sort(headerElements, new AcceptComparator());
-        // now grab the last element
-        return headerElements[headerElements.length-1].getName();
-        */
         String[] contentTypeArray = accept.replace(" ","").split(",");
         BasicHeaderElement[] headerElements = new BasicHeaderElement[contentTypeArray.length];
         for(int i=0; i<contentTypeArray.length; i++) {
@@ -184,23 +145,16 @@ public class RpcUtil {
                 NameValuePair nvpair1 = o1.getParameter(0);
                 NameValuePair nvpair2 = o2.getParameter(0);
                 try {
-//                    Float p1 = Float.parseFloat(nvpair1.getName().replace("q=", "")); // the name is the preference like 0.9, 0.8, etc.
-//                    Float p2 = Float.parseFloat(nvpair2.getName().replace("q=", ""));
                     Float p1 = Float.parseFloat(nvpair1.getValue()); // the name is the parameter name "q"  as in q=0.9  ; the value is the float like 0.9 or 0.8
                     Float p2 = Float.parseFloat(nvpair2.getValue()); 
                     if( p1 <= p2 ) { return -1; } else { return 1; }
-                    //if( p1 > p2 ) { return 1; }
                 }
                 catch(NumberFormatException e) {
                     log.debug("Failed to parse preference in accept header: {}", e.getMessage());
                     return 0;
                 }
-                //return 1; 
             }
             return 0;
         }
-
-        
     }
-    
 }

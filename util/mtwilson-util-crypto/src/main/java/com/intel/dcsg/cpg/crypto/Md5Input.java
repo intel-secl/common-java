@@ -6,7 +6,6 @@ package com.intel.dcsg.cpg.crypto;
 
 import com.intel.dcsg.cpg.io.HexInput;
 import com.intel.dcsg.cpg.validation.ObjectModel;
-import java.util.List;
 
 /**
  *
@@ -27,8 +26,6 @@ public class Md5Input extends ObjectModel {
             fault(hexInput, "Invalid hex input: %s", hex);
             return;
         }
-        //Md5Digest md5 = new Md5Digest(hex);
-        //Md5Digest.valueOf(digest)
     }
     
 }

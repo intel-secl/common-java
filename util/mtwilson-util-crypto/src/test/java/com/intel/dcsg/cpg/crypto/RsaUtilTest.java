@@ -60,7 +60,6 @@ public class RsaUtilTest {
 "R/mHVXSOLb1IPPFiy9fiL2LajybjWt3MOt5E9iE6yR/vpq2HfDvup/3u\n" +
 "-----END CERTIFICATE-----";
         PrivateKey pk = decodePemPrivateKey(pem);
-//        List<X509Certificate> certs2 = X509Util.decodePemCertificates(pem2);
         log.debug("Private Key: {}", pk.toString());
     }
 }

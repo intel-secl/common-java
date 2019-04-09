@@ -10,7 +10,6 @@ import org.glassfish.jersey.client.ClientConfig;
 import com.intel.mtwilson.security.http.jaxrs.HmacAuthorizationFilter;
 import com.intel.mtwilson.security.http.jaxrs.X509AuthorizationFilter;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature; //jersey 2.10.1
-//import org.glassfish.jersey.client.filter.HttpBasicAuthFilter; //jersey 2.4.1
 import com.intel.dcsg.cpg.crypto.RsaCredentialX509;
 import com.intel.dcsg.cpg.crypto.SimpleKeystore;
 import com.intel.dcsg.cpg.io.FileResource;
@@ -39,9 +38,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateEncodingException;
 import java.util.HashSet;
-import org.apache.commons.configuration.ConfigurationConverter;
 import org.glassfish.jersey.client.ClientProperties;
-//import org.glassfish.jersey.client.HttpUrlConnectorProvider; // jersey 2.10.1
 import org.glassfish.jersey.client.HttpUrlConnectorProvider; // jersey 2.4.1
 
 /**
@@ -82,7 +79,6 @@ public class JaxrsClientBuilder {
         clientConfig.register(JacksonFeature.class);
         clientConfig.register(com.intel.mtwilson.jaxrs2.provider.JacksonXmlMapperProvider.class);
         clientConfig.register(com.intel.mtwilson.jaxrs2.provider.JacksonObjectMapperProvider.class);
-//        clientConfig.register(com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider.class);        
         clientConfig.register(com.intel.mtwilson.jaxrs2.provider.X509CertificateArrayPemProvider.class);
         clientConfig.register(com.intel.mtwilson.jaxrs2.provider.X509CertificateDerProvider.class);
         clientConfig.register(com.intel.mtwilson.jaxrs2.provider.X509CertificatePemProvider.class);
@@ -214,11 +210,6 @@ public class JaxrsClientBuilder {
         Password password = getPassword("login.basic.password", "mtwilson.api.password");
         if (username != null && password != null) {
             log.debug("Registering BASIC credentials for {}", username);
-//            clientConfig.register( new BasicPasswordAuthorizationFilter(configuration.getString("mtwilson.api.username"), configuration.getString("mtwilson.api.password")));
-//            HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(configuration.getString("mtwilson.api.username"), configuration.getString("mtwilson.api.password"));
-//            clientConfig.register(feature);
-
-//            clientConfig.register(new HttpBasicAuthFilter(username, password.toByteArray())); // jersey 2.4.1
             clientConfig.register(HttpAuthenticationFeature.basic(configuration.get("mtwilson.api.username"), configuration.get("mtwilson.api.password"))); // jersey 2.10.1
         }
 
@@ -256,11 +247,7 @@ public class JaxrsClientBuilder {
             }
         }
         if (tlsConnection != null) {
-//            log.debug("setting HttpUrlConnector with TlsPolicyAwareConnectionFactory");
-//            clientConfig.connector(new HttpUrlConnector(clientConfig, new TlsPolicyAwareConnectionFactory(tlsConnection.getTlsPolicy())));  // jersey 2.4.1
             clientConfig.connectorProvider(new HttpUrlConnectorProvider().connectionFactory(new TlsPolicyAwareConnectionFactory(tlsConnection.getTlsPolicy())));
-//            log.debug("setting HttpsURLConnection defaults");
-//            TlsUtil.setHttpsURLConnectionDefaults(tlsConnection);
         }
     }
 
@@ -270,7 +257,6 @@ public class JaxrsClientBuilder {
             proxyPort = Integer.valueOf(configuration.get("proxy.port", "8080"));
         }
         if (proxyHost != null) {
-            //clientConfig.connector(new HttpUrlConnector(clientConfig, new ProxyConnectionFactory(proxyHost, proxyPort)));
             clientConfig.connectorProvider(new HttpUrlConnectorProvider().connectionFactory(new TlsPolicyAwareConnectionFactory(tlsConnection.getTlsPolicy())));
         }
 
@@ -323,14 +309,11 @@ public class JaxrsClientBuilder {
             tls(); // sets tls connection
             proxy(); // optional http proxy -- may override tls settings
             authentication(); // adds to clientConfig
-//        client = ClientBuilder.newClient(clientConfig);
-//            Client client = ClientBuilder.newBuilder().sslContext(tlsConnection.getSSLContext()).hostnameVerifier(tlsConnection.getTlsPolicy().getHostnameVerifier()).withConfig(clientConfig).build();
-            
+
             ClientBuilder builder = ClientBuilder.newBuilder().withConfig(clientConfig);
 
             if (tlsConnection != null) {
                 builder.sslContext(tlsConnection.getSSLContext()); // when commented out,  get pkix path building failure from java's built-in ssl context... when enabled, our custom ssl context doesn't get called at all.
-//                    .hostnameVerifier(TlsPolicyManager.getInstance().getHostnameVerifier())
                 builder.hostnameVerifier(tlsConnection.getTlsPolicy().getHostnameVerifier());
             }
             if (classRegistrations != null) {
@@ -338,15 +321,12 @@ public class JaxrsClientBuilder {
                     builder.register(clazz);
                 }
             }
-//            builder.
             Client client = builder.build();
             if (configuration != null && Boolean.valueOf(configuration.get("org.glassfish.jersey.filter.LoggingFilter.printEntity", "true"))) {
                 client.register(new LoggingFilter(Logger.getLogger("org.glassfish.jersey.filter.LoggingFilter"), true));
             } else {
                 client.register(new LoggingFilter());
             }
-//        client.register(com.intel.mtwilson.jaxrs2.provider.JacksonXmlMapperProvider.class); 
-//        client.register(com.intel.mtwilson.jaxrs2.provider.JacksonObjectMapperProvider.class);
             WebTarget target = client.target(url.toExternalForm());
 
             return new JaxrsClient(client, target);
@@ -354,24 +334,4 @@ public class JaxrsClientBuilder {
             throw new IllegalArgumentException("Cannot construct client", e);
         }
     }
-    /*
-     register(com.intel.mtwilson.jaxrs2.provider.JacksonXmlMapperProvider.class); 
-     register(com.intel.mtwilson.jaxrs2.provider.JacksonObjectMapperProvider.class); // added
-     register(com.intel.mtwilson.jaxrs2.provider.JacksonYamlObjectMapperProvider.class);
-     register(com.intel.mtwilson.jaxrs2.provider.ApplicationYamlProvider.class);
-     register(com.intel.mtwilson.jaxrs2.provider.X509CertificatePemProvider.class);
-     register(com.intel.mtwilson.jaxrs2.provider.X509CertificateDerProvider.class);
-     register(com.intel.mtwilson.jaxrs2.provider.X509CertificateArrayPemProvider.class);
-     register(com.fasterxml.jackson.jaxrs.base.JsonMappingExceptionMapper.class);
-     register(com.fasterxml.jackson.jaxrs.base.JsonParseExceptionMapper.class); 
-     register(com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider.class); // added 
-     //register(com.fasterxml.jackson.jaxrs.json.JsonParseExceptionMapper.class);
-     register(com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider.class);
-     //register(com.fasterxml.jackson.jaxrs.json.JsonMappingExceptionMapper.class);
-     register(com.fasterxml.jackson.jaxrs.xml.JacksonJaxbXMLProvider.class); 
-     //register(com.fasterxml.jackson.jaxrs.xml.JsonParseExceptionMapper.class); 
-     register(com.fasterxml.jackson.jaxrs.xml.JacksonXMLProvider.class); 
-     //register(com.fasterxml.jackson.jaxrs.xml.JsonMappingExceptionMapper.class);
-     * 
-     */
 }

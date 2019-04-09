@@ -8,13 +8,8 @@ import com.intel.mtwilson.codec.HexUtil;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Arrays;
-//import org.codehaus.jackson.annotate.JsonCreator;
-//import org.codehaus.jackson.annotate.JsonValue;
-//import com.fasterxml.jackson.annotation.JsonCreator;
-//import com.fasterxml.jackson.annotation.JsonValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-//import org.apache.commons.codec.binary.Hex;
 
 
 /**
@@ -63,7 +58,6 @@ public class UUID implements Serializable {
      * 
      * @return the UUID representation (32 hex characters in groups of 8, 4, 4, 4, 12 separated by hyphens)
      */
-    //@org.codehaus.jackson.annotate.JsonValue // jackson 1.x
     @com.fasterxml.jackson.annotation.JsonValue // jackson 2.x
     @Override
     public String toString() {
@@ -86,7 +80,6 @@ public class UUID implements Serializable {
     
     public static UUID valueOf(byte[] bytes) {
         if( bytes.length != 16 ) { throw new IllegalArgumentException("UUID must be 16 bytes"); }
-//        return valueOf(new ByteArray(array));
         return new UUID(bytes);
     }
     
@@ -96,29 +89,19 @@ public class UUID implements Serializable {
      * @return 
      */
     public static UUID valueOf(ByteArray array) {
-        // XXX TODO the length 17 check may not be necessary now that ByteArray's fromHex method has been fixed
-        /*
-        if( array.length() == 17 && array.getBytes()[0] == 0 ) {
-            log.debug("UUID.valueOf(bytes17)");
-            return valueOf(array.subarray(1)); // skip leading zero; recursive call
-        }*/
-//        log.debug("UUID.valueOf(bytes {})", array.length());
         if( array.length() != 16 ) { throw new IllegalArgumentException("UUID must be 16 bytes"); }
         return new UUID(array.getBytes());
     }
     
-    //@org.codehaus.jackson.annotate.JsonCreator // jackson 1.x
     @com.fasterxml.jackson.annotation.JsonCreator // jackson 2.x
     public static UUID valueOf(String text) {
         if( text.length() != 32 && text.length() != 36 ) { throw new IllegalArgumentException("UUID must be 16 bytes; up to 4 hyphens allowed for standard UUID hex format"); }
         if( text.length() == 32 ) {
-//            log.debug("UUID.valueOf(text32: {})", text);
             return valueOf(ByteArray.fromHex(text));
         }
         if( text.length() == 36 ) {
             String withoutHyphens = text.replaceAll("-", ""); // should be exactly 4 hyphens
             if( withoutHyphens.length() != 32 ) { throw new IllegalArgumentException("UUID must be 16 bytes; up to 4 hyphens allowed for standard UUID hex format"); }
-//            log.debug("UUID.valueOf(text36: {})", withoutHyphens);
             return valueOf(ByteArray.fromHex(withoutHyphens));
         }
         throw new IllegalArgumentException("Unrecognized UUID format"); 
@@ -145,25 +128,7 @@ public class UUID implements Serializable {
     public static boolean isValid(byte[] bytes) {
         return bytes.length == 16;
     }
-    
-    
-/*
-        byte[] uuid = array.getBytes();
-        if( uuid.length < 16 ) {
-            // add leading zeros; in testing if you create thousands of uuids using java.util.UUID.randomUUID() eventually one of them will be a 15-byte number
-            byte[] zero = new byte[16-uuid.length];
-            bytes = ByteArray.concat(zero, uuid);
-        }
-        else if( uuid.length > 16) {
-            // just in case java.util.UUID provides us with a 17-byte number!
-            bytes = ByteArray.subarray(uuid, 0, 16);
-        }
-        else {
-            // this is the normal case
-            bytes = uuid;
-        }
- * 
- */    
+
     /**
      * 
      * @param number must be 128 bit number (small numbers are automatically zero-padded)
@@ -171,19 +136,15 @@ public class UUID implements Serializable {
      */
     public static UUID valueOf(BigInteger number) {
         ByteArray array = new ByteArray(number);
-//        log.debug("Array length 1: {}", array.length());
-//        log.debug("Array: {}", array.toHexString());
         // BigInteger inserts a leading zero to preserve sign, but UUIDs do not have a sign bit so we need to strip it off
         if( array.length() == 17 && array.getBytes()[0] == 0 ) {
             return valueOf(array.subarray(1)); // skip leading zero
         }
         if( array.length() < 16 ) {
             int padding = 16 - array.length();
-//            log.debug("Adding padding: {} bytes", padding);
             ByteArray zero = new ByteArray(new byte[padding]);
             return valueOf(ByteArray.concat(zero, array));
         }
-//        log.debug("Array length 2: {}", array.length());
         if( array.length() != 16 ) { throw new IllegalArgumentException("UUID must be 128 bits"); }
         return valueOf(array);
     }

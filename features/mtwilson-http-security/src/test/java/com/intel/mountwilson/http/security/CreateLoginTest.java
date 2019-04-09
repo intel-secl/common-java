@@ -28,7 +28,6 @@ public class CreateLoginTest {
         // secret key max length is 248
         log.debug("Secret key: "+secretKey);
         assertTrue(true);
-//        IOUtils.
     }
     
     @Test

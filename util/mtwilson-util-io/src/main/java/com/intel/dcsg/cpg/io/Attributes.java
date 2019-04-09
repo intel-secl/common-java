@@ -27,7 +27,6 @@ public class Attributes implements Copyable {
      * Stores the attribute name-value pairs, enforcing unique attribute
      * names via the map structure
      */
-//    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "type")
     protected final Map<String, Object> attributes = new HashMap<>();
 
     /**

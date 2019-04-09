@@ -21,7 +21,6 @@ public class CertificateStoringX509TrustManager implements X509TrustManager {
     
     @Override
     public void checkClientTrusted(X509Certificate[] xcs, String authType) throws CertificateException {
-        // throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override

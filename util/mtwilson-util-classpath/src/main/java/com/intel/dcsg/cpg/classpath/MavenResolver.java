@@ -110,10 +110,6 @@ Maven-Classpath: ./org/restlet/jse/org.restlet/2.2-M4/org.restlet-2.2-
     public Set<File> resolveClasspath(Manifest manifest) {
         log.debug("Resolving classpath in manifest");
         HashSet<File> files = new HashSet<>();
-        // how to locate the module that contains this manifest:
-//        String groupId = manifest.getMainAttributes().getValue("Maven-GroupId");
-//        String artifactId = manifest.getMainAttributes().getValue("Maven-ArtifactId");
-//        String version = manifest.getMainAttributes().getValue("Maven-Version");
         String[] classpathArray = getClasspathArray(manifest);
         // read the maven classpath
         for(String path : classpathArray) {
@@ -127,10 +123,6 @@ Maven-Classpath: ./org/restlet/jse/org.restlet/2.2-M4/org.restlet-2.2-
     public Set<String> listMissingArtifacts(Manifest manifest) {
         log.debug("Checking for missing artifacts in classpath");
         HashSet<String> missing = new HashSet<>();
-        // how to locate the module that contains this manifest:
-//        String groupId = manifest.getMainAttributes().getValue("Maven-GroupId");
-//        String artifactId = manifest.getMainAttributes().getValue("Maven-ArtifactId");
-//        String version = manifest.getMainAttributes().getValue("Maven-Version");
         String[] classpathArray = getClasspathArray(manifest);
         // read the maven classpath
         for(String path : classpathArray) {
@@ -164,13 +156,7 @@ Maven-Classpath: ./org/restlet/jse/org.restlet/2.2-M4/org.restlet-2.2-
     
 
     private File getDirectory() {
-//        String dir = System.getenv("M2_HOME"); // XXX TODO to support M2_HOME  we the have to read  M2_HOME/conf/settings.xml  to find the local repository and remote repositories ... best to do that with the actual maven classes
         String dir = System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository";
-//        if (dir == null || dir.isEmpty()) {
-//            log.debug("localRepository={}", System.getProperty("localRepository"));
-            // XXX   when running in netbeans it's possible for  the syste mproperty  localRepository to be set to something like  C:\Program Files\NetBeans 7.3.1\java\maven   and would be ok except 
-//            dir = System.getProperty("localRepository", System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
-//        }
         log.debug("m2.repository={}", dir);
         File mavenRepositoryDirectory = new File(dir);
         return mavenRepositoryDirectory;

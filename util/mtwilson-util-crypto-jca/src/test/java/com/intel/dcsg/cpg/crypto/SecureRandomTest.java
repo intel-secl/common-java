@@ -32,21 +32,8 @@ public class SecureRandomTest {
         log.debug("random: {}", Hex.encodeHexString(bytes));
     }
 
-    // fails on windows because NativePRNG uses /dev/random and /dev/urandom which are not available on windows
-    /*
-    @Test
-    public void testJavaSecureRandomSha1() throws NoSuchAlgorithmException, NoSuchProviderException {
-        SecureRandom random = SecureRandom.getInstance("NativePRNG");
-        byte[] bytes = new byte[4];
-        random.nextBytes(bytes);
-        log.debug("random: {}", Hex.encodeHexString(bytes));
-    }
-    */
-//        Security.addProvider(new BouncyCastleProvider());
-    
     @Test
     public void testMtWilsonSecureRandom() throws NoSuchAlgorithmException, NoSuchProviderException {
-        //SecureRandom random = RandomUtil.getSecureRandom();
         Security.addProvider(new MtWilsonProvider());
         SecureRandom random = SecureRandom.getInstance("SHA256PRNG", "MtWilson");
         byte[] bytes = new byte[4];

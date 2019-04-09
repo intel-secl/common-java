@@ -7,10 +7,8 @@ package com.intel.dcsg.cpg.rfc822;
 import com.intel.dcsg.cpg.io.ByteArray;
 import com.intel.mtwilson.collection.MultivaluedHashMap;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -147,9 +145,6 @@ public class Message {
             }
             // after the headers are read from the input stream, the stream is positioned at the start of the body
             byte[] content = IOUtils.toByteArray(in);
-            // decode the content, if a content-transfer-encoding header is set (if it's not set this is a no-op)
-            //byte[] plain = decode(content, map.get(CONTENT_TRANSFER_ENCODING));
-            // create a new instance with the raw content and 
             return new Message(content, map);
         }
         catch(MessagingException | IOException e) {
@@ -179,35 +174,7 @@ public class Message {
         }
         return header.toString();
     }
-    
-    /**
-     * Writes header text, newline, and raw body content
-     * 
-     * The headers are sorted alphabetically by header name.  This is done so that if the file needs
-     * to be authenticated as-is, a MAC can be reliably produced even after serializing and de-serializing
-     * the file multiple times because the headers will always be in the same order.  
-     * 
-     * An alternative implementation would be to maintain a List with the order of header names read from the
-     * file and when serializing first check if the map key set is same length as the headers in the list, and
-     * if so then write them in the same order that we know, and if the keyset is different in any way then
-     * we can write them out alphabetized because the set is not the same anyway.
-     * 
-     * RFC822 specifies an order for standard headers which is currently ignored.  We're also ignoring the
-     * order the headers may have been in originally (if this instance was deserialized from an existing message) which
-     * might be bad because changing the order might invalidate a signature that is over the entire message. On
-     * the other hand, if there was a signature then the original message is still available that was used to
-     * instantiate this object so the signature should be verified over that original message anyway.
-     * 
-     * @param out an open output stream; caller is responsible for closing it afterwards
-     */
-    // removing this method because it's confusing when we ALSO have messagewriter and messagereader; ... use toByteArray() instead
-    /*
-    public void write(OutputStream out) throws IOException {
-        out.write(getHeaderText().getBytes("UTF-8"));
-        out.write(NEWLINE.getBytes("UTF-8"));
-        out.write(content);
-    }
-    * */
+
     public byte[] toByteArray() {
         Charset utf8 = Charset.forName("UTF-8"); // if utf-8 is missing (non-compliant platform) the exception would be thrown here so it cannot be confused with ioexception from the outputstream below. also, java7 has constants for charsets which might make this unnecessary (if we switch to java7)
         return ByteArray.concat(getHeaderText().getBytes(utf8), NEWLINE.getBytes(utf8), content);

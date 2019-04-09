@@ -4,10 +4,6 @@
  */
 package com.intel.dcsg.cpg.crypto;
 
-import com.intel.dcsg.cpg.crypto.CryptographyException;
-import com.intel.dcsg.cpg.crypto.RsaCredentialX509;
-import com.intel.dcsg.cpg.crypto.RsaUtil;
-import com.intel.dcsg.cpg.crypto.SimpleKeystore;
 import com.intel.dcsg.cpg.x509.X509Builder;
 import com.intel.dcsg.cpg.x509.X509Util;
 import com.intel.dcsg.cpg.io.FileResource;
@@ -23,8 +19,6 @@ import java.security.KeyManagementException;
 import java.security.KeyPair;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -32,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import static org.junit.Assert.*;
 import org.junit.Test;
-import sun.security.x509.CertificateIssuerName;
 import sun.security.x509.X500Name;
 
 /**
@@ -150,39 +143,12 @@ public class SubjectAlternativeNameTest {
         KeyPair keypair = RsaUtil.generateRsaKeyPair(1024);
         X509Builder x509 = new X509Builder();
 
-        
-//        X509Certificate cert = x509.commonName("jonathan").country("US").issuerPrivateKey(keypair.getPrivate()).subjectPublicKey(keypair.getPublic()).build();
-//        error: commonName(jonathan) organizationUnit(null) organizationName(null) country(US) [java.lang.NullPointerException]
-//        error: cannot sign certificate [java.lang.NullPointerException]
-
-//        X509Certificate cert = x509.commonName("jonathan").organizationName("Intel").organizationUnit("Mt Wilson").country("US").issuerPrivateKey(keypair.getPrivate()).subjectPublicKey(keypair.getPublic()).build();
-//        works
-        
-//        X509Certificate cert = x509.subjectName("CN=jonathan").issuerPrivateKey(keypair.getPrivate()).subjectPublicKey(keypair.getPublic()).build();
-//        error: cannot sign certificate [java.lang.NullPointerException]   because missing issuerName()
-
-//        X509Certificate cert = x509.subjectName("CN=jonathan").issuerName("CN=jonathan").issuerPrivateKey(keypair.getPrivate()).subjectPublicKey(keypair.getPublic()).build();
-//        works
-
         X509Certificate cert = x509.subjectName("CN=jonathan")
                                     .issuerName("CN=jonathan")
                                     .issuerPrivateKey(keypair.getPrivate())
                                     .subjectPublicKey(keypair.getPublic())
-//                                    .ipAlternativeName("1.2.3.4") // works
-//                                    .ipAlternativeName("ip:1.2.3.4") // works
-//                                    .dnsAlternativeName("server.com") // works
-//                                    .dnsAlternativeName("dns:server.com") // works
-//                                    .dnsAlternativeName("*.server.com") // does NOT work, you would have to put it in the CN
-//                                    .ipAlternativeName("1.2.3.4").dnsAlternativeName("server.com") // works (both show up on certificate)
-//                                    .keyUsageCertificateAuthority() // works
-//                                    .keyUsageDigitalSignature() // works
-//                                      .keyUsageDataEncipherment() // works
-//                                    .keyUsageNonRepudiation()// works
-//                                    .keyUsageKeyEncipherment()// works
-//                                    .keyUsageCRLSign() // works
                                     .build();
-//        works
-        
+
         log.debug("builder isValid() = {}",x509.isValid()); 
         for(Fault f :  x509.getFaults()) {
             log.error(String.format("%s: %s", f.getClass().getName(), f.toString()));

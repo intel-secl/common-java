@@ -4,7 +4,6 @@
  */
 package com.intel.dcsg.cpg.classpath;
 
-//import com.intel.mtwilson.jmod.Module;
 import java.io.File;
 import java.io.IOException;
 import java.util.jar.Manifest;

@@ -48,15 +48,7 @@ public class FencedClassLoadingStrategy implements ClassLoadingStrategy{
         exclude.add("*.internal.*");
         modulePublicApis.setExcludeFilter(exclude);
     }
-    /*
-    public void include(String packageNameSpec) {
-        include.add(packageNameSpec);
-    }
-    
-    public void exclude(String packageNameSpec) {
-        exclude.add(packageNameSpec);
-    }*/
-    
+
     
     // XXX  should we ALSO support the other way, wherein a jar has everything implicitly private but
     // it exposes an api so anything in *.api.* is delegated to parent and everything else is private. ?

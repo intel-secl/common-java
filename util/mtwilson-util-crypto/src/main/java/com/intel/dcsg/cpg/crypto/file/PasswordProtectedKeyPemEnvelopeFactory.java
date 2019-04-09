@@ -65,14 +65,11 @@ import javax.crypto.spec.PBEParameterSpec;
  * @author jbuhacoff
  */
 public class PasswordProtectedKeyPemEnvelopeFactory {
-//    public static final String KEYGEN_ALGORITHM = "PBEWithMD5AndDES"; // "PBEWithHmacSHA1AndDESede"; // password-based encryption
-    public static final String DEFAULT_ALGORITHM = "PBEWithMD5AndDES/CBC/PKCS5Padding"; // "PBEWithHmacSHA1AndDESede/CBC/PKCS5Padding"; // password-based encryption
+    public static final String DEFAULT_ALGORITHM = "PBEWithMD5AndDES/CBC/PKCS5Padding"; // password-based encryption
     public static final int SALT_LENGTH_BYTES = 8; // bytes
     public static final int PBE_KEY_SIZE = 168; // bits
     public static final int PBE_ITERATIONS = 512; // affects the strength of the password-derived encryption key;  more iterations is stronger
     private SecretKeyFactory secretKeyFactory = null;
-//    private String keygenAlgorithm;
-//    private String cipherAlgorithm;
     private String algorithm; // like PBEWithMD5AndDES/CBC/PKCS5Padding
     private String password;
     

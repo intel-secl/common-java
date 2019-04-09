@@ -4,7 +4,6 @@
  */
 package com.intel.dcsg.cpg.crypto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -26,17 +25,9 @@ import com.intel.dcsg.cpg.io.ByteArray;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 
@@ -121,44 +112,7 @@ public class HmacTest1 {
          */
         
     }
-    
-    /*
-     * TODO:  fix error: 
-     * 
-com.fasterxml.jackson.dataformat.yaml.snakeyaml.emitter.EmitterException: expected NodeEvent, but got <com.fasterxml.jackson.dataformat.yaml.snakeyaml.events.DocumentEndEvent()>
-	at com.fasterxml.jackson.dataformat.yaml.snakeyaml.emitter.Emitter.expectNode(Emitter.java:409)
-	at com.fasterxml.jackson.dataformat.yaml.snakeyaml.emitter.Emitter.access$1600(Emitter.java:63)
-	at com.fasterxml.jackson.dataformat.yaml.snakeyaml.emitter.Emitter$ExpectBlockMappingSimpleValue.expect(Emitter.java:642)
-	at com.fasterxml.jackson.dataformat.yaml.snakeyaml.emitter.Emitter.emit(Emitter.java:217)
-	at com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.close(YAMLGenerator.java:287)
-	at com.fasterxml.jackson.databind.ObjectMapper._configAndWriteValue(ObjectMapper.java:2820)
-	at com.fasterxml.jackson.databind.ObjectMapper.writeValueAsString(ObjectMapper.java:2268)
-	at com.intel.dcsg.cpg.crypto.HmacTest1.testHmacSha256Yaml(HmacTest1.java:132)
-     * 
-    @Test
-    public void testHmacSha256Yaml() throws Exception {
-        YAMLFactory yamlFactory = new YAMLFactory();
-        yamlFactory.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
-        yamlFactory.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
-        ObjectMapper mapper = new ObjectMapper(yamlFactory);
 
-        ApplicationMtWilsonSignature sig = new ApplicationMtWilsonSignature("3CxEv2m8TiBVnTcrfYMrhtgcpdBmP3XuqerzMnnm90c=");
-        Header contentType = new Header("Content-Type", "application/mtwilson-signature", new HeaderParameter("alg","hmac"), new HeaderParameter("digest-alg","sha256"), new HeaderParameter("headers","content-type,link,date"));
-        log.debug("content-type: {}", mapper.writeValueAsString(contentType));
-        Header link = new Header("Link", "helloworld.txt", new HeaderParameter("rel","signed"));
-        log.debug("link: {}", mapper.writeValueAsString(link));
-        Header date = new Header("Date", "Thu Feb  6 19:17:32 PST 2014");
-        log.debug("date: {}", mapper.writeValueAsString(date));
-        sig.headers.add(contentType);
-        sig.headers.add(link);
-        sig.headers.add(date);
-        log.debug("mtwilson-api-client: {} ", sig.toString());
-        
-        log.debug("json: {}", mapper.writeValueAsString(sig));
-        
-    }
-    */
-    
     @Test
     public void testReadXml() throws Exception {
         String xml = "<signature xmlns=\"\"><headers><header><name>Content-Type</name><value>application/mtwilson-signature</value><parameters><alg>hmac</alg><digest-alg>sha256</digest-alg><headers>content-type,link,date</headers></parameters></header><header><name>Link</name><value>helloworld.txt</value><parameters><rel>signed</rel></parameters></header><header><name>Date</name><value>Thu Feb  6 19:17:32 PST 2014</value></header></headers><data>3CxEv2m8TiBVnTcrfYMrhtgcpdBmP3XuqerzMnnm90c=</data></signature>";
@@ -235,11 +189,8 @@ Date: Thu Feb  6 19:17:32 PST 2014
 @JsonInclude(JsonInclude.Include.NON_EMPTY) // jackson 2.0
         public String value;
 @JsonInclude(JsonInclude.Include.NON_EMPTY) // jackson 2.0
-//    @JacksonXmlElementWrapper(localName="parameters")
-//    @JacksonXmlProperty(localName="parameer")    
 @JsonSerialize(using=HeaderParameterListSerializer.class)
 @JsonDeserialize(using=HeaderParameterListDeserializer.class)
-//        public ArrayList<HeaderParameter> parameters = new ArrayList<HeaderParameter>();
         public HeaderParameterList parameters = new HeaderParameterList();
 
         public Header() { }
@@ -305,32 +256,25 @@ public static class HeaderParameterListDeserializer extends JsonDeserializer<Hea
         @Override
         public HeaderParameterList deserialize(JsonParser jp, DeserializationContext dc) throws IOException, JsonProcessingException {
             HeaderParameterList list = new HeaderParameterList();
-//            log.debug("current name: {}", jp.getCurrentName());
-//            log.debug(" current token {}", jp.getCurrentToken().name());
-//            log.debug("text: {}", jp.getText());
-//            log.debug("value as string {}", jp.getValueAsString());
-            
+
             // not sure if this guard is necessary -- will this condition always be true when we start?
             if( jp.getCurrentName().equals("parameters") && jp.getCurrentToken().equals(JsonToken.START_OBJECT))  {
                 while(true) {
                     HeaderParameter parameter = new HeaderParameter();
                     // next tokens will be:   FIELD_NAME, VALUE_STRING, FIELD_NAME, VALUE_STRING, ...   
                     JsonToken token = jp.nextToken(); // assert:  token.equals(JsonToken.FIELD_NAME)
-//                    log.debug("next token: {}", token.name());
                     if( token.equals(JsonToken.END_OBJECT) ) {
                         break;
                     }
                     parameter.name = jp.getValueAsString();
                     token = jp.nextToken(); // assert: token.equals(JsonToken.VALUE_STRING)
-//                    log.debug("next token: {}", token.name());
                     parameter.value = jp.getValueAsString();
                     
                     list.list.add(parameter);
                     
                 }
             }
-//            jp.getCodec().
-            
+
             return list;
         }
     

@@ -24,7 +24,6 @@ public class DispatcherTest {
         replacements.put("mt-wilson", "mtwilson");
         RegexTransformer replacing = new RegexTransformer(replacements);
         CamelCaseToHyphenated hyphenating = new CamelCaseToHyphenated();
-//        PascalCaseToHyphenated hyphenating = new PascalCaseToHyphenated();
         TransformerPipe<String> pipe = new TransformerPipe<>(hyphenating, replacing);
 
         assertEquals("mtwilson-test", pipe.transform("MtWilsonTest"));

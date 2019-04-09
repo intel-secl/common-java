@@ -128,8 +128,7 @@ public class ProtectionPolicyBuilder {
         return this;
     }
 
-    public ProtectionPolicy build() /*throws NoSuchAlgorithmException, NoSuchPaddingException*/ {
-//        protection.cipher = Cipher.getInstance(String.format("%s/%s/%s", protection.algorithm, protection.mode, protection.padding));
+    public ProtectionPolicy build() {
         if( protectionPolicy.minKeyLengthBits == Integer.MAX_VALUE ) {
             throw new IllegalArgumentException("Missing minimum key length");
         }

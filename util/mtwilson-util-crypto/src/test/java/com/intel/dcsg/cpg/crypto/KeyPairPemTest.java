@@ -4,12 +4,8 @@
  */
 package com.intel.dcsg.cpg.crypto;
 
-import com.intel.mtwilson.codec.Base64Util;
-import com.intel.dcsg.cpg.crypto.file.PasswordEncryptedFile;
-import com.intel.dcsg.cpg.io.ByteArrayResource;
 import com.intel.dcsg.cpg.x509.X509Builder;
 import com.intel.dcsg.cpg.x509.X509Util;
-import java.io.IOException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;

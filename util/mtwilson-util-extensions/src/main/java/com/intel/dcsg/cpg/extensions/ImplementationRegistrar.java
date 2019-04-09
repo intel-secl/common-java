@@ -4,8 +4,6 @@
  */
 package com.intel.dcsg.cpg.extensions;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;

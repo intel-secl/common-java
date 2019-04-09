@@ -4,19 +4,13 @@
  */
 package com.intel.mtwilson.rpc.v2.resource;
 
-import com.intel.dcsg.cpg.io.UUID;
 import com.intel.mtwilson.collection.MultivaluedHashMap;
-import com.intel.dcsg.cpg.validation.Fault;
-import com.intel.mtwilson.rpc.v2.model.Rpc;
-import com.intel.mtwilson.rpc.v2.model.RpcPriv;
 import com.intel.mtwilson.v2.rpc.RpcUtil;
 import com.thoughtworks.xstream.XStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.nio.charset.Charset;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -83,8 +77,6 @@ public class AbstractRpc {
     
     
     protected byte[] toXml(Object inputObject) {
-//        log.info("BlockRPC: input xml is {}.", xstream.toXML(inputObject));
         return xstream.toXML(inputObject).getBytes(Charset.forName("UTF-8"));
     }
-    
 }

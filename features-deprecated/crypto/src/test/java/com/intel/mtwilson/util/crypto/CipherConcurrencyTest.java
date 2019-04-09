@@ -11,7 +11,6 @@ import com.intel.dcsg.cpg.crypto.CryptographyException;
 import java.util.ArrayList;
 import org.apache.commons.codec.binary.Base64;
 import com.fasterxml.jackson.databind.ObjectMapper;
-//import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;

@@ -47,7 +47,6 @@ public class JacksonTest {
         fruit.publicKey = keypair.getPublic();
         String json = mapper.writeValueAsString(fruit);
         log.debug(json); // {"fruitName":"apple","fruitColor":"red","publicKey":"MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDBnOkYfoEG7pCGsJLxxX4WtDkB9Padlc+x+5vLA+mwcFkiDxGQSMr4zcj9XWhtMFNp7+nCg4dBOX0jczeYkRG1KxT9nRgasUvYdxF0xqyywsvViskWQUei75+rHyZ559aYWAGHEXoGK9acrpcTaLu1W46rISPe9ojBIWNj8KLqSwIDAQAB"}
-//        assertEquals("{\"fruitName\":\"apple\",\"fruitColor\":\"red\"}", json);
         mapper.setPropertyNamingStrategy(new PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy());
         log.debug(mapper.writeValueAsString(fruit)); // {"fruit_name":"apple","fruit_color":"red"}
     }
@@ -77,7 +76,6 @@ public class JacksonTest {
         fruit.publicKey = keypair.getPublic();
         String json = mapper.writeValueAsString(fruit);
         log.debug(json); // {"fruit_name":"apple","fruit_color":"red"}
-//        assertEquals("{\"fruit_name\":\"apple\",\"fruit_color\":\"red\"}", json);
     }
     
     
@@ -92,7 +90,6 @@ public class JacksonTest {
         fruit.publicKey = keypair.getPublic();
         String xml = mapper.writeValueAsString(fruit);
         log.debug(xml); // <fruit><fruit_name>apple</fruit_name><fruit_color>red</fruit_color></fruit>
-//        assertEquals("<fruit><fruit_name>apple</fruit_name><fruit_color>red</fruit_color></fruit>", xml);
     }
     
     @Test

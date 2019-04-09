@@ -5,8 +5,6 @@
 package com.intel.dcsg.cpg.authz.token;
 
 import com.intel.dcsg.cpg.crypto.key.RandomSource;
-import com.intel.dcsg.cpg.crypto.Aes;
-import com.intel.dcsg.cpg.crypto.CryptographyException;
 import com.intel.dcsg.cpg.crypto.key.EncryptionKey;
 import com.intel.dcsg.cpg.crypto.key.EncryptionKeySource;
 import com.intel.dcsg.cpg.crypto.key.HashMapMutableSecretKeyRepository;
@@ -14,16 +12,10 @@ import com.intel.dcsg.cpg.crypto.key.Protection;
 import com.intel.dcsg.cpg.crypto.key.ProtectionBuilder;
 import com.intel.dcsg.cpg.crypto.key.ProtectionPolicy;
 import com.intel.dcsg.cpg.crypto.key.ProtectionPolicyBuilder;
-import com.intel.dcsg.cpg.io.UUID;
-import com.intel.dcsg.cpg.io.ByteArray;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.HashMap;
-import javax.crypto.SecretKey;
 import org.apache.commons.codec.binary.Base64;
 
 /**

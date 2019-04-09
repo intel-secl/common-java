@@ -4,13 +4,9 @@
  */
 package com.intel.dcsg.cpg.crypto.key.password;
 
-import com.intel.dcsg.cpg.crypto.key.Protection;
 import com.intel.dcsg.cpg.crypto.key.ProtectionBuilder;
 import com.intel.dcsg.cpg.crypto.key.password.PasswordCryptoCodecFactory.EncryptionAlgorithmInfo;
 import com.intel.dcsg.cpg.crypto.key.password.PasswordCryptoCodecFactory.KeyAlgorithmInfo;
-import com.intel.dcsg.cpg.rfc822.Rfc822Header;
-import java.io.IOException;
-import java.util.Map;
 
 /**
  *
@@ -57,17 +53,6 @@ public class PasswordProtectionBuilder extends ProtectionBuilder {
         return this;
     }
 
-    /*
-     PBEWithMD5AndDES("PBEWithMD5AndDES","PBEWithMD5AndDES",56,8,524288, new PBESecretKeyGenerator()),
-     PBEWithMD5AndTripleDES("PBEWithMD5AndTripleDES","PBEWithMD5AndTripleDES",168,8,2097152, new PBESecretKeyGenerator()),
-     PBEWithSHA1AndDESede("PBEWithSHA1AndDESede","PBEWithSHA1AndDESede",168,8,1048576, new PBESecretKeyGenerator()),
-     //        PBEWithSHA1AndAES128("PBEWithSHA1AndAES","PBEWithSHA1AndAES",128,8,1048576), // oracle docs imply this is valid but we get NoSuchAlgorithmException: PBEWithSHA1AndAES SecretKeyFactory not available    http://docs.oracle.com/javase/7/docs/technotes/guides/security/StandardNames.html
-     //        PBEWithSHA1AndAES128("PBEWithMD5AndAES","PBEWithMD5AndAES",128,8,1048576), // oracle docs imply this is valid but we get NoSuchAlgorithmException
-     PBKDF2WithHmacSHA1AndAES128("PBKDF2WithHmacSHA1","AES",128,8,1048576, new PBKDFSecretKeyGenerator()),
-     PBKDF2WithHmacSHA1AndAES256("PBKDF2WithHmacSHA1","AES",256,8,1048576, new PBKDFSecretKeyGenerator());
-     //        PBKDF2WithHMACSHA1(256,16,1);   //  currently not supported because in the cipher code, when we create the cipher we then need to request an "AES" cipher, which is a different name, and has different initializatino code, and an IV that needs to be stored along with the salt...
-     * 
-     */
     public PasswordProtectionBuilder pbkdf2WithHmacSha1() {
         passwordProtection.keyAlgorithm = "PBKDF2WithHmacSHA1";
         return this;
@@ -172,16 +157,6 @@ public class PasswordProtectionBuilder extends ProtectionBuilder {
         if (passwordProtection.keyAlgorithm == null) {
             throw new IllegalArgumentException("Key algorithm is missing");
         }
-        /*
-         protected String mode; // mode like "OFB8"
-         protected String padding; // padding like "NoPadding"
-         protected int keyLengthBits;
-         protected int blockSizeBytes;
-         protected String digestAlgorithm; // like "SHA-256" used for integrity protection; may be null if the content is not protected
-         protected int digestSizeBytes; // 20 for SHA-1, 32 for SHA-256, ...
-         protected transient String cipher;    //  in the format  algorithm/mode/padding   or just algorithm  if mode and padding are not specified (dangerous - because the crypto provider will use its default so the platforma nd provider become a part of the message specification)
-         * 
-         */
         passwordProtection.setAlgorithm(protection.getAlgorithm());
         passwordProtection.setMode(protection.getMode());
         passwordProtection.setPadding(protection.getPadding());
@@ -190,7 +165,6 @@ public class PasswordProtectionBuilder extends ProtectionBuilder {
         passwordProtection.setDigestAlgorithm(protection.getDigestAlgorithm());
         passwordProtection.setDigestSizeBytes(protection.getDigestSizeBytes());
         passwordProtection.setCipher(protection.getCipher());
-//        passwordProtection.copy(protection);
         return passwordProtection;
     }
 }

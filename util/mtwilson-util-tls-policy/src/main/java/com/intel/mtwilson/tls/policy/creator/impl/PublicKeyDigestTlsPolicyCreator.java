@@ -4,7 +4,6 @@
  */
 package com.intel.mtwilson.tls.policy.creator.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intel.mtwilson.codec.ByteArrayCodec;
 import com.intel.dcsg.cpg.crypto.CryptographyException;
 import com.intel.dcsg.cpg.crypto.digest.Digest;
