@@ -35,7 +35,6 @@ public class Dispatcher implements Runnable {
         TransformerPipe<String> pipe = new TransformerPipe<>(hyphenating, replacing);
         // make a map of command names to class names, like "hello-world" -> "com.example.HelloWorld" and also qualified names like "com.example:hello-world" -> "com.example.HelloWorld"
         registry = PluginRegistryFactory.createRegistry(Command.class, pipe); 
-//        CommandFinder commandFinder = new RegistryCommandFinder(registry);
     }
 
     public void setArgs(String[] args) {
@@ -55,14 +54,6 @@ public class Dispatcher implements Runnable {
 
     public Command findCommand(String commandName) {
         return registry.lookup(commandName);
-        /*
-        log.debug("Checking CommandFinder: {}", commandFinder.getClass().getName());
-        Command command = commandFinder.forName(commandName);
-        if (command != null) {
-            return command;
-        }
-        return null;
-        */
     }
 
     @Override
@@ -81,11 +72,9 @@ public class Dispatcher implements Runnable {
                 exitCode = 2;
             } else {
                 String[] subargs = Arrays.copyOfRange(args, 1, args.length);
-                //            command.setContext(ctx);
                 ExtendedOptions getopt = new ExtendedOptions(subargs);
                 Configuration options = getopt.getOptions();
                 subargs = getopt.getArguments();
-                //            command.setContext(ctx);
                 command.setOptions(options);
                 
                 // Here we could support an option to execute the command as a specific user
@@ -94,7 +83,6 @@ public class Dispatcher implements Runnable {
                 // shiro @RequiresPermissions and for it to work;  if we don't have any 
                 // logged in user at all then shiro will throw an exception like this:
                 // org.apache.shiro.UnavailableSecurityManagerException: No SecurityManager accessible to the calling code, either bound to the org.apache.shiro.util.ThreadContext or as a vm static singleton.  This is an invalid application configuration.
-//                Extensions.findAll(LauncherBeforeExecuteCommand.class);
                 Login.superuser();
                 
                 command.execute(subargs);

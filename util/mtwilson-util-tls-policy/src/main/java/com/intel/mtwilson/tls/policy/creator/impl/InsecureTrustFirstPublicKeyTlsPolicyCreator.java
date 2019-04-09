@@ -21,8 +21,7 @@ import java.util.HashMap;
  * @author jbuhacoff
  */
 public class InsecureTrustFirstPublicKeyTlsPolicyCreator extends PublicKeyTlsPolicyCreator {
-//    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(InsecureTrustFirstPublicKeyTlsPolicyCreator.class);
-    
+
     @Override
     public PublicKeyTlsPolicy createTlsPolicy(TlsPolicyDescriptor tlsPolicyDescriptor) {
         if( "TRUST_FIRST_CERTIFICATE".equalsIgnoreCase(tlsPolicyDescriptor.getPolicyType()) ) {

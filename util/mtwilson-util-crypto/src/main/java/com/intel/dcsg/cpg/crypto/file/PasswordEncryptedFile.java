@@ -93,13 +93,11 @@ public class PasswordEncryptedFile {
     public static final String ENCRYPTION_ALGORITHM = "Encryption-Algorithm";
     public static final String ENCRYPTION_KEY_ID = "Encryption-Key-Id";
     public static final String CONTENT_ENCODING = "Content-Encoding";
-//    public static final String CONTENT_SHA256 = "Content-SHA256";
     public static final String INTEGRITY_ALGORITHM = "Integrity-Algorithm";
     private Logger log = LoggerFactory.getLogger(getClass());
     
     private Resource resource;
     private String password;
-//    private PasswordCipher cipher;
     private CryptoCodec cipher;
     private PasswordProtection protection;
     
@@ -114,7 +112,6 @@ public class PasswordEncryptedFile {
     public PasswordEncryptedFile(Resource resource, String password) {
         this.resource = resource;
         this.password = password;
-//        this.cipher = new PasswordCipher(password);
     }
     
     /**
@@ -129,7 +126,6 @@ public class PasswordEncryptedFile {
         this.resource = resource;
         this.password = password;
         this.protection = protection;
-//        this.cipher = new PasswordCipher(password);
     }
 
     public void setProtection(PasswordProtection protection) {
@@ -139,16 +135,7 @@ public class PasswordEncryptedFile {
     public PasswordProtection getProtection() {
         return protection;
     }
-    
-    
-//    public void setCipher(PasswordCipher cipher) {
-//        this.cipher = cipher;        
-//    }
-    
-//    public void setCipher(CryptoCodec cipher) {
-//        this.cipher = cipher;
-//    }
-    
+
     public Resource getResource() { return resource; }
     
     public byte[] decrypt() throws IOException {
@@ -257,19 +244,12 @@ public class PasswordEncryptedFile {
             keyAlgInfo.keyLengthBits = protection.getKeyLengthBits();
             // wrap the cipher text in a data envelope so we can record the integrity check and the cipher details
             DataEnvelope envelope = new DataEnvelope();
-//            envelope.setHeader(KEY_ALGORITHM, protection.getKeyAlgorithm());
             envelope.setHeader(KEY_ALGORITHM, keyAlgInfo.formatKeyAlgorithm());
             envelope.setHeader(ENCRYPTION_ALGORITHM, protection.getCipher());  //   TODO  need a more accurate descriptive name for getCipher ... it sounds like it would be a Cipher object but it's not, it's just the java conventon with algorithm/mode/padding.  ...  protection.getAlgorithm()  is just "AES"  but protection.getCipher() is "AES/CBC/PKCS5Padding" or "AES/OFB8/NoPadding" etc
             PasswordHash passwordHash = new PasswordHash(password); // generates a random salt
             envelope.setHeader(ENCRYPTION_KEY_ID, passwordHash.toString()); // produces salt-base64:sha256-base64 which helps to determine that the password is correct before trying to decrypt the entire file and interpret the results
             envelope.setHeader(CONTENT_ENCODING, "base64"); // XXX currently it's the only supported method, so it's ignored when reading in the file
-//            envelope.setHeader("PBE-Iterations", cipher.getIterations()); // not supported yet;  currently number of iterations is hard-coded in the PasswordCipher based on the chosen algorithm
-//            envelope.setHeader("SHA256-Iterations", sha256Interations); // not implemented yet;  need to do a benchmark for sha256 similar to the one for PBE, so that a similar delay is introduced, so that both the hash and the PBE delay brute force attacks to a similar degree
             envelope.setHeader(INTEGRITY_ALGORITHM, sha256.algorithm());
-//            envelope.setHeader("IntegrityEncoding", "hex"); // XXX probably should specify this but currently we don't support any other encoding, and it's easy enough to detect if a sha256 value is hex or base64 by checking its length and character set
-//            log.debug("sha256: {}", sha256);
-//            log.debug("envelope: {}", envelope);
-//            envelope.setHeader(CONTENT_SHA256, sha256.toBase64());
             envelope.setContent(ciphertext);
             // XXX TODO:  need to allow caller to pass the plaintext content type so we can include it as "enclosed" atribute here
             OutputStream out = resource.getOutputStream();

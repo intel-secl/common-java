@@ -4,8 +4,6 @@
  */
 package com.intel.mtwilson.jaxrs2.client;
 
-import com.intel.dcsg.cpg.tls.policy.TlsConnection;
-import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;

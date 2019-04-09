@@ -4,7 +4,6 @@
  */
 package com.intel.dcsg.cpg.crypto;
 
-import com.intel.dcsg.cpg.crypto.RandomUtil;
 import com.intel.dcsg.cpg.io.ByteArrayResource;
 import com.intel.dcsg.cpg.crypto.key.password.Password;
 import com.intel.mtwilson.util.crypto.keystore.PasswordKeyStore;

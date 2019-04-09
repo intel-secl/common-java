@@ -44,17 +44,6 @@ public class HKDF {
         return macLength;
     }
 
-    /*
-     public static byte[] sha256(byte[] messsage) {
-     try {
-     MessageDigest hash = MessageDigest.getInstance(SHA256_ALGORITHM);
-     hash.update(messsage);
-     return hash.digest();
-     }
-     catch(NoSuchAlgorithmException e) {
-     throw new IllegalArgumentException("No such algorithm: "+SHA256_ALGORITHM, e);
-     }
-     }*/
     public byte[] hmac(byte[] key, byte[] message) throws NoSuchAlgorithmException, InvalidKeyException {
         Mac mac = Mac.getInstance(macAlgorithm); // throws NoSuchAlgorithmException
         SecretKeySpec secret_key = new javax.crypto.spec.SecretKeySpec(key, macAlgorithm);

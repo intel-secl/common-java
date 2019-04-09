@@ -28,11 +28,6 @@ import javax.ws.rs.core.Response;
 public abstract class AbstractCertificateJsonapiResource<T extends CertificateDocument, C extends DocumentCollection<T>, F extends FilterCriteria<T>, P extends PatchLink<T>, L extends Locator<T>> extends AbstractJsonapiResource<T,C,F,P,L> {
     
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AbstractCertificateJsonapiResource.class);
-    /*
-    public AbstractCertificateJsonapiResource() {
-        super();
-    }
-    */
     @GET
     @Produces({ CryptoMediaType.APPLICATION_X_PEM_FILE, MediaType.TEXT_PLAIN})
     public X509Certificate[] searchX509CertificateCollection(@BeanParam F criteria) {

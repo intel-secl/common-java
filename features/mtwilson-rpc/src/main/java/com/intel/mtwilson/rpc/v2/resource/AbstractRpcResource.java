@@ -10,11 +10,9 @@ import com.intel.mtwilson.launcher.ws.ext.RPC;
 import com.intel.mtwilson.rpc.v2.model.Rpc;
 import com.intel.mtwilson.rpc.v2.model.RpcPriv;
 import com.thoughtworks.xstream.XStream;
-import java.lang.annotation.Annotation;
 import java.nio.charset.Charset;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.POST;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
@@ -76,8 +74,6 @@ public class AbstractRpcResource {
         rpc.setId(new UUID());
         rpc.setName(getRpcName());
         rpc.setInput(inputXml);
-        //        com.intel.dcsg.cpg.util.MultivaluedHashMap<String,String> headers = RpcUtil.convertHeadersToMultivaluedMap(request);
-        //        rpc.setInputHeaders(toRfc822(headers));
         rpc.setStatus(Rpc.Status.QUEUE);
         // store it
         repository.create(rpc);

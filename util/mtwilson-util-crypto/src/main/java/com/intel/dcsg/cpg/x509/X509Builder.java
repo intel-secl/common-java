@@ -335,9 +335,7 @@ public class X509Builder extends BuilderModel {
     public X509Builder noncriticalExtension(String oid, byte[] value) {
         try {
             v3();
-//            X509CertificateExtension extension = new X509CertificateExtension(oid, false, value);
             if( certificateExtensions == null ) { certificateExtensions = new CertificateExtensions(); }
-//            certificateExtensions.set(extension.getId(), /*extension*/ new sun.security.x509.Extension(new ObjectIdentifier(extension.getId()), extension.isCritical(), extension.getDEREncoded()));
             DEROctetString octetString = new DEROctetString(value);
             certificateExtensions.set(oid, new sun.security.x509.Extension(new ObjectIdentifier(oid), false, octetString.getEncoded()));
             info.set(X509CertInfo.EXTENSIONS, certificateExtensions);
@@ -351,11 +349,9 @@ public class X509Builder extends BuilderModel {
     public X509Builder criticalExtension(String oid, byte[] value) {
         try {
             v3();
-//            Extension extension = new X509CertificateExtension(oid, true, value);
             if( certificateExtensions == null ) { certificateExtensions = new CertificateExtensions(); }
             DEROctetString octetString = new DEROctetString(value);
             certificateExtensions.set(oid, new sun.security.x509.Extension(new ObjectIdentifier(oid), true, octetString.getEncoded()));
-//            certificateExtensions.set(extension.getId(), extension);
             info.set(X509CertInfo.EXTENSIONS, certificateExtensions);
         }
         catch(IOException | CertificateException e) {
@@ -371,8 +367,6 @@ public class X509Builder extends BuilderModel {
             if (ip.startsWith("ip:")) {
                 alternativeName = ip.substring(3);
             }
-            //                InetAddress ipAddress = new InetAddress.getByName(alternativeName.substring(3));
-            //                IPAddressName ipAddressName = new IPAddressName(ipAddress.getAddress());
             IPAddressName ipAddressName = new IPAddressName(alternativeName);
             if( alternativeNames == null ) { alternativeNames = new GeneralNames(); }
             alternativeNames.add(new GeneralName(ipAddressName));
@@ -380,8 +374,7 @@ public class X509Builder extends BuilderModel {
             if( certificateExtensions == null ) { certificateExtensions = new CertificateExtensions(); }
             certificateExtensions.set(san.getExtensionId().toString(), san);
             info.set(X509CertInfo.EXTENSIONS, certificateExtensions);
-            //   ObjectIdentifier("2.5.29.17") , false, "ipaddress".getBytes()                            
-            
+
         }
         catch(IOException | CertificateException e) {
             fault(e, "ipAlternativeName(%s): %s: %s", ip, e.getClass().getName(), e.getMessage());
@@ -440,9 +433,8 @@ public class X509Builder extends BuilderModel {
     
     public X509Builder algorithm(AlgorithmId algorithmId) {
         try {
-            this.algorithm = algorithmId; // new AlgorithmId(AlgorithmId.sha256WithRSAEncryption_oid); // md5WithRSAEncryption_oid
+            this.algorithm = algorithmId;
             info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(algorithm));
-//                info.set(CertificateAlgorithmId.NAME + "." + CertificateAlgorithmId.ALGORITHM, algorithm); // was present in older monolith version of the certificate factory, but it seems we don't really need it
         }
         catch(CertificateException | IOException e) {
             fault(e, "algorithm(%s): %s: %s", algorithmId.getName(), e.getClass().getName(), e.getMessage());
@@ -624,9 +616,6 @@ public class X509Builder extends BuilderModel {
             }
         }
         if( certificateIssuerName == null ) {
-            //if( certificateSubjectName != null ) { // assume self-signed ?? or check if we have an issuer cert first ??? 
-            // XXX TODO 
-            //}
             if( commonName != null || organizationUnit != null || organizationName != null || country != null ) {
                 try {
                     issuerName(new X500Name(commonName, organizationUnit, organizationName, country));
@@ -642,12 +631,9 @@ public class X509Builder extends BuilderModel {
         }
         // Note: alternativeName is optional so we don't have any defaults or errors for it here
         if( algorithm == null ) {
-            algorithm(new AlgorithmId(AlgorithmId.sha256WithRSAEncryption_oid)); // algorithm.getName() == SHA256withRSA
+            algorithm(new AlgorithmId(AlgorithmId.sha256WithRSAEncryption_oid));
         }
         
-        //if( keyUsageExtension != null ) {
-        //   
-        //}
         try {
             if( getFaults().isEmpty() ) {
                 // Sign the cert to identify the algorithm that's used.

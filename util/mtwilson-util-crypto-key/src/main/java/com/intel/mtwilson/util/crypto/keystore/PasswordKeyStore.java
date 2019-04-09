@@ -29,7 +29,6 @@ import javax.crypto.spec.PBEKeySpec;
 public class PasswordKeyStore extends AbstractKeyStore implements Closeable {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PasswordKeyStore.class);
-//    private char[] keystorePassword;
     private KeyStore keystore;
     private KeyProtectionDelegate keyProtectionDelegate;
     private SecretKeyFactory factory;
@@ -48,25 +47,19 @@ public class PasswordKeyStore extends AbstractKeyStore implements Closeable {
      */
     public PasswordKeyStore(String keystoreType, File keystoreFile, char[] keystorePassword) throws KeyStoreException, IOException, NoSuchAlgorithmException {
         super(keystoreType, keystoreFile, keystorePassword);
-//        super.setKeyProtectionDelegate(new SinglePasswordKeyProtectionDelegate(keystorePassword));
         this.keystore = super.keystore();
-//        this.keystorePassword = keystorePassword;
         this.keyProtectionDelegate = new SinglePasswordKeyProtectionDelegate(keystorePassword);
         this.factory = SecretKeyFactory.getInstance("PBE"); // throws NoSuchAlgorithmException
     }
     public PasswordKeyStore(String keystoreType, Resource keystoreResource, char[] keystorePassword) throws KeyStoreException, IOException, NoSuchAlgorithmException {
         super(keystoreType, keystoreResource, keystorePassword);
-//        super.setKeyProtectionDelegate(new SinglePasswordKeyProtectionDelegate(keystorePassword));
         this.keystore = super.keystore();
-//        this.keystorePassword = keystorePassword;
         this.keyProtectionDelegate = new SinglePasswordKeyProtectionDelegate(keystorePassword);
         this.factory = SecretKeyFactory.getInstance("PBE"); // throws NoSuchAlgorithmException
     }
     public PasswordKeyStore(String keystoreType, Resource keystoreResource, Password keystorePassword) throws KeyStoreException, IOException, NoSuchAlgorithmException {
         super(keystoreType, keystoreResource, keystorePassword);
-//        super.setKeyProtectionDelegate(new SinglePasswordKeyProtectionDelegate(keystorePassword));
         this.keystore = super.keystore();
-//        this.keystorePassword = keystorePassword;
         this.keyProtectionDelegate = new SinglePasswordKeyProtectionDelegate(keystorePassword);
         this.factory = SecretKeyFactory.getInstance("PBE"); // throws NoSuchAlgorithmException
     }

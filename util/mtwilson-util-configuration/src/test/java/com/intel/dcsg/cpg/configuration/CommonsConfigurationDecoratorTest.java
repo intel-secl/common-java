@@ -4,7 +4,6 @@
  */
 package com.intel.dcsg.cpg.configuration;
 
-import java.util.Properties;
 import org.junit.Test;
 
 /**

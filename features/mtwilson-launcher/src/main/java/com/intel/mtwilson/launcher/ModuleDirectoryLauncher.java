@@ -9,10 +9,8 @@ import com.intel.dcsg.cpg.performance.AlarmClock;
 import com.intel.mtwilson.collection.ArrayIterator;
 import com.intel.mtwilson.tree.BreadthFirstTreeIterator;
 import com.intel.mtwilson.tree.FileTree;
-import com.intel.mtwilson.pipe.Filter;
 import com.intel.dcsg.cpg.module.Container;
 import com.intel.dcsg.cpg.module.Module;
-import com.intel.dcsg.cpg.module.ModuleRepository;
 import com.intel.dcsg.cpg.module.ModuleUtil;
 import com.intel.dcsg.cpg.classpath.ClassLoadingStrategy;
 import com.intel.dcsg.cpg.classpath.DirectoryResolver;
@@ -21,7 +19,6 @@ import com.intel.dcsg.cpg.classpath.JarUtil;
 import com.intel.dcsg.cpg.io.file.FilenameEndsWithFilter;
 import com.intel.dcsg.cpg.module.ContainerException;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -130,7 +127,6 @@ public class ModuleDirectoryLauncher {
 
     public void loadModules() throws IOException {
         DirectoryResolver resolver = new DirectoryResolver(directory);
-//        JarFileIterator it = new JarFileIterator(directory); // scans directory and its subdirectories for jar files
         Iterator<File> it = new ArrayIterator<File>(directory.listFiles(jarfilter)); // only scans directory for jar files; does NOT scan subdirectories
         while (it.hasNext()) {
             File jar = it.next();
@@ -170,8 +166,6 @@ public class ModuleDirectoryLauncher {
     }
 
     public boolean contains(String artifact) {
-        // in java7 this would be:
-        // return directory.toPath().resolve(artifact).toFile().exists();
         File file = new File(directory.getAbsolutePath(), artifact);
         return file.exists();
     }

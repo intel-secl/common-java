@@ -109,7 +109,6 @@ public class JacksonTest {
         fruit.setModifiedOn(new Date());
         String json = mapper.writeValueAsString(fruit);
         log.debug(json); // {"modified_on":1397555037640,"fruit_name":"apple","fruit_color":"red","etag":"9fda622d89075e962a4be5086e3b8bcd7ca7d227"}
-//        assertEquals("{\"fruit_name\":\"apple\",\"fruit_color\":\"red\"}", json);
     }
     
 }

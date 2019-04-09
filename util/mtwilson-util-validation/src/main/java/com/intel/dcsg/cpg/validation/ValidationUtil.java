@@ -139,14 +139,6 @@ public class ValidationUtil {
             return;
         }
         log.debug("validateObjectArray of length {}", array.length);
-        // TODO:  if it's an array and annotated with a specific @ArrayValidator , use it directly
-        /*
-         if( context.isAnnotationPresent(Validator.class)) {
-         Class validatorClass = context.getAnnotation(Validator.class).value();
-         validateWithValidatorClass(object, validatorClass);
-         return;
-         }
-         */
         // validate each item in the array
         for (int i = 0; i < array.length; i++) {
             Object object = array[i];
@@ -168,16 +160,6 @@ public class ValidationUtil {
             return;
         }
         log.debug("validatePrimitiveArray of class {}", array.getClass().getComponentType().getName());
-        // TODO:  if it's an array and annotated with a specific @ArrayValidator , use it directly
-        /*
-         if( context.isAnnotationPresent(Validator.class)) {
-         Class validatorClass = context.getAnnotation(Validator.class).value();
-         validateWithValidatorClass(object, validatorClass);
-         return;
-         }
-         */
-        // because they are primitives we don't need to validate each object in the array
-        // so the only validation is by a Validator or ArrayValidator
     }
     
 
@@ -199,21 +181,6 @@ public class ValidationUtil {
             return;
         }
         log.debug("validateObjectCollection of size {}", collection.size());
-        // TODO:  if it's an array and annotated with a specific @ArrayValidator , use it directly
-        /*
-         if( context.isAnnotationPresent(Validator.class)) {
-         Class validatorClass = context.getAnnotation(Validator.class).value();
-         validateWithValidatorClass(object, validatorClass);
-         return;
-         }
-         */
-        // validate each item in the collection
-        /*
-         ParameterizedType stringListType = (ParameterizedType) field.getGenericType();
-         Class<?> stringListClass = (Class<?>) stringListType.getActualTypeArguments()[0];
-         stringReturn = stringListClass.isAssignableFrom(String.class);
-         * 
-         */
         int i = 0;
         for (Object object : collection) {
             validateObject(object, context, String.format("%s[%d]", contextName, i), parent, visited);
@@ -239,7 +206,6 @@ public class ValidationUtil {
             context.setAccessible(true);
             // if it's null, ignore it ;  TODO:  unless there is a non-null annotation which should cause a null value to fail!
             if (object == null) {
-                // if context.isAnnotationPresent(Notnull.class) { throw new IllegalArgumentException("cannot be null"); }
                 return;
             }
             if (context.isAnnotationPresent(Unchecked.class)) {

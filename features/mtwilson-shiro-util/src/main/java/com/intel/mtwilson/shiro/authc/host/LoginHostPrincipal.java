@@ -4,7 +4,6 @@
  */
 package com.intel.mtwilson.shiro.authc.host;
 
-import com.intel.dcsg.cpg.io.UUID;
 import java.io.Serializable;
 import java.security.Principal;
 

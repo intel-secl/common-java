@@ -30,8 +30,6 @@ public abstract class InteractiveCommand extends AbstractCommand {
          GuardedPassword guardedPassword = new GuardedPassword();
          try {
         if( options != null && options.containsKey(optName) ) {
-           // String passwordVar = options.getString(optName);
-            //password = System.getenv(passwordVar);
             guardedPassword.setPassword(System.getenv(options.getString(optName)));
              if (!guardedPassword.isPasswordValid()) {
                 System.err.println(String.format("Cannot get password from environment variable '%s' specified by option '%s'", options.getString(optName), optName));
@@ -62,8 +60,6 @@ public abstract class InteractiveCommand extends AbstractCommand {
         GuardedPassword guardedPassword = new GuardedPassword();
         try {
         if( options != null && options.containsKey(optName) ) {
-           // String passwordVar = options.getString(optName);
-           // password = System.getenv(passwordVar);
            guardedPassword.setPassword(System.getenv(options.getString(optName)));
             if (!guardedPassword.isPasswordValid()) {
                 System.err.println(String.format("Cannot get password from environment variable '%s' specified by option '%s'", options.getString(optName), optName));

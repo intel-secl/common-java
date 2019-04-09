@@ -5,7 +5,6 @@
 
 package com.intel.mountwilson.as.common;
 
-//import com.intel.mtwilson.My;
 import com.intel.dcsg.cpg.configuration.CommonsConfigurationAdapter;
 import com.intel.dcsg.cpg.configuration.PropertiesConfiguration;
 import com.intel.mtwilson.configuration.ConfigurationFactory;
@@ -41,7 +40,6 @@ public class ASConfig {
             log.error("Cannot load configuration", e);
             return new CommonsConfigurationAdapter(new PropertiesConfiguration());
         }
-//        return My.configuration().getConfiguration();
     }
     private static final Logger log = LoggerFactory.getLogger(ASConfig.class);
 
@@ -57,11 +55,6 @@ public class ASConfig {
         // Setting to control the # of parallel threads & associated time out for supporting multithreading during CRUD operations on hosts
         defaults.setProperty("mtwilson.bulkmgmt.threads.max", "32");
         defaults.setProperty("com.intel.mountwilson.as.hostmgmt.hostTimeout", "600");
-
-        // mtwilson.as.dek = base64-encoded AES key used by HostBO
-        // mtwilson.taca.keystore.password
-        // mtwilson.taca.key.alias
-        // mtwilson.taca.key.password
         return defaults;
     }
 

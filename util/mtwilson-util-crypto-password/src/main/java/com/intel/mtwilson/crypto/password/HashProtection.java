@@ -15,7 +15,6 @@ package com.intel.mtwilson.crypto.password;
  * @author jbuhacoff
  */
 public interface HashProtection {
-    //byte[] getPasswordHash();
     byte[] getSalt();
     int getIterations();
     String getAlgorithm();

@@ -5,7 +5,6 @@
 package com.intel.dcsg.cpg.crypto;
 
 import com.intel.dcsg.cpg.crypto.jca.MtWilsonProvider;
-import com.intel.dcsg.cpg.crypto.key.RandomSource;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;

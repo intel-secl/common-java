@@ -27,7 +27,6 @@ import java.security.cert.Certificate;
 public class PrivateKeyStore extends AbstractKeyStore implements Closeable {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PrivateKeyStore.class);
-//    private char[] keystorePassword;
     private KeyStore keystore;
     private KeyProtectionDelegate keyProtectionDelegate;
 
@@ -41,23 +40,17 @@ public class PrivateKeyStore extends AbstractKeyStore implements Closeable {
      */
     public PrivateKeyStore(String keystoreType, File keystoreFile, char[] keystorePassword) throws KeyStoreException, IOException {
         super(keystoreType, keystoreFile, keystorePassword);
-//        super.setKeyProtectionDelegate(new SinglePasswordKeyProtectionDelegate(keystorePassword));
         this.keystore = super.keystore();
-//        this.keystorePassword = keystorePassword;
         this.keyProtectionDelegate = new SinglePasswordKeyProtectionDelegate(keystorePassword);
     }
     public PrivateKeyStore(String keystoreType, Resource keystoreResource, char[] keystorePassword) throws KeyStoreException, IOException {
         super(keystoreType, keystoreResource, keystorePassword);
-//        super.setKeyProtectionDelegate(new SinglePasswordKeyProtectionDelegate(keystorePassword));
         this.keystore = super.keystore();
-//        this.keystorePassword = keystorePassword;
         this.keyProtectionDelegate = new SinglePasswordKeyProtectionDelegate(keystorePassword);
     }
     public PrivateKeyStore(String keystoreType, Resource keystoreResource, Password keystorePassword) throws KeyStoreException, IOException {
         super(keystoreType, keystoreResource, keystorePassword);
-//        super.setKeyProtectionDelegate(new SinglePasswordKeyProtectionDelegate(keystorePassword));
         this.keystore = super.keystore();
-//        this.keystorePassword = keystorePassword;
         this.keyProtectionDelegate = new SinglePasswordKeyProtectionDelegate(keystorePassword);
     }
 

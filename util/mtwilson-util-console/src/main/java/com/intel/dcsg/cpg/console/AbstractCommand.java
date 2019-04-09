@@ -4,7 +4,6 @@
  */
 package com.intel.dcsg.cpg.console;
 
-//import com.intel.dcsg.cpg.validation.ObjectModel;
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,24 +25,4 @@ public abstract class AbstractCommand implements Command {
     public Configuration getOptions() {
         return options;
     }
-    
-    /**
-     * 
-     * @param args list of option names that are required
-     */
-    /*
-    protected void requireOptions(String... args) {
-        for(String arg : args) {
-            String value = options.getString(arg);
-            if( value == null ) {
-                fault("required option %s is missing", arg);
-                continue;
-            }
-            if( value.isEmpty() ) {
-                fault("requierd option %s is empty", arg);
-                continue;
-            }
-        }
-    }
-    */
 }

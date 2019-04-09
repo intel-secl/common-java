@@ -120,7 +120,6 @@ ProductName.3082=Microsoft Visual C++ 2008 Redistributable
      * @throws IOException
      * @throws JAXBException 
      */
-//    @Test(expected=javax.xml.bind.UnmarshalException.class)
     @Test
     public void testPreventXmlEntityInjectionAllowDtd() throws IOException, JAXBException, XMLStreamException {
         String xml = "<!DOCTYPE foo [<!ENTITY inc SYSTEM \"file:///c:/globdata.ini\">]>\n" +

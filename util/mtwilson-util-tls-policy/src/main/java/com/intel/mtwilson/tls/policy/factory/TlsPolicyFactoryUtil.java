@@ -16,7 +16,6 @@ import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
 //import com.intel.mtwilson.My;
 import com.intel.mtwilson.tls.policy.TlsPolicyDescriptor;
 import com.intel.mtwilson.tls.policy.TlsProtection;
-import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableEntryException;
@@ -27,7 +26,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.codec.binary.Base64;
 
 /**
  *
@@ -48,7 +46,6 @@ public class TlsPolicyFactoryUtil {
     public static String guessEncodingForData(String sample) {
         log.trace("guessEncodingForData: {}", sample);
         if( sample == null ) { return null; }
-//        String printable = sample.replaceAll("[^\\p{Print}]", "");
         String printable = sample.replaceAll("["+HexUtil.NON_HEX+"&&"+Base64Util.NON_BASE64+"]", "");
         log.trace("guessEncodingForData printable: {}", printable);
         String hex = HexUtil.trim(printable);

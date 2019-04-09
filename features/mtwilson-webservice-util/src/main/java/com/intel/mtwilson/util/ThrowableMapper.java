@@ -4,7 +4,6 @@
  */
 package com.intel.mtwilson.util;
 
-//import com.intel.mtwilson.My;
 import com.intel.mtwilson.core.i18n.LocalizationUtil;
 import com.intel.mtwilson.jaxrs2.server.Util;
 import java.lang.reflect.InvocationTargetException;
@@ -50,7 +49,6 @@ public class ThrowableMapper implements ExceptionMapper<Throwable> {
     public Response toResponse(Throwable exception) {
         log.trace("ThrowableMapper toResponse", exception);
         Locale locale = Util.getAcceptableLocale(headers.getAcceptableLanguages(), LocalizationUtil.getAvailableLocales());
-//        Locale locale = Util.getAcceptableLocale(headers.getAcceptableLanguages(), My.configuration().getAvailableLocales());
         log.trace("ThrowableMapper locale: {}", locale.getDisplayName()); // example: English (United States)
         
         String localizedMessage;
@@ -103,25 +101,7 @@ public class ThrowableMapper implements ExceptionMapper<Throwable> {
                 log.trace("ThrowableMapper exception is NOT a subclass of {}", exceptionName);
             }
         }
-
-//        ResponseBuilder responseBuilder = Response.status(status).header("Error", localizedMessage);
-        
-         // setting empty entity to prevent web container from providing its own html error page wrapping our status message.
-        // for example, if our localized message is "Bad argument" with status 400, Tomcat would wrap it with this html message:
-        // <html><head><title>Apache Tomcat/7.0.34 - Error report</title><style><!--H1 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:22px;} H2 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:16px;} H3 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:14px;} BODY {font-family:Tahoma,Arial,sans-serif;color:black;background-color:white;} B {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;} P {font-family:Tahoma,Arial,sans-serif;background:white;color:black;font-size:12px;}A {color : black;}A.name {color : black;}HR {color : #525D76;}--></style> </head><body><h1>HTTP Status 400 - Bad argument</h1><HR size="1" noshade="noshade"><p><b>type</b> Status report</p><p><b>message</b> <u>Bad argument</u></p><p><b>description</b> <u>The request sent by the client was syntactically incorrect.</u></p><HR size="1" noshade="noshade"><h3>Apache Tomcat/7.0.34</h3></body></html>
-//        ResponseBuilder responseBuilder = Response.status(new CustomStatus(status, localizedMessage)).type("text/plain").entity(""); //.header("Error", localizedMessage).entity(Entity.text("").); // entity(Entity.text("")
-        ResponseBuilder responseBuilder = Response.status(status).type("text/plain").entity(localizedMessage); //.header("Error", localizedMessage).entity(Entity.text("").); // entity(Entity.text("")
-        /*
-        if( exception instanceof MWException ) {
-            ErrorCode code = ((MWException)exception).getErrorCode();
-            responseBuilder.header("Error-Code", code.getErrorCode());
-            responseBuilder.header("Error-Name", code.name());
-        }
-        else {
-            responseBuilder.header("Error-Code", ErrorCode.SYSTEM_ERROR.getErrorCode());
-            responseBuilder.header("Error-Name", ErrorCode.SYSTEM_ERROR.name());
-        }
-        */
+        ResponseBuilder responseBuilder = Response.status(status).type("text/plain").entity(localizedMessage);
         return responseBuilder.build();
     }
 
@@ -181,8 +161,6 @@ public class ThrowableMapper implements ExceptionMapper<Throwable> {
             ST template = new ST(pattern);
             Map<String, Object> sourceAttrs = PropertyUtils.describe(exception);// throws IllegalAccessException, InvocationTargetException, NoSuchMethodException
             for (Map.Entry<String, Object> attr : sourceAttrs.entrySet()) {
-                // there are attributes we skip, like "class" from getClass() 
-//                    if( attr.getKey().equals("class") ) { continue; }  // let the template see the exception class so an author could write <class.name> to get the exception class name into the message
                 Object value = PropertyUtils.getSimpleProperty(exception, attr.getKey());
                 template.add(attr.getKey(), value);
             }
@@ -192,7 +170,6 @@ public class ThrowableMapper implements ExceptionMapper<Throwable> {
         } catch (MissingResourceException e) {
             log.warn("No translation for key {} in bundle {}: {}", e.getKey(), e.getClassName(), e.getLocalizedMessage());
             return getLocalizedErrorMessage(new WebApplicationException(exception.getMessage(), exception), locale);
-//            return key;  // return just the message name with no parameters since we weren't able to find a localized translation, at least this will allow the recipient to maintain a local translation table for such untranslated constants
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             log.error("Cannot describe exception object", e);
             return key;

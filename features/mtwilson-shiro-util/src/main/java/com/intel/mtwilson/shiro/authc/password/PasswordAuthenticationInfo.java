@@ -67,14 +67,4 @@ public class PasswordAuthenticationInfo implements AuthenticationInfo /*, Salted
     public String toString() {
         return principals.toString();
     }
-
-    /*
-    @Override
-    public ByteSource getCredentialsSalt() {
-        if( credentials == null ) {
-            return null;
-        }
-        return ByteSource.Util.bytes(credentials.getSalt());
-    }
-    */
 }

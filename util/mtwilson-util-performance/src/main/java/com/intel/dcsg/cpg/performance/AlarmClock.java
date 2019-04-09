@@ -87,7 +87,6 @@ public class AlarmClock {
             snooze(startTime + duration - currentTime);
             currentTime = System.currentTimeMillis();
         } while( currentTime <= startTime + duration);
-//        log.debug("Slept for {} ms", currentTime - startTime);
     }
     
     public void snooze() {
@@ -106,14 +105,11 @@ public class AlarmClock {
      * @param duration 
      */
     public void snooze(long duration) {
-//        long startTime = System.currentTimeMillis();
         try {
             Thread.sleep(duration);
         }
         catch(InterruptedException ignored) {
             log.trace("Snooze interrupted", ignored);
         }
-//        long currentTime = System.currentTimeMillis();
-//        log.debug("Snoozed for {} ms", currentTime - startTime);
     }
 }

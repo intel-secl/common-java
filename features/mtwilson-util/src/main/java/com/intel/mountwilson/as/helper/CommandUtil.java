@@ -96,24 +96,4 @@ public class CommandUtil {
         }
         return result;
     }
-
-    // not being uesd.  also, use IOUtils to read contents of entire file into string 
-    /*
-    public static byte[] readfile(String fileName) throws Exception {
-
-        byte[] fileContents = null;
-
-        try {
-            InputStream fStream = new FileInputStream(fileName);
-            fileContents = new byte[fStream.available()];
-            fStream.read(fileContents);
-
-            fStream.close();
-        } catch (Exception ex) {
-            log.log(Level.SEVERE, null, ex);
-            throw ex;
-        }
-        return fileContents;
-    }
-    */
 }

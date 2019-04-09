@@ -165,7 +165,6 @@ public class RsaAuthorization {
         headers.put("X-Nonce", nonce);
         
         String username = new String(Base64.encodeBase64(credential.identity()));
-        //String timestamp = ISO8601.DATETIME.format(System.currentTimeMillis());
         String timestamp;
         if( headers.containsKey("Date") ) {
             timestamp = headers.get("Date");
@@ -199,7 +198,6 @@ public class RsaAuthorization {
         // includes the SHA256withRSA algorithm OID, which is a java specific format
         // for rsa signatures, and pure public key signatures don't have that.
         String authorization = String.format("X509 %s", headerParams( realm, username, signatureBlock.headerNames, signatureBlock.signatureAlgorithm,  signatureBase64));
-        //log.debug("authorization: "+authorization);
         return authorization;
     }
     
@@ -222,9 +220,6 @@ public class RsaAuthorization {
         dos.write(nonce);
 
         dos.flush();
-        //byte[] noncedata = bos.toByteArray(); // should be 8 bytes timestamp + 16 bytes random numbers
-        //System.out.println("nonce data length = "+noncedata.length);
-        //assert noncedata.length == 24;
 
         dos.close();
         return bos.toByteArray();
@@ -255,7 +250,6 @@ public class RsaAuthorization {
      * @param timestamp
      * @return 
      */
-    // realm, username, signatureBlock.headerNames, signatureBlock.signatureAlgorithm,  signature
     private String headerParams(String realm, String username, String[] headerNames, String signatureAlgorithm, String signatureBase64) {
         String headerNamesCSV = StringUtils.join(headerNames, ",");
         String[] input = new String[] { realm,   username,  headerNamesCSV,  signatureAlgorithm,  signatureBase64 };

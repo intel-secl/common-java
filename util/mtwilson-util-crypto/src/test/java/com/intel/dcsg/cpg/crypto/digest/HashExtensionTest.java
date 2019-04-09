@@ -10,11 +10,9 @@ import com.intel.dcsg.cpg.crypto.Sha256Digest;
 import com.intel.dcsg.cpg.io.UUID;
 import com.intel.dcsg.cpg.net.IPv4Address;
 import com.intel.dcsg.cpg.io.ByteArray;
-import java.nio.charset.Charset;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *

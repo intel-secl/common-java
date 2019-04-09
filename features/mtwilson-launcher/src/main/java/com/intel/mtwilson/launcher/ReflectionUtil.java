@@ -4,11 +4,6 @@
  */
 package com.intel.mtwilson.launcher;
 
-import com.intel.mtwilson.launcher.ext.annotations.Configure;
-import com.intel.mtwilson.launcher.ext.annotations.Initialize;
-import com.intel.mtwilson.launcher.ext.annotations.Validate;
-import com.intel.mtwilson.launcher.ext.annotations.Startup;
-import com.intel.mtwilson.launcher.ext.annotations.Shutdown;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 

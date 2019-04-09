@@ -4,8 +4,6 @@
  */
 package com.intel.dcsg.cpg.crypto;
 
-import com.intel.dcsg.cpg.crypto.Aes128;
-import com.intel.dcsg.cpg.crypto.CryptographyException;
 import com.intel.dcsg.cpg.crypto.file.PasswordProtectedKeyPemEnvelopeFactory;
 import com.intel.dcsg.cpg.crypto.file.PasswordProtectedKeyPemEnvelopeOpener;
 import com.intel.dcsg.cpg.crypto.file.PemKeyEncryption;

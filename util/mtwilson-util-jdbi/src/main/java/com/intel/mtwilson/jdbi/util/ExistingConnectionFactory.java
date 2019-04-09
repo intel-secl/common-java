@@ -4,8 +4,6 @@
  */
 package com.intel.mtwilson.jdbi.util;
 
-//import com.intel.mtwilson.My;
-//import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import org.skife.jdbi.v2.tweak.ConnectionFactory;
@@ -27,12 +25,5 @@ public class ExistingConnectionFactory implements ConnectionFactory {
     public Connection openConnection() throws SQLException {
         log.debug("openConnection returning connection: {}", connection);
         return connection;
-        /*
-        try {
-            return My.jdbc().connection();
-        } catch (IOException | ClassNotFoundException | SQLException e) {
-            throw new RuntimeException(e);
-        }
-        */
     }
 }

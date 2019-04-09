@@ -4,7 +4,6 @@
  */
 package com.intel.mtwilson.util;
 
-//import com.intel.mtwilson.My;
 import com.intel.mtwilson.core.i18n.LocalizationUtil;
 import com.intel.mtwilson.i18n.ErrorCode;
 import com.intel.mtwilson.jaxrs2.server.Util;
@@ -23,16 +22,6 @@ public class ThrowableMapperV1 extends ThrowableMapper {
     public Response toResponse(Throwable exception) {
         log.debug("ThrowableMapperV1 toResponse", exception);
         Locale locale = Util.getAcceptableLocale(headers.getAcceptableLanguages(), LocalizationUtil.getAvailableLocales());
-//        Locale locale = Util.getAcceptableLocale(headers.getAcceptableLanguages(), My.configuration().getAvailableLocales());
-        
-        /*
-        MediaType mediaType = Util.getAcceptableMediaType(headers.getAcceptableMediaTypes()); 
-        
-        // we respect client's media type selection only if it's json or xml,  if it's anything else we return the error in json
-        if( !mediaType.isCompatible(MediaType.APPLICATION_JSON_TYPE) && !mediaType.isCompatible(MediaType.APPLICATION_XML_TYPE) ) {
-            mediaType = MediaType.APPLICATION_JSON_TYPE;
-        }
-        */
         MediaType mediaType = MediaType.APPLICATION_JSON_TYPE;
 
         ErrorResponse errorResponse;

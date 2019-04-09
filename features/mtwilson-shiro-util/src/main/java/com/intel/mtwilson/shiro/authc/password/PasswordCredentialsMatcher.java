@@ -59,8 +59,6 @@ public class PasswordCredentialsMatcher implements CredentialsMatcher {
             return (byte[])credentials;
         }
         if( credentials instanceof char[]) {
-            //ByteBuffer bytebuffer = Charset.forName("UTF-8").encode(CharBuffer.wrap((char[])credentials));  // this is wrong because the Charset encode() method appends a null terminator which will cause the resulting hash to be wrong
-//            return bytebuffer.array();
             return String.valueOf((char[])credentials).getBytes(Charset.forName("UTF-8"));
         }
         if( credentials instanceof String ) {

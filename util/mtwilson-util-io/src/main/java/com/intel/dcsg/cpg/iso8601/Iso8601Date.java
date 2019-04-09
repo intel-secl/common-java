@@ -4,13 +4,8 @@
  */
 package com.intel.dcsg.cpg.iso8601;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -67,8 +62,6 @@ public class Iso8601Date extends Date {
     private static final Pattern pDateYearDay = Pattern.compile("^(?:"+rDateYearDay+")$");
     private static final Pattern pDatetime = Pattern.compile("^(?:"+rDatetime+")$");
     private static final Pattern pDatetimeWithTimezone = Pattern.compile("^(?:"+rDatetime+rTimezone+")$");
-//    private final Pattern datetimeTimezoneWithColon = Pattern.compile(rDatetime+"[+-]"+rTimezoneWithColon);
-//    private final Pattern datetimeTimezoneWithoutColon = Pattern.compile(rDatetime+"[+-]"+rTimezoneWithoutColon);
     public static final Pattern patterns[] = new Pattern[] { pDatetime, pDate, pDateWeek, pDateWeekDay, pDateYearDay, pDatetimeWithTimezone };
     
     public static final SimpleDateFormat iso8601DateTimeInputs[] = new SimpleDateFormat[] { 
@@ -92,15 +85,13 @@ public class Iso8601Date extends Date {
         new SimpleDateFormat("yyyy-'W'ww")
         };
     private static final SimpleDateFormat iso8601DateOutput = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"); // capital Z produces output like -0800 which is ok for iso8601 but not for rfc3339
-//    private Date date;
-    
+
     private Iso8601Date() {
         super();
     }
     
     public Iso8601Date(Date date) {
         super(date.getTime());
-//        this.date = date;
     }
     
     public Iso8601Date(long milliseconds) {
@@ -111,7 +102,6 @@ public class Iso8601Date extends Date {
      * Converts the date object to a string of the form yyyy-MM-dd'T'HH:mm:ssZ
      * @return 
      */
-    //@org.codehaus.jackson.annotate.JsonValue
     @com.fasterxml.jackson.annotation.JsonValue
     @Override
     public String toString() {
@@ -147,7 +137,6 @@ public class Iso8601Date extends Date {
      * @return a new instance of Iso8601Date
      * @throws IllegalArgumentException if the text is not a recognized ISO8601 format; only a subset of ISO8601 is currently supported
      */
-    //@org.codehaus.jackson.annotate.JsonCreator
     @com.fasterxml.jackson.annotation.JsonCreator
     public static Iso8601Date valueOf(String text) {
         if( text == null || text.isEmpty()) { return null; }

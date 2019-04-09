@@ -5,7 +5,6 @@
 package com.intel.dcsg.cpg.extensions;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 /**
@@ -57,7 +56,6 @@ public class FactoryRegistrar implements Registrar {
     }
 
     public static boolean isFactoryClass(Class<?> clazz) {
-//        boolean annotated = method.isAnnotationPresent(Plugin.class);
         boolean notInterface = !clazz.isInterface();
         boolean notAbstract = !Modifier.isAbstract(clazz.getModifiers());
         boolean conventional = clazz.getName().endsWith("Factory");

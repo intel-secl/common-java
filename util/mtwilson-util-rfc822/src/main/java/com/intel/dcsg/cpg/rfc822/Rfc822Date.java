@@ -56,7 +56,6 @@ public class Rfc822Date {
     public static Date parse(String text) {
         for(SimpleDateFormat f : rfc822DateInputs) {
             try {
-//                log.trace("Trying format: {}", f.toString());
                 Date date = f.parse(text);
                 return date;
             }

@@ -5,12 +5,8 @@
 package com.intel.mtwilson.jaxrs2.provider;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.intel.mtwilson.jaxrs2.mediatype.CryptoMediaType;
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
-//import org.codehaus.jackson.map.ObjectMapper;
-//import org.codehaus.jackson.map.SerializationConfig.Feature;
-//import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;

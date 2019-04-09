@@ -5,12 +5,10 @@
 package com.intel.mtwilson.jaxrs2.server;
 
 import com.intel.dcsg.cpg.i18n.LocaleUtil;
-import com.intel.mtwilson.i18n.BundleName;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.ResourceBundle;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -51,13 +49,7 @@ public class Util {
      * @return the best available locale on the server for the client's request, or the server's default locale
      */
     public static Locale getAcceptableLocale(List<Locale> acceptableLanguages, String[] availableLocales) {
-//        ArrayList<Locale> list = new ArrayList<Locale>();
-//        Enumeration<Locale> locales = request.getLocales(); // in priority order based on the accept language header in the request; if request doesn't specify then it contains the server's default locale (java-provided, not mtwilson-configured)
-//        while( locales.hasMoreElements() ) {
-//            list.add(locales.nextElement());
-//        }
         if( acceptableLanguages == null || acceptableLanguages.isEmpty() ) {
-//            list.add(Locale.getDefault()); // should never happen since the enumeration includes the platform default at the end
             return Locale.getDefault();
         }
         else {

@@ -22,8 +22,6 @@ import java.util.List;
  * @author jbuhacoff
  */
 public class BreadthFirstTreeSearch<T> {
-//    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(BreadthFirstTreeSearch.class);
-
 
     /**
      * 

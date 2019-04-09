@@ -21,7 +21,6 @@ public class UUIDConverter implements Converter<Object,UUID> {
         log.debug("field value {}", t);
         if( t instanceof String ) {
             log.debug("field string bytes length {}", ((String)t).getBytes().length);
-//            return UUID.valueOf((String)t);
             if( ((String)t).getBytes().length == 16 ) {
                 log.debug("converting from 16-bytes uuid string {}", ((String)t).getBytes());
                 return UUID.valueOf(((String)t).getBytes());

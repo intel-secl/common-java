@@ -11,18 +11,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
 import java.util.Properties;
-//import org.apache.commons.configuration.Configuration;
-//import org.apache.commons.configuration.ConfigurationException;
-//import org.apache.commons.configuration.PropertiesConfiguration;
 
 /**
  *
  * @author jbuhacoff
  */
 public class ResourceConfigurationProvider implements ConfigurationProvider {
-//    private String environmentVariableName = "";
-//    private String systemPropertyName;
-//    private String path;
     private Resource resource = null;
     public ResourceConfigurationProvider(Resource resource) {
         this.resource = resource;

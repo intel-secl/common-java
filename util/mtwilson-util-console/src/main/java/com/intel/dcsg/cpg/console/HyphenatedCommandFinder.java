@@ -34,8 +34,6 @@ import org.slf4j.LoggerFactory;
  */
 public class HyphenatedCommandFinder extends PackageCommandFinder {
     private final Logger log = LoggerFactory.getLogger(getClass());
-//    private Pattern camelCase = Pattern.compile("[a-z][A-Z]"); // TODO: use the character classes to support all unicode camelcase
-//    private Pattern hyphenated = Pattern.compile("-([a-zA-Z0-9])"); // TODO: use the character classes to support all unicode letters / legal java class name letters
     private final PascalCaseNamingStrategy converter; //Map<String,String> map;
     
     public HyphenatedCommandFinder(String packageName) {

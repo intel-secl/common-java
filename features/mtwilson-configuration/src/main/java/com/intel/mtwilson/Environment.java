@@ -22,8 +22,6 @@ public class Environment {
     
     private static final PrefixConfiguration environment = new PrefixConfiguration(new EnvironmentConfiguration(), System.getProperty("mtwilson.environment.prefix", "MTWILSON_"));
 
-//    public static Configuration getConfiguration() { return environment; }
-    
     /**
      * 
      * @return the prefix used to filter available environment variables 

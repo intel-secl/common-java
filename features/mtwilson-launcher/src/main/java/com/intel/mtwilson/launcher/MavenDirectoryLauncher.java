@@ -6,7 +6,6 @@ package com.intel.mtwilson.launcher;
 
 import com.intel.dcsg.cpg.classpath.MavenResolver;
 import com.intel.dcsg.cpg.module.Module;
-import com.intel.dcsg.cpg.module.ModuleRepository;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

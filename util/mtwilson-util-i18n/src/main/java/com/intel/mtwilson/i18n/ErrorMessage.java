@@ -6,7 +6,6 @@ package com.intel.mtwilson.i18n;
 
 import com.intel.dcsg.cpg.i18n.LocaleUtil;
 import com.intel.dcsg.cpg.i18n.Message;
-import java.text.MessageFormat;
 import java.util.Locale;
 
 /**

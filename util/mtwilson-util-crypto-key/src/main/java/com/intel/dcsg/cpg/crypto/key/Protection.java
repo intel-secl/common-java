@@ -133,20 +133,3 @@ public class Protection /*implements Copyable*/ {
     }
     
 }
-    /*
-    @Override
-    public void copy(Object other) {
-        if (other instanceof Protection) {
-            Protection protection = (Protection) other;
-            this.algorithm = protection.algorithm;
-            this.mode = protection.mode;
-            this.padding = protection.padding;
-            this.keyLengthBits = protection.keyLengthBits;
-            this.blockSizeBytes = protection.blockSizeBytes;
-            this.digestAlgorithm = protection.digestAlgorithm;
-            this.digestSizeBytes = protection.digestSizeBytes;
-            this.cipher = protection.cipher;
-        }
-    }
-    */
-

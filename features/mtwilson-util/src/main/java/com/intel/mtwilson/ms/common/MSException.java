@@ -4,8 +4,6 @@
  */
 package com.intel.mtwilson.ms.common;
 
-import javax.ws.rs.WebApplicationException;
-
 import com.intel.mtwilson.i18n.ErrorCode;
 import com.intel.mtwilson.util.MWException;
 

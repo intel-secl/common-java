@@ -11,7 +11,6 @@ import com.intel.mtwilson.jaxrs2.NoLinks;
 import com.intel.mtwilson.jaxrs2.server.resource.AbstractResource;
 import com.intel.dcsg.cpg.io.UUID;
 import com.intel.mtwilson.launcher.ws.ext.V2;
-//import javax.ejb.Stateless;
 import javax.ws.rs.Path;
 
 /**
@@ -19,8 +18,7 @@ import javax.ws.rs.Path;
  * @author jbuhacoff
  */
 @V2
-//@Stateless
-@Path("/versions") 
+@Path("/versions")
 public class VersionResource extends AbstractResource<Version,VersionCollection,VersionFilterCriteria,NoLinks<Version>> {
 
     @Override
@@ -51,14 +49,6 @@ public class VersionResource extends AbstractResource<Version,VersionCollection,
     protected void delete(String id) {
     }
 
-    /*
-    @Override
-    protected RpcFilterCriteria createFilterCriteriaWithId(String id) {
-        RpcFilterCriteria criteria = new RpcFilterCriteria();
-        criteria.id = UUID.valueOf(id);
-        return criteria;
-    }
-    */
     @Override
     protected VersionCollection createEmptyCollection() {
         return new VersionCollection();

@@ -4,15 +4,10 @@
  */
 package com.intel.dcsg.cpg.validation;
 
-//import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-//import com.fasterxml.jackson.annotation.JsonInclude;
-//import com.fasterxml.jackson.annotation.JsonTypeInfo;
-//import com.fasterxml.jackson.annotation.JsonValue;
 import com.intel.mtwilson.util.validation.faults.Thrown;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-//import org.apache.commons.lang3.StringUtils;
 
 /**
  * This class strongly resembles an Exception object but it is used differently.
@@ -33,40 +28,29 @@ import java.util.List;
  * @since 1.1
  * @author jbuhacoff
  */
-//@JsonInclude(JsonInclude.Include.NON_EMPTY)
-//@JsonIgnoreProperties(ignoreUnknown=true)
-//@JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, property="type")
 public class Fault implements Faults {
     private final String description;
-//    private final Throwable cause;
     private final List<Fault> more = new ArrayList<>();
     
     public Fault(String description) {
         if( description == null ) { throw new IllegalArgumentException("Cannot create a fault with null description"); }
-//        this.cause = null;
         this.description = description;
-//        this.more = new Fault[0];
     }
     
     public Fault(String format, Object... args) {
         if( format == null ) { throw new IllegalArgumentException("Cannot create a fault with null format"); }
-//        this.cause = null;
         this.description = String.format(format, args);
-//        this.more = new Fault[0];
     }
     
     public Fault(Throwable e, String description) {
         if( description == null ) { throw new IllegalArgumentException("Cannot create a fault with null description"); }
-//        this.cause = e;
         this.description = description;
         fault(e);
     }
     
     public Fault(Throwable e, String format, Object... args) {
         if( format == null ) { throw new IllegalArgumentException("Cannot create a fault with null format"); }
-//        this.cause = e;
         this.description = String.format(format, args);
-//        this.more = new Fault[0];
         fault(e);
     }
     
@@ -79,21 +63,18 @@ public class Fault implements Faults {
      */
     public Fault(Collection<Fault> related, String format, Object... args) {
         if( format == null ) { throw new IllegalArgumentException("Cannot create a fault with null format"); }
-//        this.cause = null;
         this.description = String.format(format, args);
         fault(related);
     }
 
     public Fault(Fault related, String format, Object... args) {
         if( format == null ) { throw new IllegalArgumentException("Cannot create a fault with null format"); }
-//        this.cause = null;
         this.description = String.format(format, args);
         fault(related);
     }
     
     public Fault(Faults related, String format, Object... args) {
         if( format == null ) { throw new IllegalArgumentException("Cannot create a fault with null format"); }
-//        this.cause = null;
         this.description = String.format(format, args);
         fault(related);
     }
@@ -102,17 +83,9 @@ public class Fault implements Faults {
      * 
      * @return 
      */
-//    @JsonValue
     @Override
     public String toString() {
         return String.format("[%s: %s]", getClass().getName(), description); // should never be null because we set it in every constructor
-        /*
-        return StringUtils.join(new String[] {
-            (description == null ? "" : description), // XXX TODO if we have a localizable Message object use that instead
-            (cause == null ? "" : (cause.getMessage() == null ? "" : "["+cause.getMessage()+"]")),
-            (more == null ? "" : (more.length == 0 ? "" : String.format("(%d more)", more.length)))
-        }, " "); 
-        */
     }
     
     protected final void fault(Throwable e) {

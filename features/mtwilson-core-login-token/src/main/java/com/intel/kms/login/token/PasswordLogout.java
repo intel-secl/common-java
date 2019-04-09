@@ -31,13 +31,10 @@ public class PasswordLogout {
     
     @POST
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
-//    public void submitLoginForm(@Context final HttpServletRequest request, @Context final HttpServletResponse response, @FormParam("username") String username, @FormParam("password") String password) {
     public void submitLogoutForm(@Context final HttpServletRequest request, @Context final HttpServletResponse response, @BeanParam PasswordLogoutRequest passwordLogoutRequest) throws GeneralSecurityException {
-//        log.debug("submitLoginForm username {} password {}", username, password);
         log.debug("submitLoginForm beanparam token {}", passwordLogoutRequest.getAuthorizationToken());
         log.debug("request from {}", request.getRemoteHost());
 
-//        logoutRequest(request, response, passwordLogoutRequest);
         log.debug("Successfully processed logout request with auth token {}.", passwordLogoutRequest.getAuthorizationToken());
         
         logoutRequest(request, response, passwordLogoutRequest);

@@ -10,7 +10,6 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 /**
  * @author jbuhacoff
@@ -24,7 +23,6 @@ public class ErrorLogFilter implements ContainerResponseFilter {
         if( httpStatusFamily == Response.Status.Family.CLIENT_ERROR || httpStatusFamily == Response.Status.Family.SERVER_ERROR ) {
             String incidentTag = RandomUtil.randomHexString(4); // 4 bytes => 8 hex digits  
             log.debug("Incident Tag #{}", incidentTag);
-//            response.getStringHeaders().add("Incident-Tag", incidentTag); // causes exception: java.lang.UnsupportedOperationException  thrown by the string headers map 
             response.getHeaders().add("Incident-Tag", incidentTag);
         }
     }

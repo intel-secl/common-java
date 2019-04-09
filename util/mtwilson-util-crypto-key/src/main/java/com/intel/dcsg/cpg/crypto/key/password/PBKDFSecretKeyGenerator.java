@@ -4,7 +4,6 @@
  */
 package com.intel.dcsg.cpg.crypto.key.password;
 
-import com.intel.dcsg.cpg.crypto.key.Protection;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;

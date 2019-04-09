@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import javax.mail.internet.ContentType;
 import javax.mail.internet.HeaderTokenizer;
 import javax.mail.internet.ParameterList;
 import javax.mail.internet.ParseException;
@@ -47,12 +46,8 @@ public class Rfc822Header {
             HeaderTokenizer h = new HeaderTokenizer(headerValue, HeaderTokenizer.RFC822);
             HeaderTokenizer.Token tk = h.next();
             value = tk.getValue();
-//            log.debug("token type {} value {}", tk.getType(), tk.getValue());  //  for example:  token type -1 value text/plain
             String parameterText = h.getRemainder();
-//            log.debug("parameters {}", parameters);
             ParameterList plist = new ParameterList(parameterText);
-//            ContentType header = new ContentType(headerValue);
-//            ParameterList plist = header.getParameterList();
             Enumeration<String> pnames = plist.getNames();
             while (pnames.hasMoreElements()) {
                 String pname = pnames.nextElement();

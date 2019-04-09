@@ -5,7 +5,6 @@
 package com.intel.mtwilson.util;
 
 import com.intel.dcsg.cpg.iso8601.Iso8601Date;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.Test;
 import org.slf4j.Logger;

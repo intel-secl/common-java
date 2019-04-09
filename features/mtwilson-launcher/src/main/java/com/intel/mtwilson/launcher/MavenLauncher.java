@@ -5,27 +5,18 @@
 package com.intel.mtwilson.launcher;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.commons.io.IOUtils;
 import com.intel.dcsg.cpg.performance.AlarmClock;
-import com.intel.mtwilson.collection.ArrayIterator;
 import com.intel.dcsg.cpg.module.Container;
 import com.intel.dcsg.cpg.classpath.MavenResolver;
 import com.intel.dcsg.cpg.module.Module;
-import com.intel.dcsg.cpg.module.ModuleRepository;
 import com.intel.dcsg.cpg.module.ModuleUtil;
 import com.intel.dcsg.cpg.classpath.ClassLoadingStrategy;
 import com.intel.dcsg.cpg.classpath.FencedClassLoadingStrategy;
 import com.intel.dcsg.cpg.classpath.JarUtil;
-import com.intel.dcsg.cpg.classpath.MultiJarFileClassLoader;
 import com.intel.dcsg.cpg.module.ContainerException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -150,7 +141,6 @@ public class MavenLauncher {
             File moduleJarFile = locateModuleJarFile(moduleName);
             if (ModuleUtil.isModule(moduleJarFile)) {
                 Manifest manifest = JarUtil.readManifest(moduleJarFile);
-                //                Set<File> classpath = resolver.resolveClasspath(module.getManifest()); 
                 Module module = new Module(moduleJarFile, manifest, classLoadingStrategy.getClassLoader(moduleJarFile, manifest, resolver));
                 log.debug("Module: {}", module.getImplementationTitle() + "-" + module.getImplementationVersion());
                 log.debug("Class-Path: {}", (Object[])module.getClasspath());

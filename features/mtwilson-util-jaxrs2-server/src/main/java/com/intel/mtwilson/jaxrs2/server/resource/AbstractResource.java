@@ -4,7 +4,6 @@
  */
 package com.intel.mtwilson.jaxrs2.server.resource;
 
-import com.intel.mtwilson.jaxrs2.mediatype.CryptoMediaType;
 import com.intel.mtwilson.jaxrs2.server.PATCH;
 import com.intel.dcsg.cpg.io.UUID;
 import com.intel.dcsg.cpg.validation.ValidationUtil;
@@ -72,8 +71,6 @@ import javax.ws.rs.core.Response;
  *
  * @author jbuhacoff
  */
-//@Stateless
-//@Path("/hosts")
 public abstract class AbstractResource<T extends Document, C extends DocumentCollection<T>, F extends FilterCriteria<T>, L extends PatchLink<T>> {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AbstractResource.class);
@@ -135,33 +132,8 @@ public abstract class AbstractResource<T extends Document, C extends DocumentCol
      */
     protected abstract void delete(String id);
 
-//    protected abstract F createFilterCriteriaWithId(String id); // hopefully just a temporary helper so we can make the json api work ok with our generics; looking for another way to do this but at least the implementations for this will be really easy 2-liners
-
-    protected abstract C createEmptyCollection(); 
+    protected abstract C createEmptyCollection();
     
-    /**
-     * Search for items. Input Content-Type is not applicable because GET
-     * requests do not have a request body. Output Content-Type is any of
-     * application/json, application/xml, application/yaml, or text/yaml
-     * depending on the client's Accept header.
-     *
-     * The result is a collection of items, even if only one item was found. If
-     * no items were found the result is an empty collection.
-     *
-     * This is the only method where the result for application/vnd.api+json is
-     * equivalent to the result for application/json.
-     *
-     * @param criteria
-     * @return
-     */
-    /*
-     @GET
-     @Produces({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML, OtherMediaType.APPLICATION_YAML, OtherMediaType.TEXT_YAML})
-     public List<T> searchList(@BeanParam F criteria) {
-     log.debug("searchCollection");
-     C collection = search(criteria);
-     return collection.getDocuments();
-     }*/
     /**
      * Search for items. Input Content-Type is not applicable because GET
      * requests do not have a request body. Output Content-Type is any of
@@ -180,7 +152,6 @@ public abstract class AbstractResource<T extends Document, C extends DocumentCol
      * @return S
      */
     @GET
-//    @Produces({OtherMediaType.APPLICATION_VND_API_JSON})
     @Produces({DataMediaType.APPLICATION_VND_API_JSON, MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, DataMediaType.APPLICATION_YAML, DataMediaType.TEXT_YAML})
     public C searchCollection(@BeanParam F criteria) {
         log.debug("searchCollection");
@@ -310,9 +281,7 @@ public abstract class AbstractResource<T extends Document, C extends DocumentCol
             }
 
         }
-        //return new Host();
-//        return patch(null);
-        return null; 
+        return null;
     }
 
     ///////////////////////////       JSON API      ///////////////////////////
@@ -415,20 +384,6 @@ public abstract class AbstractResource<T extends Document, C extends DocumentCol
     @Produces(DataMediaType.APPLICATION_VND_API_JSON)
     public C patchCollection(@PathParam("id") String id /*, PatchDocumentCollection patch */) {
         log.debug("patchCollection");
-//        HostFilterCriteria criteria = new HostFilterCriteria();
-//        criteria.id = UUID.valueOf(id);
-//        return searchCollection(criteria);
         return null;
     }
-    
-    /*
-    private void validate(Object input) {
-        try {
-            ValidationUtil.validate(input);
-        }
-        catch(Exception e) {
-            throw new MWException(e, ErrorCode.AS_INPUT_VALIDATION_ERROR, input, method.getName());            
-        }
-    }
-    */
 }

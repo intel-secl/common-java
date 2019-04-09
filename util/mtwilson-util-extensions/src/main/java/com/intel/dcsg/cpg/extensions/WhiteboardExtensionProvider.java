@@ -192,44 +192,7 @@ public class WhiteboardExtensionProvider implements ExtensionProvider {
             return null;
         }
     }
-    /*
-    private static <T> T createFirst(Class<T> serviceInterface, List<Class<?>> serviceImplementations) {
-        for(Class<?> item : serviceImplementations) {
-            T instance = create(serviceInterface, item);
-            if( instance != null ) {
-                return instance;
-            }
-        }
-        return null;
-    }
-    */
-    
-    /*
-    @Deprecated
-    private static <T,C> T createFirst(Class<T> returnType, List<Class<?>> serviceImplementations, C context) {
-        for(Class<?> item : serviceImplementations) {
-            T instance = create(returnType, item, context);
-            if( instance != null ) {
-                return instance;
-            }
-        }
-        return null;
-    }
-    */
-    
-    /*
-    private static <T> List<T> createAll(Class<T> serviceInterface, List<Class<?>> serviceImplementations) {
-        ArrayList<T> instances = new ArrayList<T>();
-        for(Class<?> item : serviceImplementations) {
-            T instance = create(serviceInterface, item);
-            if( instance != null ) {
-                instances.add(instance);
-            }
-        }
-        return instances;
-    }
-    */
-    
+
     @Deprecated
     private static <T,C> List<T> createAll(Class<T> returnType, List<Class<?>> serviceImplementations, C context) {
         ArrayList<T> instances = new ArrayList<>();
@@ -241,22 +204,10 @@ public class WhiteboardExtensionProvider implements ExtensionProvider {
         }
         return instances;
     }
-    
-    /*
-    private static <T> T createPreferred(Class<T> serviceInterface, List<Class<?>> serviceImplementations, List<String> preferenceOrder) {
-        return createPreferred(serviceInterface, serviceImplementations, preferenceOrder, null);
-    }
-    */
-
-   
 
     private static <T> void prefer(String serviceName, List<String> preferenceOrder) {
         preferences.put(serviceName, preferenceOrder);
     }
-//    //unused, can be added back later: klocwork 87
-//    private static <T> void prefer(String serviceName, String[] preferenceOrder) {
-//        preferences.put(serviceName, Arrays.asList(preferenceOrder));
-//    }
     public static <T> void prefer(Class<T> serviceInterface, List<String> preferenceOrder) {
         prefer(serviceInterface.getName(), preferenceOrder);
     }
@@ -264,48 +215,6 @@ public class WhiteboardExtensionProvider implements ExtensionProvider {
         prefer(serviceInterface.getName(), Arrays.asList(preferenceOrder));
     }
 
-    
-    /*
-    @Deprecated
-    private static <T,C> T createPreferred(Class<T> returnType, List<Class<?>> serviceImplementations, List<String> preferenceOrder, C context) {
-        for(String preference : preferenceOrder) {
-            log.debug("Looking for implementation with preference {}", preference);
-            for(Class<?> serviceImplementation : serviceImplementations) {
-                log.debug("Checking implementation {}", serviceImplementation.getName());
-                if( preference.equals(serviceImplementation.getName())) {
-                    log.debug("Found implementation {} for interface {}", serviceImplementation.getName(), returnType.getName());
-                    T instance = create(returnType, serviceImplementation, context);
-                    if( instance != null ) {
-                        return instance;
-                    }
-                }
-            }
-        }
-        // did not find one matching the preference ;so pick any one
-        return createFirst(returnType, serviceImplementations, context);
-    }
-    */
-
-    /*
-    @Deprecated
-    private static <T,C> T find(Class<T> returnType, Class<?> serviceInterface, C context) {
-        String serviceName = serviceInterface.getName();
-        List<Class<?>> serviceImplementations = whiteboard.get(serviceName);
-        if (serviceImplementations == null || serviceImplementations.isEmpty()) {
-            return null;
-        }
-        List<String> preferenceOrder = preferences.get(serviceName);
-        if (preferenceOrder == null || preferenceOrder.isEmpty() ) {
-            // no preference as to which implementation is desirable
-            log.debug("No preference for service {}", serviceName);
-//            return createFirst(serviceClass, matches);
-            preferenceOrder = ListUtils.EMPTY_LIST;
-        }
-        log.debug("There are {} preferences for service {}", preferenceOrder.size(), serviceName);
-        return createPreferred(returnType, serviceImplementations, preferenceOrder, context);
-    }
-    */
-    
     @Deprecated
     private static <T, C> List<T> findAll(Class<T> returnType, Class<?> serviceInterface, C context) {
         String serviceName = serviceInterface.getName();
@@ -324,7 +233,6 @@ public class WhiteboardExtensionProvider implements ExtensionProvider {
             log.debug("No registered implementations for {}", serviceName);
             serviceImplementations = ListUtils.EMPTY_LIST;
         }
-        //return createAll(returnType, serviceImplementations, context);
         ArrayList<String> classNames = new ArrayList<>();
         for(Class<?> clazz : serviceImplementations) {
             classNames.add(clazz.getName());
@@ -341,7 +249,6 @@ public class WhiteboardExtensionProvider implements ExtensionProvider {
 
     @Override
     public void reload() {
-//        throw new UnsupportedOperationException("Not supported yet.");
         /**
          * Because the whiteboard is passive, and any component can register
          * extensions on the whiteboard, what we need here is a mechanism
@@ -356,10 +263,8 @@ public class WhiteboardExtensionProvider implements ExtensionProvider {
 
     @Override
     public Iterator<String> find(Class<?> extension) {
-//        Collection<?> all = findAll(extension, extension, null);
         Collection<String> all = findAll(extension);
         log.debug("find extension {} returning {} items", extension.getName(), all.size());
-//        ServiceLoaderExtensionProvider.ClassNameIterator it = new ServiceLoaderExtensionProvider.ClassNameIterator(all.iterator());
         return all.iterator();
     }
 

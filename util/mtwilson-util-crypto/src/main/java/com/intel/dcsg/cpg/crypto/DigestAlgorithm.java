@@ -18,7 +18,6 @@ import org.apache.commons.codec.binary.Base64;
 public enum DigestAlgorithm {
     MD5(16, "MD5"),
     SHA1(20, "SHA-1", "SHA1"), // sha1 is 160-bits
-//    SHA224(28, "SHA224", "SHA-224", "SHA-2-224"),  // not available on most java platforms
     SHA256(32, "SHA-256", "SHA256", "SHA2-256", "SHA-2-256"),
     SHA384(48, "SHA-384", "SHA384", "SHA2-384", "SHA-2-384"),// like sha512 but not vulnerable to length-extension attack due to truncated output
     SHA512(64, "SHA-512", "SHA512", "SHA2-512", "SHA-2-512");
@@ -57,7 +56,6 @@ public enum DigestAlgorithm {
         if( base64Value == null ) { return false; }
         base64Value = Base64Util.trim(base64Value);
         return (base64Value.length() == Math.round(4*Math.ceil(1.0*length/3))) && Base64.isBase64(base64Value);
-//        return Base64.isBase64(base64Value);
     }
     
     /**

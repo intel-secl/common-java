@@ -4,8 +4,6 @@
  */
 package com.intel.dcsg.cpg.crypto.file;
 
-import com.intel.dcsg.cpg.crypto.file.PasswordEncryptedFile;
-import com.intel.dcsg.cpg.crypto.key.password.PasswordProtection;
 import com.intel.dcsg.cpg.crypto.key.password.PasswordProtection;
 import com.intel.dcsg.cpg.io.Resource;
 import java.io.ByteArrayInputStream;

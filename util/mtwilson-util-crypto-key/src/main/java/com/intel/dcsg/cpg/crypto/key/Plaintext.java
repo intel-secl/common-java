@@ -9,7 +9,6 @@ package com.intel.dcsg.cpg.crypto.key;
  * @author jbuhacoff
  */
 public class Plaintext {
-//    protected byte[] header;
     protected byte[] message;
     protected byte[] digest;
     protected Protection protection;

@@ -4,11 +4,8 @@
  */
 package com.intel.dcsg.cpg.module;
 
-import com.intel.mtwilson.pipe.Filter;
-import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The Whiteboard class keeps track of service consumers and service providers, automatically notifying consumers when a
@@ -56,7 +53,7 @@ public class Whiteboard {
      * have a matching @Notice method.
      * @param event 
      */
-    public void post(/*NoticeHolder*/Object event) {
+    public void post(Object event) {
         log.debug("Whiteboard event: {}", event/*.getWrappedObject()*/.getClass().getName());
         // notify everybody who is listening for an event like this
         for (ComponentHolder componentHolder : components) {
@@ -73,7 +70,6 @@ public class Whiteboard {
     
     // XXX TODO we wouldn't have to do the 2-step list&add if the componentholder itself would just do a no-exception connect... connect if possible, otherwise ignore it.  the list is not even useful to us after this method ebcause you can't assume that a connect() implies a notice().
     public void register(ExportHolder export) {
-//        export.getComponent().getExports().add(export); // the component handles its own list; we just add it to the whiteboard
         exports.add(export);
         // XXX TODO post added export event to whiteboard?
         for(ComponentHolder component : components) {
@@ -103,7 +99,6 @@ public class Whiteboard {
         // now deactivate all components that were connected to this export 
         // XXX TODO post removed export event to whiteboard?
         exports.remove(export);
-//        export.getComponent().getExports().remove(export); //  let the component handle its own list
         // now reactivate all components that were connected to this export... this time they wont' get the export we just unregistered
         for(ComponentHolder component : connected) {
             component.activate(); // throws ComponentActivationException ... XXX TODO should we catch this here and continue deactivating other components? by throwing the exception here we are giving up .... how will the container recover from this?
@@ -131,8 +126,7 @@ public class Whiteboard {
          * @param message 
          */
         public void post(Object message) {
-            /*NoticeHolder noticeHolder = new NoticeHolder(message, component);*/
-            whiteboard.post(/*noticeHolder*/message);
+            whiteboard.post(message);
         }
     }
 }

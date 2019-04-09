@@ -17,10 +17,6 @@ public class PasswordTest {
     @Test
     public void testZeroizePassword() {
         Password password = new Password("test".toCharArray());
-        // do not log senstive info
-        // log.debug("password before clear: {}", password.toCharArray());
         password.clear();
-        //log.debug("password after clear: {}", password.toCharArray());
-        
     }
 }

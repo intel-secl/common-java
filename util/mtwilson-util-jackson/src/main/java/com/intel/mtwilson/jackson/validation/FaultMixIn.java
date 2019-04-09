@@ -8,7 +8,6 @@ import com.intel.dcsg.cpg.validation.Fault;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import java.util.List;
 
 /**
  *
@@ -19,6 +18,4 @@ import java.util.List;
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, property="type")
 public abstract class FaultMixIn {
 
-//    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-//    public abstract List<Fault> getFaults();
 }

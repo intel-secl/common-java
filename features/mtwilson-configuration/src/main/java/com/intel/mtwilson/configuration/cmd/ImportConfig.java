@@ -68,7 +68,6 @@ public class ImportConfig extends InteractiveCommand {
         else {
             PasswordProtection protection = PasswordProtectionBuilder.factory().aes(256).block().sha256().pbkdf2WithHmacSha1().saltBytes(8).iterations(1000).build();
             if( !protection.isAvailable() ) {
-    //            log.warn("Protection algorithm {} key length {} mode {} padding {} not available", protection.getAlgorithm(), protection.getKeyLengthBits(), protection.getMode(), protection.getPadding());
                 protection = PasswordProtectionBuilder.factory().aes(128).block().sha256().pbkdf2WithHmacSha1().saltBytes(8).iterations(1000).build();
             }
             PasswordEncryptedFile encryptedFile = new PasswordEncryptedFile(out, password, protection);

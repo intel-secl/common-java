@@ -22,12 +22,6 @@ public abstract class DatabaseSetupTask extends AbstractSetupTask {
         try(ResultSet rs = connection.getMetaData().getTables(null, null, tableName, new String[] { "TABLE" })) {
         if(rs.next()) {
             created = true;
-            /*
-            int columns = rs.getMetaData().getColumnCount();
-            for(int i=1; i<=columns; i++) {
-                log.debug("Column: {}", rs.getMetaData().getColumnName(i));
-            }
-            */
         }
         }
         return created;

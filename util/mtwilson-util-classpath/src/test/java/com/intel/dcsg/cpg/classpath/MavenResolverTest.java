@@ -4,7 +4,6 @@
  */
 package com.intel.dcsg.cpg.classpath;
 
-import com.intel.dcsg.cpg.classpath.MavenResolver;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -94,19 +93,6 @@ public class MavenResolverTest {
         FileInputStream in = new FileInputStream(pomFile);
         Model pom = reader.read(in);
         in.close();
-        /*
-         * The model is abstract - it's only fo rthis artifact (does not include dependencies declared in parent)
-         * and does not have variables resolved (so you see variable names like version is ${mtwilson.version} instead
-         * of the value 1.2-SNAPSHOT) .  so we would need to do additional work to resolve everything , and 
-         * maven already knows how to do it so we would need to set up a context for it to initialize the project,
-         * and then run maven-dependency-plugin to generate the exact information we need.
-         MavenProject project = new MavenProject(pom);
-         DefaultMavenProjectBuilder builder = new DefaultMavenProjectBuilder();
-         DefaultProjectBuilderConfiguration config = new DefaultProjectBuilderConfiguration();
-         //        config.setLocalRepository(null)
-         // XXX TODO need to fill in the configuration...  probably trying to enter maven code at the wrong spot. really we just need mvn dependency:list
-         // report
-         */
         // report:
         List<Dependency> dependencies = pom.getDependencies();
         assertNotNull(dependencies);

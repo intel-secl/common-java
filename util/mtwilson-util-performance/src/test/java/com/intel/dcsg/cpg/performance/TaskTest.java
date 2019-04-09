@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import org.apache.commons.math3.stat.StatUtils;
-import com.intel.dcsg.cpg.performance.*;
 import com.intel.dcsg.cpg.performance.report.*;
 import static com.intel.dcsg.cpg.performance.report.PerformanceUtil.*;
 import java.util.ArrayList;
