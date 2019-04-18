@@ -1797,7 +1797,7 @@ add_postgresql_install_packages() {
     # code goes here
   elif [[ -n "$yum" && -n "$yum_packages" ]]; then
     pgAddPackRequired=$(yum list $yum_packages 2>/dev/null | grep -E 'Available Packages|Installed Packages')
-    repo_url="https://download.postgresql.org/pub/repos/yum/9.4/redhat/rhel-7-x86_64/pgdg-redhat94-9.4-2.noarch.rpm"
+    repo_url="https://download.postgresql.org/pub/repos/yum/9.4/redhat/rhel-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm"
     distro_release=
     repo_key_path=
   #elif [[ -n "$zypper" && -n "$zypper_packages" ]]; then
