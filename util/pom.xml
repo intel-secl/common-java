@@ -57,6 +57,7 @@
         <module>mtwilson-util-tree</module>
         <module>mtwilson-util-validation</module>
         <module>mtwilson-util-xml</module>
+        <module>mtwilson-util-validate-tpm-quote</module>
     </modules>
     
     <!--
