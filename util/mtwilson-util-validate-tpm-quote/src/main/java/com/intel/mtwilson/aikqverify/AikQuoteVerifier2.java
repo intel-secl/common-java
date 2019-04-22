@@ -31,7 +31,7 @@ public class AikQuoteVerifier2 {
     private static final int TPM_API_ALG_ID_SHA1 = 4;
     private static final int MAX_BANKS = 3;
 
-    public String getAikverifyLinux(byte[] challenge, byte[] quoteBytes, PublicKey rsaPublicKey) {
+    public String verifyAIKQuote(byte[] challenge, byte[] quoteBytes, PublicKey rsaPublicKey) {
 
         int index = 0;
         int quotedInfoLen = ByteBuffer.wrap(quoteBytes,0, 2).getShort();
@@ -50,8 +50,7 @@ public class AikQuoteVerifier2 {
         byte []recvNonce = tpm2bData;
 
         if (!Arrays.equals(recvNonce, challenge)){
-            log.debug("error matching nonce with challenge");
-            return null;
+            throw new IllegalStateException("error matching nonce with challenge");
         }
         index = index + tpm2bDataSize;
         /* Parse quote file
@@ -68,7 +67,7 @@ public class AikQuoteVerifier2 {
         log.debug("no of pcr banks: {}", pcrBankCount);
         if (pcrBankCount > 3){
             log.error("number of PCR selection array in the quote is greater 3 {}", pcrBankCount);
-            return "";
+            throw new IllegalStateException("number of PCR selection array in the quote is greater 3");
         }
 
         index += 4;
@@ -101,14 +100,14 @@ public class AikQuoteVerifier2 {
          * TPM_ALG_HASH
          * for TPM_ALG_RSASSA, the default hash algorihtm is TPM_ALG_SHA256 with value 0x000b
          */
-        log.debug("tpmt signature Algorithm: {}", tpmtSignatureAlg);
+        log.debug("tpm signature Algorithm: {}", tpmtSignatureAlg);
         pos += 2;
         int tpmtSignatureHashAlg = ByteBuffer.wrap(tpmtSig, pos, 2).getShort(); // This is NOT in network order
-        log.debug("tpmt signature Hash Algorithm: {}", tpmtSignatureHashAlg);
+        log.debug("tpm signature Hash Algorithm: {}", tpmtSignatureHashAlg);
 
         pos += 2;
         int tpmtSignatureSize = ByteBuffer.wrap(tpmtSig, pos, 2).getShort(); // This is NOT in network order
-        log.debug("tpmt signature size: {}", tpmtSignatureSize);
+        log.debug("tpm signature size: {}", tpmtSignatureSize);
 
         pos += 2;
         byte [] tpmtSignature = Arrays.copyOfRange(tpmtSig,  pos, pos + tpmtSignatureSize);
@@ -124,15 +123,14 @@ public class AikQuoteVerifier2 {
         }
         catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException ex) {
             log.error("could not decrypt signature: {}", ex.getMessage());
-            return "";
+            throw new IllegalStateException("could not decrypt signature,", ex);
         }
 
         int numPcrs = tpmtSigIndex + pos + tpmtSignatureSize;
         int pcrLen = quoteBytes.length - (numPcrs - index);
         log.debug("pcrLen: {}", pcrLen);
         if (pcrLen <=0) {
-            log.error("no PCR values included in quote\n");
-            return "";
+            throw new IllegalStateException("no PCR values included in quote");
         }
         byte [] pcrs = Arrays.copyOfRange(tpmtSig, pos + tpmtSignatureSize, tpmtSig.length);
 
@@ -142,7 +140,7 @@ public class AikQuoteVerifier2 {
 
         if (!Arrays.equals(tpmt_signature, hashbytes)){
             log.error("rsa verification failed");
-            return "";
+            throw new IllegalStateException("rsa verification failed");
         }
 
         // validate the PCR concatenated digest
@@ -150,7 +148,6 @@ public class AikQuoteVerifier2 {
         int hashAlg = 0;
         int pcrSize = 0;
         byte[] pcrConcat = null;
-        //List<Byte []> pcrConcat = new ArrayList<Byte []>();
         int pcrConcatLen = SHA256_SIZE * 24 * 3;
         StringBuilder sb = new StringBuilder();
         for (int j=0; j<pcrBankCount; j++) {
@@ -161,8 +158,7 @@ public class AikQuoteVerifier2 {
                 pcrSize = SHA256_SIZE;
             else {
                 log.error("Not supported PCR banks {} in quote\n", hashAlg);
-                return "";
-                //returnCode = 3;
+                throw new IllegalStateException("PCR bank not supported");
             }
 
             for (int pcr=0; pcr < 8*pcrSelection[j].getSize(); pcr++) {
@@ -191,15 +187,12 @@ public class AikQuoteVerifier2 {
             }
         }
         if (ind<1) {
-            log.error("Error, no PCRs selected for quote\n");
-            return "";
+            throw new IllegalStateException("Error, no PCRs selected for quote");
         }
 
         final byte[] pcrDigest = digest.digest(pcrConcat);
-
         if(!Arrays.equals(pcrDigest, tpm2bDigest)){
-            log.error("Error in comparing the concatenated PCR digest with the digest in quote");
-            return "";
+            throw new IllegalStateException("Error in comparing the concatenated PCR digest with the digest in quote");
         }
 
         log.info("qoute validation successfully done");
