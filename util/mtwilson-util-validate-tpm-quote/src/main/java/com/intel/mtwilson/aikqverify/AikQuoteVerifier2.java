@@ -22,21 +22,19 @@ import org.apache.commons.lang.ArrayUtils;
  * @author rpravee1
  */
 
-public class Aikqverify {
+public class AikQuoteVerifier2 {
 
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Aikqverify.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AikQuoteVerifier2.class);
     private static final int SHA1_SIZE = 20;
     private static final int SHA256_SIZE = 32;
     private static final int TPM_API_ALG_ID_SHA256 = 11;
     private static final int TPM_API_ALG_ID_SHA1 = 4;
+    private static final int MAX_BANKS = 3;
 
-    public Map<Integer, Map<String, String>> getAikverifyLinux(byte[] challenge, byte[] quoteBytes, PublicKey rsaPublicKey) {
-
-        HashMap<String, String> pcrsMap = new HashMap<String, String>();
-        Map<Integer, Map<String, String>> pcrsMap1 = new LinkedHashMap<>();
+    public String getAikverifyLinux(byte[] challenge, byte[] quoteBytes, PublicKey rsaPublicKey) {
 
         int index = 0;
-        int quotedInfoLen = ByteBuffer.wrap(quoteBytes,0, 2).order(ByteOrder.LITTLE_ENDIAN).getShort();
+        int quotedInfoLen = ByteBuffer.wrap(quoteBytes,0, 2).getShort();
 
         index += 2;
         byte [] quotedInfo = Arrays.copyOfRange(quoteBytes, index, index + quotedInfoLen);
@@ -53,6 +51,7 @@ public class Aikqverify {
 
         if (!Arrays.equals(recvNonce, challenge)){
             log.debug("error matching nonce with challenge");
+            return null;
         }
         index = index + tpm2bDataSize;
         /* Parse quote file
@@ -69,6 +68,7 @@ public class Aikqverify {
         log.debug("no of pcr banks: {}", pcrBankCount);
         if (pcrBankCount > 3){
             log.error("number of PCR selection array in the quote is greater 3 {}", pcrBankCount);
+            return "";
         }
 
         index += 4;
@@ -96,18 +96,18 @@ public class Aikqverify {
          * TPMI_SIG_ALG_SCHEME
          * for now, it is TPM_ALG_RSASSA with value 0x0014
          */
-        int tpmtSignatureAlg = ByteBuffer.wrap(tpmtSig, 0, 2).order(ByteOrder.LITTLE_ENDIAN).getShort(); // This is NOT in networ order
+        int tpmtSignatureAlg = ByteBuffer.wrap(tpmtSig, 0, 2).getShort(); // This is NOT in networ order
         /* hashAlg used by the signature algorithm indicated above
          * TPM_ALG_HASH
          * for TPM_ALG_RSASSA, the default hash algorihtm is TPM_ALG_SHA256 with value 0x000b
          */
         log.debug("tpmt signature Algorithm: {}", tpmtSignatureAlg);
         pos += 2;
-        int tpmtSignatureHashAlg = ByteBuffer.wrap(tpmtSig, pos, 2).order(ByteOrder.LITTLE_ENDIAN).getShort(); // This is NOT in network order
+        int tpmtSignatureHashAlg = ByteBuffer.wrap(tpmtSig, pos, 2).getShort(); // This is NOT in network order
         log.debug("tpmt signature Hash Algorithm: {}", tpmtSignatureHashAlg);
 
         pos += 2;
-        int tpmtSignatureSize = ByteBuffer.wrap(tpmtSig, pos, 2).order(ByteOrder.LITTLE_ENDIAN).getShort(); // This is NOT in network order
+        int tpmtSignatureSize = ByteBuffer.wrap(tpmtSig, pos, 2).getShort(); // This is NOT in network order
         log.debug("tpmt signature size: {}", tpmtSignatureSize);
 
         pos += 2;
@@ -124,6 +124,7 @@ public class Aikqverify {
         }
         catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException ex) {
             log.error("could not decrypt signature: {}", ex.getMessage());
+            return "";
         }
 
         int numPcrs = tpmtSigIndex + pos + tpmtSignatureSize;
@@ -131,6 +132,7 @@ public class Aikqverify {
         log.debug("pcrLen: {}", pcrLen);
         if (pcrLen <=0) {
             log.error("no PCR values included in quote\n");
+            return "";
         }
         byte [] pcrs = Arrays.copyOfRange(tpmtSig, pos + tpmtSignatureSize, tpmtSig.length);
 
@@ -140,6 +142,7 @@ public class Aikqverify {
 
         if (!Arrays.equals(tpmt_signature, hashbytes)){
             log.error("rsa verification failed");
+            return "";
         }
 
         // validate the PCR concatenated digest
@@ -150,16 +153,15 @@ public class Aikqverify {
         //List<Byte []> pcrConcat = new ArrayList<Byte []>();
         int pcrConcatLen = SHA256_SIZE * 24 * 3;
         StringBuilder sb = new StringBuilder();
-        List<String> pcrsList = new ArrayList<>();
         for (int j=0; j<pcrBankCount; j++) {
             hashAlg = pcrSelection[j].getHashAlg();
-            HashMap <String, String> pcrMap = new LinkedHashMap<>();
             if (hashAlg == 0x04)
                 pcrSize = SHA1_SIZE;
             else if (hashAlg == 0x0B)
                 pcrSize = SHA256_SIZE;
             else {
                 log.error("Not supported PCR banks {} in quote\n", hashAlg);
+                return "";
                 //returnCode = 3;
             }
 
@@ -172,70 +174,36 @@ public class Aikqverify {
                     if ((pcrPos + pcrSize) < pcrConcatLen) {
                         pcrConcat = concatenate(pcrConcat, Arrays.copyOfRange(pcrs, pcrPos, pcrPos + pcrSize));
                     }
+                    if (hashAlg == 0x04)
+                        sb.append(String.format("%2d ", pcr));
+                    else if (hashAlg == 0x0B)
+                        sb.append(String.format("%2d_SHA256 ", pcr));
                     for (int i=0; i<pcrSize; i++) {
                         sb.append(String.format("%02x", pcrs[pcrPos+i]));
                     }
-                    pcrsMap.put(String.valueOf(pcr), sb.toString());
-                    pcrsList.add(sb.toString());
-                    pcrMap.put(String.valueOf(pcr), sb.toString());
-                    sb.setLength(0);
+                    sb.append("\n");
+
                     pcri++;
                     ind++;
                     concatSize += pcrSize;
                     pcrPos += pcrSize;
                 }
             }
-            pcrsMap1.put(pcrSize, pcrMap);
         }
         if (ind<1) {
             log.error("Error, no PCRs selected for quote\n");
+            return "";
         }
 
-        log.debug("map {}", pcrsMap1);
         final byte[] pcrDigest = digest.digest(pcrConcat);
 
         if(!Arrays.equals(pcrDigest, tpm2bDigest)){
             log.error("Error in comparing the concatenated PCR digest with the digest in quote");
+            return "";
         }
-
-
-
-        /* Print out PCR values  */
-        /*
-        pcri=0; ind=0; concatSize=0; pcrPos=0;
-        for (int j=0; j<pcrBankCount; j++) {
-            hashAlg = pcrSelection[j].hashAlg;
-            if (hashAlg == 0x04)
-                pcrSize = SHA1_SIZE;
-            else if (hashAlg == 0x0B)
-                pcrSize = SHA256_SIZE;
-            else {
-                log.error("Not supported PCR banks in quote\n");
-            }
-            for (int pcr=0; pcr < 8*pcrSelection[j].size; pcr++) {
-                byte [] pcrSelected = pcrSelection[j].getPcrSelected();
-
-                int selected = pcrSelected[pcr/8] & (1 << (pcr%8));
-                if (selected > 0) {
-                    if (hashAlg == 0x04)
-                        log.debug   ("pcr: {} ", pcr);
-                    else if (hashAlg == 0x0B)
-                        //printf ("SHA256_%2d ", pcr);
-                        log.debug("pcr : {} ", pcr);
-
-                    for (int i=0; i<pcrSize; i++) {
-                        log.debug("{}", String.format(" %02x ", pcrs[pcrPos+i]));
-                    }
-                    log.debug("\n");
-                    pcrPos += pcrSize;
-                    pcri++;
-                }
-            }
-        }
-        */
 
         log.info("qoute validation successfully done");
-        return pcrsMap1;
+        return sb.toString();
     }
 
     public static <T> byte[] concatenate(byte[] a, byte[] b)
@@ -282,7 +250,7 @@ public class Aikqverify {
         int cbLog = 0;
         int index = 0;
         HashMap<String, String> pcrsMap = new HashMap<String, String>();
-        Map<Integer, Map<String, String>> pcrsMap1  = new LinkedHashMap<>();
+        Map<Integer, Map<String, String>> pcrsAlgMap  = new LinkedHashMap<>();
 
         /*
         typedef struct _PCP_PLATFORM_ATTESTATION_BLOB2 {
@@ -336,7 +304,6 @@ public class Aikqverify {
 
         byte[] pbPcrValues =  Arrays.copyOfRange(quoteBytes, cursor, cursor + cbPcrValues);
 
-        log.debug("pbPcrValue: {}", pbPcrValues);
         log.debug("pcrAlgId: {}", pcrAlgId);
         log.debug("tpmVersion {}", tpmVersion);
 
@@ -377,7 +344,7 @@ public class Aikqverify {
             log.error("rsa verification failed");
         }
 
-        byte[] tpmQuoted;
+        byte[] tpmQuoted = new byte[0];
         int tpm2bNameSize = 0;
         int tpm2bDataSize = 0;
         int recvNonceLen = 0;
@@ -387,68 +354,116 @@ public class Aikqverify {
         // validate nonce
         if (tpmVersion==2) {
             tpmQuoted = Arrays.copyOfRange(pbQuote, index, pbQuote.length);
-            log.debug("{}", tpmQuoted.length);
             //qualifiedSigner -- skip the magic header and type -- not interested
             index += 6;
             tpm2bNameSize = ByteBuffer.wrap(tpmQuoted, index, 2).getShort();
-            log.debug("tpm2bNameSize :{}", tpm2bNameSize);
             index += 2;
             tpm2bNameBuffer = Arrays.copyOfRange(tpmQuoted, index, index + tpm2bNameSize);
 
             index += tpm2bNameSize;
             tpm2bDataSize = ByteBuffer.wrap(tpmQuoted, index, 2).getShort();
-            log.debug("tpm2bDataSize: {}", tpm2bDataSize);
             recvNonceLen = tpm2bDataSize;
             index += 2;
             tpm2bDataBuffer = Arrays.copyOfRange(tpmQuoted, index, index + tpm2bDataSize);
             recvNonce = tpm2bDataBuffer;
-
+            index += tpm2bDataSize;
             log.debug("chalmd :{}", chalmd);
             log.debug("recvNonce :{}", recvNonce);
             if(!Arrays.equals(chalmd, recvNonce)){
                 log.error("Error in comparing the received nonce with the challenge");
             }
         }
-        StringBuilder sb = new StringBuilder();
-        int pcri = 0;
-        List<String> pcrsList = new ArrayList<>();
-        HashMap<String, String> pcrMap = new LinkedHashMap<>();
-        if (pcrAlgId == TPM_API_ALG_ID_SHA256) {
-            /* Print out PCR values */
-            for (int pcr = 0; pcr < 24; pcr++) {
-                log.debug("{}", pcr);
-                sb.setLength(0);
-                for (int i = 0; i < 32; i++) {
-                    sb.append(String.format("%02x", pbPcrValues[32 * pcri + i]));
-                }
-                pcrsMap.put(String.valueOf(pcr), sb.toString());
-                pcrMap.put(String.valueOf(pcr), sb.toString());
-                pcrsList.add(sb.toString());
-                log.debug("\n");
-                pcri++;
-            }
-            pcrsMap1.put(32, pcrMap);
-        }
-        else
-        {
-            for (int pcr = 0; pcr < 24; pcr++) {
-                log.debug("{}", pcr);
-                sb.setLength(0);
-                for (int i = 0; i < 20; i++) {
-                    sb.append(String.format("%02x", pbPcrValues[32 * pcri + i]));
-                }
-                pcrsMap.put(String.valueOf(pcr), sb.toString());
-                pcrMap.put(String.valueOf(pcr), sb.toString());
-                pcrsList.add(sb.toString());
-                log.debug("\n");
-                pcri++;
-            }
-            pcrsMap1.put(24, pcrMap);
-        }
-        log.debug("pcrs map: {}", pcrsMap1);
-        log.info("qoute validation successfully done");
-        return pcrsMap1;
 
+        // prepare to verify PCR digest
+        index += 17; // skip over the TPMS_CLOCKINFO structure - Not interested
+        index += 8;  // skip over the firmware info - Not interested
+        /* TPMU_ATTEST with selected PCR banks and PCRs, and their hash
+         * tpms_quote_info tpml_pcr_selection
+         *	count 			uint32	0x00000001	 4 bytes -indicates the number of tpms_pcr_slection array
+         *	tpms_pcr_selection	hash algorithm	uint16	2 bytes
+         *				size of bit map	uint8	1 byte
+         *				pcrSelect		size of bytes
+         *	tpms_pcr_selection
+         *	...
+         *	tpm2b_digest		size	0x0020	2 bytes
+         *				digest	32 bytes of hash
+         */
+
+        int pcrBankCount = ByteBuffer.wrap(tpmQuoted, index, 4).getInt();
+        log.debug("pcrBankCount :{}", pcrBankCount);
+
+        index += 4;
+        if (pcrBankCount > MAX_BANKS) {
+            log.error("number of PCR selection array in the quote is greater than: {}", MAX_BANKS);
+        }
+
+        // processing the tpms_pcr_selection array
+        PcrSelection[] pcrSelection = new PcrSelection[pcrBankCount];
+        for (int i = 0; i < pcrBankCount; i++) {
+            pcrSelection[i] = new PcrSelection();
+            pcrSelection[i].setHashAlg(ByteBuffer.wrap(tpmQuoted, index, 2).getShort());
+            index += 2;
+            pcrSelection[i].setSize(ByteBuffer.wrap(tpmQuoted, index, 1).get());
+            index += 1;
+            pcrSelection[i].setPcrSelected(Arrays.copyOfRange(tpmQuoted, index, index + pcrSelection[i].size));
+            index += pcrSelection[i].getSize();
+        }
+
+        int tpm2bDigestSize = ByteBuffer.wrap(tpmQuoted, index, 2).getShort();
+        index += 2;
+        byte[] tpm2bDigest = Arrays.copyOfRange(tpmQuoted, index, index + tpm2bDigestSize);
+
+        // validate the PCR concatenated digest
+        int pcri = 0, ind = 0, concatSize = 0, pcrPos = 0;
+        int hashAlg = 0;
+        int pcrSize = 0;
+        byte[] pcrConcat = null;
+        int pcrConcatLen = SHA256_SIZE * 24 * 3;
+        StringBuilder sb = new StringBuilder();
+        for (int j = 0; j < pcrBankCount; j++) {
+            hashAlg = pcrSelection[j].getHashAlg();
+            if (hashAlg == 0x04)
+                pcrSize = SHA1_SIZE;
+            else if (hashAlg == 0x0B)
+                pcrSize = SHA256_SIZE;
+            else {
+                log.error("Not supported PCR banks {} in quote\n", hashAlg);
+            }
+
+            for (int pcr = 0; pcr < 8 * pcrSelection[j].getSize(); pcr++) {
+                byte[] pcrSelected = pcrSelection[j].getPcrSelected();
+
+                int selected = pcrSelected[pcr / 8] & (1 << (pcr % 8));
+                if (selected > 0) {
+
+                    if ((pcrPos + pcrSize) < pcrConcatLen) {
+                        pcrConcat = concatenate(pcrConcat, Arrays.copyOfRange(pbPcrValues, pcr * pcrSize, pcr * pcrSize + pcrSize));
+                    }
+                    for (int i = 0; i < pcrSize; i++) {
+                        sb.append(String.format("%02x", pbPcrValues[pcrPos + i]));
+                    }
+                    pcrsMap.put(String.valueOf(pcr), sb.toString());
+                    sb.setLength(0);
+                    pcri++;
+                    ind++;
+                    concatSize += pcrSize;
+                    pcrPos += pcrSize;
+                }
+            }
+            pcrsAlgMap.put(pcrSize, pcrsMap);
+        }
+        if (ind < 1) {
+            log.error("Error, no PCRs selected for quote\n");
+        }
+
+        final byte[] pcrDigest = digest.digest(pcrConcat);
+
+        if (!Arrays.equals(pcrDigest, tpm2bDigest)) {
+            log.error("Error in comparing the concatenated PCR digest with the digest in quote");
+        }
+
+        log.info("qoute validation successfully done");
+        return pcrsAlgMap;
     }
 
 }
