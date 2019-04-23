@@ -126,13 +126,13 @@ public class AikQuoteVerifier2 {
             throw new IllegalStateException("could not decrypt signature,", ex);
         }
 
-        int numPcrs = tpmtSigIndex + pos + tpmtSignatureSize;
-        int pcrLen = quoteBytes.length - (numPcrs - index);
+        pos = pos + tpmtSignatureSize;
+        int pcrLen = quoteBytes.length - (pos + tpmtSigIndex);
         log.debug("pcrLen: {}", pcrLen);
         if (pcrLen <=0) {
             throw new IllegalStateException("no PCR values included in quote");
         }
-        byte [] pcrs = Arrays.copyOfRange(tpmtSig, pos + tpmtSignatureSize, tpmtSig.length);
+        byte [] pcrs = Arrays.copyOfRange(tpmtSig, pos, pos + pcrLen);
 
         final byte[] hashbytes = digest.digest(quotedInfo);
 
@@ -189,7 +189,6 @@ public class AikQuoteVerifier2 {
         if (ind<1) {
             throw new IllegalStateException("Error, no PCRs selected for quote");
         }
-
         final byte[] pcrDigest = digest.digest(pcrConcat);
         if(!Arrays.equals(pcrDigest, tpm2bDigest)){
             throw new IllegalStateException("Error in comparing the concatenated PCR digest with the digest in quote");
