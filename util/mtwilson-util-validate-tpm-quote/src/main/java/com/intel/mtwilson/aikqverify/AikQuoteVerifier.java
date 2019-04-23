@@ -8,39 +8,29 @@ import javax.crypto.NoSuchPaddingException;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.security.*;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 
 public class AikQuoteVerifier {
     private static final transient org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AikQuoteVerifier.class);
 
-    public String verifyAIKQuote(byte[] challenge, byte[] quote, PublicKey rsaPublicKey) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+    public String verifyAIKQuote(byte[] challenge, byte[] quote, PublicKey rsaPublicKey) throws IOException, NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
 
-        byte[] pcrs = null;
-        byte[] signature = null;
+        byte[] pcrs;
+        byte[] signature;
         byte[] select;
-        byte[] chalmd = new byte[20];
+        byte[] chalmd;
         byte[] qinfo = new byte[8 + 20 + 20];
         byte[] qinfoDigest;
-        StringBuilder sb = new StringBuilder();
         MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        int selectLength = 0;
-        int pcrLength = 0;
+        int selectLength;
+        int pcrLength;
         int pcr;
         int pcrIndex = 0;
         String pcrValues = "";
 
-
-        messageDigest.update(challenge);
-        chalmd = messageDigest.digest();
-        messageDigest.reset();
-
-        for (byte b : chalmd) {
-            sb.append(String.format(" %02x ", b));
-        }
-        log.debug("Challenge message digest hex: {}", sb.toString());
-        sb = new StringBuilder();
+        chalmd = messageDigest.digest(challenge);
+        log.debug("Challenge message digest: {}", chalmd);
 
         if (quote.length < 2)
             log.error("Input AIK quote file has incorrect format");
@@ -55,17 +45,12 @@ public class AikQuoteVerifier {
         if (2 + selectLength + 4 + pcrLength + 20 > quote.length)
             log.error("Input AIK quote file has incorrect format");
         pcrs = Arrays.copyOfRange(quote, 2 + selectLength + 4, 2 + selectLength + 4 + pcrLength);
-        for (byte b : pcrs) {
-            sb.append(String.format(" %02x ", b));
-        }
-        log.debug("PCR hex: {}", sb.toString());
-        sb = new StringBuilder();
+
+        log.debug("PCRs: {}", pcrs);
+
         signature = Arrays.copyOfRange(quote, 2 + selectLength + 4 + pcrLength, quote.length);
-        for (byte b : signature) {
-            sb.append(String.format(" %02x ", b));
-        }
-        log.debug("Signature hex: {}", sb.toString());
-        sb = new StringBuilder();
+
+        log.debug("Signature extracted from quote");
         log.debug("Signature length: {}", signature.length);
 
         qinfo[0] = 1;
@@ -82,41 +67,34 @@ public class AikQuoteVerifier {
         baos.write(messageDigest.digest());
         baos.write(chalmd);
         qinfo = baos.toByteArray();
-        for (byte b : qinfo) {
-            sb.append(String.format(" %02x ", b));
-        }
-        log.debug("Quote info hex: {}", sb.toString());
-        sb = new StringBuilder();
 
-        messageDigest.update(qinfo);
-        qinfoDigest = messageDigest.digest();
-        for (byte b : qinfoDigest) {
-            sb.append(String.format(" %02x ", b));
-        }
-        log.debug("Quote Digest hex: {}", sb.toString());
-        sb = new StringBuilder();
+        log.debug("Quote info: {}", qinfo);
+
+        qinfoDigest = messageDigest.digest(qinfo);
+
+        log.debug("Quote Digest: {}", qinfoDigest);
+
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.DECRYPT_MODE, rsaPublicKey);
         byte[] decryptedSignature = cipher.doFinal(signature);
-        for (byte b : decryptedSignature) {
-            sb.append(String.format(" %02x ", b));
-        }
-        log.debug("Decrypted signature hex: {}", sb.toString());
+
+        log.debug("Signature has been decrypted");
 
 
         if (!Arrays.equals(qinfoDigest, Arrays.copyOfRange(decryptedSignature, decryptedSignature.length - qinfoDigest.length, decryptedSignature.length))) {
+            log.error("Quote verification failed");
             throw new IOException("Quote verification failed");
         }
 
         for (pcr = 0; pcr < 8 * selectLength; pcr++) {
-            pcrValues = pcrValues + String.format("%2d", pcr) + " ";
-            while (pcrIndex < pcrLength) {
-                pcrValues = pcrValues + String.format("%02x", pcrs[pcrIndex]);
+            if ((select[pcr / 8] & (1 << (pcr % 8))) != 0) {
+                pcrValues = pcrValues + String.format("%2d", pcr) + " ";
+                for (int i = 0; i < 20; i++) {
+                    pcrValues = pcrValues + String.format("%02x", pcrs[20 * pcrIndex + i]);
+                }
+                pcrValues = pcrValues + "\n";
                 pcrIndex++;
-                if ((pcrIndex) % 20 == 0)
-                    break;
             }
-            pcrValues = pcrValues + "\n";
         }
         log.debug("aikqverify output:\n {}", pcrValues);
         return pcrValues;
