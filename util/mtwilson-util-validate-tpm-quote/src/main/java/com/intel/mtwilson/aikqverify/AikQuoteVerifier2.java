@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Intel Corporation
+ * Copyright (C) 2019 Intel Corporation
  * All rights reserved.
  */
 
@@ -17,6 +17,8 @@ import org.apache.commons.lang.ArrayUtils;
 
 
 /**
+ * AikQuoteVerifier class can be used to validate tpm quote generated from both linux and windows platforms
+ * and also return pcr values.
  *
  * @author rpravee1
  */
@@ -26,21 +28,29 @@ public class AikQuoteVerifier2 {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AikQuoteVerifier2.class);
     private static final int SHA1_SIZE = 20;
     private static final int SHA256_SIZE = 32;
+    //Hash Algorithm ID for SHA256 and SHA1 according to TCG standards are 0x0B and 0x04 respectively
     private static final int TPM_API_ALG_ID_SHA256 = 0x0B;
     private static final int TPM_API_ALG_ID_SHA1 = 0x04;
-    private static final int MAX_BANKS = 3;
+    private static final int MAX_PCR_BANKS = 3;
 
+    /**
+     * verifyAIKQuote Method takes arguments challenge, quote as byte arrays and RSA Public key and returns the list of PCR
+     * values as string.
+     */
     public String verifyAIKQuote(byte[] challenge, byte[] quote, PublicKey rsaPublicKey) {
 
         int index = 0;
-        int quotedInfoLen = ByteBuffer.wrap(quote,0, 2).getShort();
+        int quoteInfoLen = ByteBuffer.wrap(quote,0, 2).getShort();
 
         index += 2;
-        byte [] quotedInfo = Arrays.copyOfRange(quote, index, index + quotedInfoLen);
+        byte [] quoteInfo = Arrays.copyOfRange(quote, index, index + quoteInfoLen);
+        //qualifiedSigner -- skip the magic header and type -- not interested
         index += 6;
 
         int tpm2bNameSize = ByteBuffer.wrap(quote, index, 2).getShort();
         index += 2;
+
+        //skip the tpm2bName -- not interested
         index += tpm2bNameSize;
         int tpm2bDataSize = ByteBuffer.wrap(quote, index, 2).getShort();
 
@@ -49,8 +59,9 @@ public class AikQuoteVerifier2 {
         byte []recvNonce = tpm2bData;
 
         if (!Arrays.equals(recvNonce, challenge)){
-            throw new IllegalStateException("error matching nonce with challenge");
+            throw new IllegalStateException("AIK Quote verification failed, Nonce received does not matches with challenge");
         }
+        log.info("Successfully verified challenge response");
         index = index + tpm2bDataSize;
         /* Parse quote file
          * The quote result is constructed as follows for now
@@ -64,9 +75,9 @@ public class AikQuoteVerifier2 {
         int pcrBankCount = ByteBuffer.wrap(quote, index, 4).getInt();
 
         log.debug("no of pcr banks: {}", pcrBankCount);
-        if (pcrBankCount > MAX_BANKS){
-            log.error("number of PCR selection array in the quote is greater 3 {}", pcrBankCount);
-            throw new IllegalStateException("number of PCR selection array in the quote is greater 3");
+        if (pcrBankCount > MAX_PCR_BANKS){
+            throw new IllegalStateException("AIK Quote verification failed, Number of PCR selection array in " +
+                    "the quote is greater 3, pcrBankCount" + pcrBankCount);
         }
 
         index += 4;
@@ -86,8 +97,12 @@ public class AikQuoteVerifier2 {
         index += 2;
         byte [] tpm2bDigest = Arrays.copyOfRange(quote, index, index + tpm2bDigestSize);
 
-        /* PART 2: TPMT_SIGNATURE */
-        int tpmtSigIndex = 2 + quotedInfoLen; // jump to the TPMT_SIGNATURE strucuture
+        /* PART 2: TPMT_SIGNATURE
+        Skip the first 2 bytes having the quote info size and remaining bytes, which includes signer info, nonce, pcr selection
+        and extra data. So jump to TPMT_SIGNATURE
+        */
+
+        int tpmtSigIndex = 2 + quoteInfoLen;
         byte[] tpmtSig = Arrays.copyOfRange(quote, tpmtSigIndex, quote.length);
         int pos = 0;
         /* sigAlg -indicates the signature algorithm
@@ -97,7 +112,7 @@ public class AikQuoteVerifier2 {
         int tpmtSignatureAlg = ByteBuffer.wrap(tpmtSig, 0, 2).getShort();
         /* hashAlg used by the signature algorithm indicated above
          * TPM_ALG_HASH
-         * for TPM_ALG_RSASSA, the default hash algorihtm is TPM_ALG_SHA256 with value 0x000b
+         * for TPM_ALG_RSASSA, the default hash algorithm is TPM_ALG_SHA256 with value 0x000b
          */
         log.debug("tpm signature Algorithm: {}", tpmtSignatureAlg);
         pos += 2;
@@ -121,27 +136,28 @@ public class AikQuoteVerifier2 {
             digest = MessageDigest.getInstance("SHA-256");
         }
         catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException ex) {
-            log.error("could not decrypt signature: {}", ex.getMessage());
-            throw new IllegalStateException("could not decrypt signature,", ex);
+            throw new IllegalStateException("AIK Quote verification failed, Failed to decrypt the signature", ex);
         }
+
+        log.info("RSA verification of tpm signature is successfully done");
 
         pos = pos + tpmtSignatureSize;
         int pcrLen = quote.length - (pos + tpmtSigIndex);
         log.debug("pcrLen: {}", pcrLen);
         if (pcrLen <=0) {
-            throw new IllegalStateException("no PCR values included in quote");
+            throw new IllegalStateException("AIK Quote verification failed, No PCR values included in quote");
         }
 
         byte [] pcrs = Arrays.copyOfRange(tpmtSig, pos, pos + pcrLen);
 
-        final byte[] quoteDigest = digest.digest(quotedInfo);
+        final byte[] quoteDigest = digest.digest(quoteInfo);
         
         /* Decrypted Signature has Header 19 bytes along with the signature,
-         actual signature starts from position (decryptedSignature.length - quoteDigest.length)*/
-        byte[] tpmt_signature = Arrays.copyOfRange(decryptedSignature, decryptedSignature.length - quoteDigest.length, decryptedSignature.length);
+         So signature starts from position (decryptedSignature.length - quoteDigest.length)*/
+        byte[] tpmt_signature = Arrays.copyOfRange(decryptedSignature, decryptedSignature.length - quoteDigest.length,
+                decryptedSignature.length);
         if (!Arrays.equals(tpmt_signature, quoteDigest)){
-            log.error("rsa verification failed");
-            throw new IllegalStateException("rsa verification failed");
+            throw new IllegalStateException("AIK Quote verification failed, Decrypted signature does not match with tpm quote digest");
         }
 
         // validate the PCR concatenated digest
@@ -149,8 +165,10 @@ public class AikQuoteVerifier2 {
         int hashAlg = 0;
         int pcrSize = 0;
         byte[] pcrConcat = null;
+        //pcrConcatLen is size of bytes having all the pcr values in the quote. i.e, size of SHA256 in bytes * no of pcr entries=24 * pcr banks=3
         int pcrConcatLen = SHA256_SIZE * 24 * 3;
         StringBuilder sb = new StringBuilder();
+
         for (int j=0; j<pcrBankCount; j++) {
             hashAlg = pcrSelection[j].getHashAlg();
             if (hashAlg == TPM_API_ALG_ID_SHA1)
@@ -158,10 +176,12 @@ public class AikQuoteVerifier2 {
             else if (hashAlg == TPM_API_ALG_ID_SHA256)
                 pcrSize = SHA256_SIZE;
             else {
-                log.error("Not supported PCR banks {} in quote\n", hashAlg);
-                throw new IllegalStateException("PCR bank not supported");
+                throw new IllegalStateException("AIK Quote verification failed, Unsupported PCR banks, hash algorithm id: " + hashAlg);
             }
-
+            /* For each pcr bank iterate through each pcr selection array.
+               Here pcrSelection.pcrSelected byte array contains 3 elements, where each bit of this element corresponds to pcr entry.
+               8 bits pcrSelection.pcrSelected value corresponds to 8 PCR entries.
+            */
             for (int pcr=0; pcr < 8*pcrSelection[j].getSize(); pcr++) {
                 byte [] pcrSelected = pcrSelection[j].getPcrSelected();
                 int selected = pcrSelected[pcr/8] & (1 << (pcr%8));
@@ -186,24 +206,27 @@ public class AikQuoteVerifier2 {
         }
 
         if (ind<1) {
-            throw new IllegalStateException("Error, no PCRs selected for quote");
+            throw new IllegalStateException("AIK Quote verification failed, None of the PCRs selected for the quote");
         }
 
         final byte[] pcrDigest = digest.digest(pcrConcat);
         if(!Arrays.equals(pcrDigest, tpm2bDigest)){
-            throw new IllegalStateException("Error in comparing the concatenated PCR digest with the digest in quote");
+            throw new IllegalStateException("AIK Quote verification failed, Digest of Concatenated PCR values " +
+                    "does not match with PCR digest in the quote");
         }
 
-        log.info("qoute validation successfully done");
+        log.info("Successfully verified AIK Quote");
         return sb.toString();
     }
 
+    //Helper Function for concatenation of pcr values
     public static <T> byte[] concatenate(byte[] a, byte[] b)
     {
         byte[] c = (byte[]) ArrayUtils.addAll(a, b);
         return c;
     }
 
+    //Helper class for storing pcr selections
     public class PcrSelection{
         int size;
         int hashAlg;
