@@ -160,7 +160,10 @@
             <artifactId>javax.annotation-api</artifactId>
             <optional>true</optional>
         </dependency>
-        
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency> 
         <!-- end jersey 2.x -->
     </dependencies>
     
