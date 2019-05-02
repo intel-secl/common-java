@@ -34,13 +34,13 @@ public class ArbitraryHostRequestFilter implements ContainerRequestFilter {
         try {
             hIP = InetAddress.getByName(hName).getHostAddress();
         } catch (UnknownHostException e) {
-            e.printStackTrace();
+            log.error("Failed to get web server address");
         }
         if (!lName.equals(hIP)) {
             containerRequest.abortWith(Response.status(Response.Status.FORBIDDEN)
                     .entity("Invalid Request")
                     .build());
-            log.error("Invalid host header, dropping request from "+ request.getRemoteHost()); 
+            log.error("Invalid host header, dropping request from {}", request.getRemoteHost()); 
             return;         
         }
         
