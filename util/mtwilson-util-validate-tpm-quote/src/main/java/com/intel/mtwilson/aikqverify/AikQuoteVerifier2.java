@@ -28,9 +28,10 @@ public class AikQuoteVerifier2 {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AikQuoteVerifier2.class);
     private static final int SHA1_SIZE = 20;
     private static final int SHA256_SIZE = 32;
-    //Hash Algorithm ID for SHA256 and SHA1 according to TCG standards are 0x0B and 0x04 respectively
+    //Hash Algorithm ID for SHA1, SHA256, SM3 SHA256 according to TCG standards are 0x04,0x0B and 0x012 respectively
     private static final int TPM_API_ALG_ID_SHA256 = 0x0B;
     private static final int TPM_API_ALG_ID_SHA1 = 0x04;
+    private static final int TPM_API_ALG_ID_SM3_SHA256 = 0x012;
     private static final int MAX_PCR_BANKS = 3;
 
     /**
@@ -173,7 +174,7 @@ public class AikQuoteVerifier2 {
             hashAlg = pcrSelection[j].getHashAlg();
             if (hashAlg == TPM_API_ALG_ID_SHA1)
                 pcrSize = SHA1_SIZE;
-            else if (hashAlg == TPM_API_ALG_ID_SHA256)
+            else if (hashAlg == TPM_API_ALG_ID_SHA256 || hashAlg == TPM_API_ALG_ID_SM3_SHA256)
                 pcrSize = SHA256_SIZE;
             else {
                 throw new IllegalStateException("AIK Quote verification failed, Unsupported PCR banks, hash algorithm id: " + hashAlg);
@@ -193,8 +194,11 @@ public class AikQuoteVerifier2 {
                         sb.append(String.format("%2d ", pcr));
                     else if (hashAlg == TPM_API_ALG_ID_SHA256)
                         sb.append(String.format("%2d_SHA256 ", pcr));
-                    for (int i=0; i<pcrSize; i++) {
-                        sb.append(String.format("%02x", pcrs[pcrPos+i]));
+		    //Ignore the pcr banks other than SHA1 and SHA256
+                    if(hashAlg == TPM_API_ALG_ID_SHA1 || hashAlg == TPM_API_ALG_ID_SHA256) {
+                        for (int i = 0; i < pcrSize; i++) {
+                            sb.append(String.format("%02x", pcrs[pcrPos + i]));
+                        }
                     }
                     sb.append("\n");
                     pcri++;
