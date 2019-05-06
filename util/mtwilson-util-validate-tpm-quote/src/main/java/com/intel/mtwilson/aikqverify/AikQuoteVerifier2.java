@@ -35,7 +35,7 @@ public class AikQuoteVerifier2 {
     private static final int TPM_API_ALG_ID_SHA256 = 0x0B;
     private static final int TPM_API_ALG_ID_SHA384 = 0x0C;
     private static final int TPM_API_ALG_ID_SHA512 = 0x0D;
-    private static final int TPM_API_ALG_ID_SM3_SHA256 = 0x012;
+    private static final int TPM_API_ALG_ID_SM3_SHA256 = 0x12;
 
 
     private static final int MAX_PCR_BANKS = 5;
@@ -45,6 +45,13 @@ public class AikQuoteVerifier2 {
      * values as string.
      */
     public String verifyAIKQuote(byte[] challenge, byte[] quote, PublicKey rsaPublicKey) {
+
+        HashMap <Integer, Integer> hashAlgPcrSizeMap = new HashMap<Integer, Integer>();
+        hashAlgPcrSizeMap.put(TPM_API_ALG_ID_SHA1, SHA1_SIZE);
+        hashAlgPcrSizeMap.put(TPM_API_ALG_ID_SHA256, SHA256_SIZE);
+        hashAlgPcrSizeMap.put(TPM_API_ALG_ID_SHA384, SHA384_SIZE);
+        hashAlgPcrSizeMap.put(TPM_API_ALG_ID_SHA512, SHA512_SIZE);
+        hashAlgPcrSizeMap.put(TPM_API_ALG_ID_SM3_SHA256, SHA256_SIZE);
 
         int index = 0;
         int quoteInfoLen = ByteBuffer.wrap(quote,0, 2).getShort();
@@ -178,14 +185,9 @@ public class AikQuoteVerifier2 {
 
         for (int j=0; j<pcrBankCount; j++) {
             hashAlg = pcrSelection[j].getHashAlg();
-            if (hashAlg == TPM_API_ALG_ID_SHA1)
-                pcrSize = SHA1_SIZE;
-            else if (hashAlg == TPM_API_ALG_ID_SHA256 || hashAlg == TPM_API_ALG_ID_SM3_SHA256)
-                pcrSize = SHA256_SIZE;
-            else if(hashAlg == TPM_API_ALG_ID_SHA384)
-                pcrSize = SHA384_SIZE;
-            else if(hashAlg == TPM_API_ALG_ID_SHA512)
-                pcrSize = SHA512_SIZE;
+            if(hashAlgPcrSizeMap.keySet().contains(hashAlg)){
+                pcrSize = hashAlgPcrSizeMap.get(hashAlg);
+            }
             else {
                 throw new IllegalStateException("AIK Quote verification failed, Unsupported PCR banks, hash algorithm id: " + hashAlg);
             }
