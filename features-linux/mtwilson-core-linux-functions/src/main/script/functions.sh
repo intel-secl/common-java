@@ -2103,6 +2103,12 @@ postgres_configure_connection() {
 #      fi
 }
 
+postgres_change_owner() {
+prev_user=$1
+sudo -u postgres psql  postgres -c "GRANT ALL PRIVILEGES ON DATABASE mw_as to ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" 1>/dev/null
+sudo -u postgres psql -d mw_as postgres -c "REASSIGN OWNED BY $prev_user TO ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" 1>/dev/null
+sudo -u postgres psql  postgres -c "REVOKE ALL PRIVILEGES ON DATABASE mw_as FROM $prev_user" 1>/dev/null
+}
 
 # requires a postgres connection that can access the existing database, OR (if it doesn't exist)
 # requires a postgres connection that can create databases and grant privileges
@@ -2140,6 +2146,11 @@ if postgres_server_detect ; then
       if [ -z "$user_is_superuser" ]; then
         local create_user_sql="CREATE USER ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME} WITH PASSWORD '${POSTGRES_PASSWORD:-$DEFAULT_POSTGRES_PASSWORD}';"
         sudo -u postgres psql postgres -c "${create_user_sql}" 1>/dev/null
+        local detect_prevuser=$(sudo -u postgres psql -d mw_as  postgres -t -c "select tableowner from pg_tables where tablename = 'mw_flavor'" 2>&1 )
+        local POSTGRES_PREVUSERNAME=${detect_prevuser##* }
+        if [ "$POSTGRES_PREVUSERNAME" != "${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" ]; then
+          postgres_change_owner $POSTGRES_PREVUSERNAME
+        fi
       fi
       # Do not provide Superuser Privileges to HVS Database User ISECL-3860
       local superuser_alter="ALTER USER ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME} WITH NOSUPERUSER;"
