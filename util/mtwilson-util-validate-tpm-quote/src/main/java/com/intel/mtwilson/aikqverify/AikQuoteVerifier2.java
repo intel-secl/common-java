@@ -1,6 +1,10 @@
 /*
  * Copyright (C) 2019 Intel Corporation
+<<<<<<< Updated upstream
  * SPDX-License-Identifier: BSD-3-Clause
+=======
+ * All rights reserved.
+>>>>>>> Stashed changes
  */
 
 package com.intel.mtwilson.aikqverify;
@@ -28,11 +32,17 @@ public class AikQuoteVerifier2 {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AikQuoteVerifier2.class);
     private static final int SHA1_SIZE = 20;
     private static final int SHA256_SIZE = 32;
-    //Hash Algorithm ID for SHA1, SHA256, SM3 SHA256 according to TCG standards are 0x04,0x0B and 0x012 respectively
-    private static final int TPM_API_ALG_ID_SHA256 = 0x0B;
+    private static final int SHA384_SIZE = 48;
+    private static final int SHA512_SIZE = 64;
+    //Hash Algorithm ID for SHA1, SHA256, SHA384, SHA512 and SM3 SHA256 according to TCG standards are 0x04,0x0B, 0x0C, 0x0D and 0x012 respectively
     private static final int TPM_API_ALG_ID_SHA1 = 0x04;
+    private static final int TPM_API_ALG_ID_SHA256 = 0x0B;
+    private static final int TPM_API_ALG_ID_SHA384 = 0x0C;
+    private static final int TPM_API_ALG_ID_SHA512 = 0x0D;
     private static final int TPM_API_ALG_ID_SM3_SHA256 = 0x012;
-    private static final int MAX_PCR_BANKS = 3;
+
+
+    private static final int MAX_PCR_BANKS = 5;
 
     /**
      * verifyAIKQuote Method takes arguments challenge, quote as byte arrays and RSA Public key and returns the list of PCR
@@ -78,7 +88,7 @@ public class AikQuoteVerifier2 {
         log.debug("no of pcr banks: {}", pcrBankCount);
         if (pcrBankCount > MAX_PCR_BANKS){
             throw new IllegalStateException("AIK Quote verification failed, Number of PCR selection array in " +
-                    "the quote is greater 3, pcrBankCount" + pcrBankCount);
+                    "the quote is greater 5, pcrBankCount" + pcrBankCount);
         }
 
         index += 4;
@@ -176,6 +186,10 @@ public class AikQuoteVerifier2 {
                 pcrSize = SHA1_SIZE;
             else if (hashAlg == TPM_API_ALG_ID_SHA256 || hashAlg == TPM_API_ALG_ID_SM3_SHA256)
                 pcrSize = SHA256_SIZE;
+            else if(hashAlg == TPM_API_ALG_ID_SHA384)
+                pcrSize = SHA384_SIZE;
+            else if(hashAlg == TPM_API_ALG_ID_SHA512)
+                pcrSize = SHA512_SIZE;
             else {
                 throw new IllegalStateException("AIK Quote verification failed, Unsupported PCR banks, hash algorithm id: " + hashAlg);
             }
@@ -194,7 +208,7 @@ public class AikQuoteVerifier2 {
                         sb.append(String.format("%2d ", pcr));
                     else if (hashAlg == TPM_API_ALG_ID_SHA256)
                         sb.append(String.format("%2d_SHA256 ", pcr));
-		    //Ignore the pcr banks other than SHA1 and SHA256
+        		    //Ignore the pcr banks other than SHA1 and SHA256
                     if(hashAlg == TPM_API_ALG_ID_SHA1 || hashAlg == TPM_API_ALG_ID_SHA256) {
                         for (int i = 0; i < pcrSize; i++) {
                             sb.append(String.format("%02x", pcrs[pcrPos + i]));
