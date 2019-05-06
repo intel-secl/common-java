@@ -1,10 +1,6 @@
 /*
  * Copyright (C) 2019 Intel Corporation
-<<<<<<< Updated upstream
  * SPDX-License-Identifier: BSD-3-Clause
-=======
- * All rights reserved.
->>>>>>> Stashed changes
  */
 
 package com.intel.mtwilson.aikqverify;
