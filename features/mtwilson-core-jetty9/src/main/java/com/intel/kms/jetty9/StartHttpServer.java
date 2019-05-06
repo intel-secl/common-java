@@ -15,6 +15,7 @@ import com.intel.mtwilson.util.crypto.keystore.PasswordKeyStore;
 import java.io.File;
 import java.io.IOException;
 import java.security.KeyStoreException;
+import java.security.KeyStore;
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -54,7 +55,7 @@ import org.eclipse.jetty.server.handler.ErrorHandler;
  * configuration.
  *
  * When running independently, you can set those properties on the java command
- * line with -Djavax.net.ssl.keyStore=keystore.jks and
+ * line with -Djavax.net.ssl.keyStore=keystore.p12 and
  * -Djavax.net.ssl.keyStorePassword=password.
  *
  * @author jbuhacoff
@@ -88,7 +89,7 @@ public class StartHttpServer implements Runnable {
     }
 
     protected File getKeystoreFile() {
-        return new File(configuration.get(JettyTlsKeystore.JAVAX_NET_SSL_KEYSTORE, Folders.configuration() + File.separator + "keystore.jks"));
+        return new File(configuration.get(JettyTlsKeystore.JAVAX_NET_SSL_KEYSTORE, Folders.configuration() + File.separator + "keystore.p12"));
     }
 
     protected Password getKeystorePassword() throws KeyStoreException, IOException {
@@ -248,6 +249,7 @@ public class StartHttpServer implements Runnable {
         try {
             SslContextFactory sslConnectionFactory = new SslContextFactory();
             sslConnectionFactory.setKeyStorePath(getKeystoreFile().getAbsolutePath());
+            sslConnectionFactory.setKeyStoreType(KeyStore.getDefaultType());
             Password keystorePassword = getKeystorePassword();
             if (keystorePassword != null) {
                 sslConnectionFactory.setKeyStorePassword(new String(keystorePassword.toCharArray()));

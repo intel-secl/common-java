@@ -18,7 +18,7 @@ import org.junit.Test;
 public class SimpleKeystoreTest {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SimpleKeystoreTest.class);
 
-    private File keystoreFile = new File("target" + File.separator + "test-keystore.jks");
+    private File keystoreFile = new File("target" + File.separator + "test-keystore.p12");
     private String password = "password";
     
     @Test

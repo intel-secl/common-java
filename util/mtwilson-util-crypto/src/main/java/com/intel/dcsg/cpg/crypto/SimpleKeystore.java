@@ -241,7 +241,7 @@ public class SimpleKeystore {
     }
 
     public X509Certificate getX509Certificate(String certAlias, String purpose) throws NoSuchAlgorithmException, UnrecoverableEntryException, KeyStoreException, CertificateEncodingException {
-        String trustedAlias = purpose == null ? certAlias : String.format("%s (%s)", certAlias, purpose);
+        String trustedAlias = purpose == null ? certAlias : String.format("%s(%s)", certAlias, purpose);
         return getX509Certificate(trustedAlias);
     }
 
@@ -319,7 +319,8 @@ public class SimpleKeystore {
     public void addTrustedCertificate(X509Certificate cert, String alias, String purpose) throws KeyManagementException {
         try {
             List<String> aliases = Collections.list(keystore.aliases());
-            String trustedAlias = purpose == null ? alias : String.format("%s (%s)", alias, purpose);
+            String trustedAlias = purpose == null ? alias : String.format("%s(%s)", alias, purpose);
+            trustedAlias = trustedAlias.toLowerCase();
             if (aliases.contains(trustedAlias)) {
                 // is it the same certificate? if so, we can ignore this request
                 X509Certificate existing = getX509Certificate(trustedAlias);
@@ -460,7 +461,7 @@ public class SimpleKeystore {
             if (this.equals(NONE)) {
                 return "";
             }
-            return String.format(" (%s)", name());
+            return String.format("(%s)", name());
         }
     }
 }

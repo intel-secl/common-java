@@ -2771,10 +2771,10 @@ tomcat_create_ssl_cert() {
     fi
     
     echo "Creating SSL Certificate for ${serverName}..."
-    # Delete public insecure certs within keystore.jks and cacerts.jks
+    # Delete public insecure certs within keystore.p12 and cacerts.p12
     $keytool -delete -alias tomcat -keystore "$keystore" -storepass "$keystorePassword" 2>&1 >/dev/null
 
-    # Update keystore.jks
+    # Update keystore.p12
     $keytool -genkeypair -alias tomcat -dname "$cert_cns, OU=Mt Wilson, O=Trusted Data Center, C=US" -ext san="$cert_sans" -keyalg RSA -keysize 2048 -validity 3650 -keystore "$keystore" -keypass "$keystorePassword" -storepass "$keystorePassword"
     
     echo "Restarting Tomcat as a new SSL certificate was generated..."
@@ -2786,7 +2786,7 @@ tomcat_create_ssl_cert() {
     $keytool -export -alias tomcat -file "${TOMCAT_HOME}/ssl/ssl.${tmpHost}.crt" -keystore $keystore -storepass "$keystorePassword"
     openssl x509 -in "${TOMCAT_HOME}/ssl/ssl.${tmpHost}.crt" -inform der -out "$configDir/ssl.crt.pem" -outform pem
     cp "${TOMCAT_HOME}/ssl/ssl.${tmpHost}.crt" "$configDir/ssl.crt"
-    cp "$keystore" "$configDir/mtwilson-tls.jks"
+    cp "$keystore" "$configDir/mtwilson-tls.p12"
     mtwilson_tls_cert_sha1=`openssl sha1 -hex "$configDir/ssl.crt" | awk -F '=' '{ print $2 }' | tr -d ' '`
     update_property_in_file "mtwilson.api.tls.policy.certificate.sha1" "$configDir/mtwilson.properties" "$mtwilson_tls_cert_sha1"
     mtwilson_tls_cert_sha256=`openssl sha256 -hex "$configDir/ssl.crt" | awk -F '=' '{ print $2 }' | tr -d ' '`
@@ -3328,7 +3328,7 @@ java_install_in_home() {
 }
 
 java_keystore_cert_report() {
-  local keystore="${1:-keystore.jks}"
+  local keystore="${1:-keystore.p12}"
   local keystorePassword="${2:-changeit}"
   local alias="${3:-s1as}"
   local keytool=${JAVA_HOME}/bin/keytool
@@ -3966,7 +3966,7 @@ load_defaults() {
   export DEFAULT_WEBSERVICE_MANAGER_PASSWORD=$(generate_password 16)
   export DEFAULT_DATABASE_VENDOR=""
   export DEFAULT_PRIVACYCA_SERVER=""
-  export DEFAULT_SAML_KEYSTORE_FILE="SAML.jks"
+  export DEFAULT_SAML_KEYSTORE_FILE="SAML.p12"
   export DEFAULT_SAML_KEYSTORE_PASSWORD=""
   export DEFAULT_SAML_KEY_ALIAS="samlkey1"
   export DEFAULT_SAML_KEY_PASSWORD=""

@@ -97,8 +97,8 @@ public class JaxrsClientBuilder {
      * and mtwilson.api.secretKey
      *
      * To use X509 (MtWilson-specific) authentication, set:
-     * mtwilson.api.keystore = path to client-keystore.jks
-     * mtwilson.api.keystore.password = password protecting client-keystore.jks
+     * mtwilson.api.keystore = path to client-keystore.p12
+     * mtwilson.api.keystore.password = password protecting client-keystore.p12
      * mtwilson.api.key.alias = alias of private key in the keystore; usually
      * same as username or name of keystore like "client-keystore"
      * mtwilson.api.key.password = password protecting the key, usually same as

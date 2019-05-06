@@ -25,7 +25,7 @@ import sun.security.x509.*;
 /**
  * You can also use Java's "keytool" command on your platform to generate keys
  * and add them to a keystore file. Set the "mtwilson.api.keystore" property to
- * point to this file (by default keystore.jks)
+ * point to this file (by default keystore.p12)
  *
  * @since 0.1
  * @author jbuhacoff
