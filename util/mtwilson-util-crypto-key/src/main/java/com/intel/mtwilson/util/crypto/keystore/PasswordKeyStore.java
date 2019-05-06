@@ -34,7 +34,7 @@ public class PasswordKeyStore extends AbstractKeyStore implements Closeable {
     private SecretKeyFactory factory;
     
     public PasswordKeyStore(Resource keystoreResource, Password keystorePassword) throws KeyStoreException, IOException, NoSuchAlgorithmException {
-        this("JCEKS", keystoreResource, keystorePassword);
+        this(KeyStore.getDefaultType(), keystoreResource, keystorePassword);
     }
     
     /**
