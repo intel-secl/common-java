@@ -350,7 +350,7 @@ public class TpmUtils {
         FileOutputStream newp12 = new FileOutputStream(p12FileName);
 
         try {
-            KeyStore keystore = KeyStore.getInstance("PKCS12");
+            KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
             keystore.load(null, newP12Pass.toCharArray());
             Certificate[] chain = {caCert};
             keystore.setKeyEntry("1", privKey, newP12Pass.toCharArray(), chain);
@@ -414,7 +414,7 @@ public class TpmUtils {
         FileOutputStream newp12 = new FileOutputStream(p12FileName);
 
         try {
-            KeyStore keystore = KeyStore.getInstance("PKCS12");
+            KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
             keystore.load(null, newP12Pass.toCharArray());
             System.out.println(clientCert.toString());
             System.out.println(caCert.toString());
@@ -593,7 +593,7 @@ public class TpmUtils {
             UnrecoverableKeyException,
             javax.security.cert.CertificateException,
             java.security.cert.CertificateException {
-        KeyStore caKs = KeyStore.getInstance("PKCS12");
+        KeyStore caKs = KeyStore.getInstance(KeyStore.getDefaultType());
         FileInputStream fis = new FileInputStream(filename);
         try {
             caKs.load(fis, password.toCharArray());
@@ -631,7 +631,7 @@ public class TpmUtils {
             NoSuchAlgorithmException,
             javax.security.cert.CertificateException,
             java.security.cert.CertificateException {
-        KeyStore caKs = KeyStore.getInstance("PKCS12");
+        KeyStore caKs = KeyStore.getInstance(KeyStore.getDefaultType());
         FileInputStream fis = new FileInputStream(filename);
         try {
             caKs.load(fis, password.toCharArray());

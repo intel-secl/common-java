@@ -383,7 +383,7 @@ public class MyConfiguration {
 
     public File getKeystoreFile() {
         String username = getKeystoreUsername();
-        return new File(getDirectoryPath() + File.separator + username + ".jks");
+        return new File(getDirectoryPath() + File.separator + username + ".p12");
     }
 
     public String getKeystoreUsername() {
@@ -643,7 +643,7 @@ public class MyConfiguration {
     }
 
     public File getSamlKeystoreFile() {
-        return findConfigurationFile(conf.getString("saml.keystore.file", "mtwilson-saml.jks"));
+        return findConfigurationFile(conf.getString("saml.keystore.file", "mtwilson-saml.p12"));
     }
 
     public String getSamlKeystorePassword() {
@@ -679,7 +679,7 @@ public class MyConfiguration {
     }
 
     public File getTlsKeystoreFile() {
-        return new File(conf.getString("mtwilson.tls.keystore.file", getMtWilsonConf() + File.separator + "mtwilson-tls.jks"));
+        return new File(conf.getString("mtwilson.tls.keystore.file", getMtWilsonConf() + File.separator + "mtwilson-tls.p12"));
     }
 
     public String getTlsKeystorePassword() {

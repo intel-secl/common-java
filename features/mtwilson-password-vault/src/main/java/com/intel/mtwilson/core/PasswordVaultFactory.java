@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.KeyStore;
 
 /**
  *
@@ -63,7 +64,7 @@ public class PasswordVaultFactory {
     
     public PasswordVaultFactory(Configuration configuration) {
         keystorePath = configuration.get(PASSWORD_VAULT_FILE_PROPERTY, Folders.configuration() + File.separator + "password-vault.jck");
-        keystoreType = configuration.get(PASSWORD_VAULT_TYPE_PROPERTY, "JCEKS");
+        keystoreType = configuration.get(PASSWORD_VAULT_TYPE_PROPERTY, KeyStore.getDefaultType());
         keystorePassword = new Password(configuration.get(PASSWORD_VAULT_KEY_PROPERTY, "").toCharArray());
         if( keystorePassword.isEmpty() ) {
             String keyProvider = configuration.get(PASSWORD_VAULT_KEY_PROVIDER_PROPERTY, "environment");

@@ -71,7 +71,7 @@ public class JettyTlsKeystore extends AbstractSetupTask {
         
         String keystorePath = getConfiguration().get(JAVAX_NET_SSL_KEYSTORE, null);
         if( keystorePath == null ) {
-            keystorePath = Folders.configuration()+File.separator+"keystore.jks";
+            keystorePath = Folders.configuration()+File.separator+"keystore.p12";
         }
         keystoreFile = new File(keystorePath);
         
