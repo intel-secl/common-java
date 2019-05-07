@@ -2,11 +2,11 @@
  * Copyright (C) 2019 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
-package com.intel.mtwilson.util.crypto;
+package com.intel.dcsg.cpg.crypto;
 
 import com.intel.dcsg.cpg.performance.*;
 import com.intel.dcsg.cpg.performance.report.*;
-import com.intel.mtwilson.crypto.Aes128;
+import com.intel.dcsg.cpg.crypto.Aes128;
 import com.intel.dcsg.cpg.crypto.CryptographyException;
 import java.util.ArrayList;
 import org.apache.commons.codec.binary.Base64;
