@@ -178,25 +178,4 @@ public class ClassLoaderTest {
         Collection differentJars = CollectionUtils.disjunction(jars1, jars2);
         log.debug("Disjunction jars: {}", names(differentJars));
     }
-	 
-    
-    // these two methods copied from cpg-module ReflectionUtil but modified not to use the module annotations for our testing purposes here
-    private Method getNoticeMethodForType(Class<?> clazz, Class<?> arg) {
-        Method[] methods =  clazz.getDeclaredMethods();                
-        // look for a method matching the convention
-        for(Method method : methods ) {
-            if( isNoticeMethod(method) && method.getParameterTypes()[0].isAssignableFrom(arg) ) {
-                return method;
-            }
-        }
-        return null;
-        
-    }
-    private boolean isNoticeMethod(Method method) {
-        boolean conventional = method.getName().equals("notice");
-        boolean oneArg = method.getParameterTypes().length == 1;
-        boolean notPrimitive = oneArg && !method.getParameterTypes()[0].isPrimitive();
-        boolean noReturn = method.getReturnType().getName().equals("void");
-        return conventional && oneArg && notPrimitive && noReturn;
-    }
 }
