@@ -211,15 +211,15 @@ public class SimpleKeystore {
     }
 
     public X509Certificate getX509CertificateWithPassword(String certAlias, String password) throws NoSuchAlgorithmException, UnrecoverableEntryException, KeyStoreException, CertificateEncodingException {
-        return getX509CertificateWithPassword(certAlias, password.toCharArray());
+        return getX509CertificateWithPassword(certAlias.toLowerCase(), password.toCharArray());
     }
     public X509Certificate getX509CertificateWithPassword(String certAlias, char[] password) throws NoSuchAlgorithmException, UnrecoverableEntryException, KeyStoreException, CertificateEncodingException {
-        KeyStore.PrivateKeyEntry certEntry = (KeyStore.PrivateKeyEntry) keystore.getEntry(certAlias, new KeyStore.PasswordProtection(password));
+        KeyStore.PrivateKeyEntry certEntry = (KeyStore.PrivateKeyEntry) keystore.getEntry(certAlias.toLowerCase(), new KeyStore.PasswordProtection(password));
         X509Certificate myCertificate = certificateIn(certEntry);
         if (myCertificate != null) {
             return myCertificate;
         }
-        throw new KeyStoreException("Cannot load certificate with alias: " + certAlias);
+        throw new KeyStoreException("Cannot load certificate with alias: " + certAlias.toLowerCase());
     }
 
     // TODO:  we need separate  "find certificate" that would return null if it's missing, 
@@ -228,21 +228,21 @@ public class SimpleKeystore {
     public X509Certificate getX509Certificate(String certAlias) throws NoSuchAlgorithmException, UnrecoverableEntryException, KeyStoreException, CertificateEncodingException {
         // load the certificate
         try {
-            KeyStore.TrustedCertificateEntry certEntry = (KeyStore.TrustedCertificateEntry) keystore.getEntry(certAlias, null);
+            KeyStore.TrustedCertificateEntry certEntry = (KeyStore.TrustedCertificateEntry) keystore.getEntry(certAlias.toLowerCase(), null);
             X509Certificate myCertificate = certificateIn(certEntry);
             if (myCertificate != null) {
                 return myCertificate;
             }
-            throw new KeyStoreException("Cannot load certificate with alias: " + certAlias);
+            throw new KeyStoreException("Cannot load certificate with alias: " + certAlias.toLowerCase());
         } catch (UnrecoverableEntryException e) {
             // automatically try again with the keystore password
-            return getX509CertificateWithPassword(certAlias, keystorePassword.toCharArray());
+            return getX509CertificateWithPassword(certAlias.toLowerCase(), keystorePassword.toCharArray());
         }
     }
 
     public X509Certificate getX509Certificate(String certAlias, String purpose) throws NoSuchAlgorithmException, UnrecoverableEntryException, KeyStoreException, CertificateEncodingException {
         String trustedAlias = purpose == null ? certAlias : String.format("%s(%s)", certAlias, purpose);
-        return getX509Certificate(trustedAlias);
+        return getX509Certificate(trustedAlias.toLowerCase());
     }
 
     public X509Certificate[] getTrustedCertificates(String purpose) throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableEntryException, CertificateEncodingException {
