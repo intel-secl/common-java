@@ -22,7 +22,6 @@ public class ExtensibleResourceConfig extends ResourceConfig {
     
     public ExtensibleResourceConfig() {
         log.debug("ExtensibleResourceConfig constructor");
-        register(com.intel.mtwilson.security.http.ArbitraryHostRequestFilter.class);
         register(org.glassfish.jersey.server.filter.HttpMethodOverrideFilter.class); // jersey2 equivalent of com.sun.jersey.api.container.filter.PostReplaceFilter
         register(org.glassfish.jersey.server.wadl.internal.WadlResource.class);
         
