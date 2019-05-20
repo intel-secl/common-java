@@ -57,18 +57,16 @@ public class ReflectionUtil {
     }
 
     public static boolean isPluginClass(Class<?> clazz) {
-//        boolean annotated = method.isAnnotationPresent(Plugin.class);
         boolean notInterface = !clazz.isInterface();
         boolean notAbstract = !Modifier.isAbstract(clazz.getModifiers());
         boolean noArgs = hasNoArgConstructor(clazz);
-        return notInterface && notAbstract /* && annotated */ && noArgs;
+        return notInterface && notAbstract && noArgs;
     }
     public static boolean isContextPluginClass(Class<?> clazz) {
-//        boolean annotated = method.isAnnotationPresent(Plugin.class);
         boolean notInterface = !clazz.isInterface();
         boolean notAbstract = !Modifier.isAbstract(clazz.getModifiers());
         boolean oneArg = hasOneArgConstructor(clazz);
-        return notInterface && notAbstract /* && annotated */ && oneArg;
+        return notInterface && notAbstract && oneArg;
     }
 
     public static boolean isAnnotatedClass(Class<?> clazz, Class<? extends Annotation> annotation) {

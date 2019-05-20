@@ -7,7 +7,6 @@ package com.intel.dcsg.cpg.io;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -40,7 +39,6 @@ public class Classpath {
         while (urls.hasMoreElements()) {
             list.add(urls.nextElement());
         }
-//        PersistenceManager.log.info("Found {} resources for {}", new String[]{String.valueOf(list.size()), name});
         return list;
     }
     

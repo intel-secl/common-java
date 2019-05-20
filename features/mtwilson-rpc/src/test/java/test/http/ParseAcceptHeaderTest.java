@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intel.mtwilson.v2.rpc.RpcUtil;
 import org.apache.http.HeaderElement;
-//import org.apache.commons.httpclient.HeaderElement;
 import org.apache.http.message.BasicHeaderValueParser;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.message.ParserCursor;

@@ -33,7 +33,6 @@ public class JarFileClassLoader extends LimitedClassLoader implements Closeable 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JarFileClassLoader.class);
     private final File jar;
     private JarFile jarFile = null;
-//    private final ConcurrentHashMap<String,Class> cache = new ConcurrentHashMap<String,Class>();
 
     public JarFileClassLoader(File jar) throws IOException {
         super();

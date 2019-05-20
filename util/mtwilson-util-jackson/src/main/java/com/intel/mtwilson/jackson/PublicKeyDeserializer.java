@@ -26,7 +26,6 @@ public class PublicKeyDeserializer extends JsonDeserializer<PublicKey> {
             return publicKey;
         }
         catch(Exception e) {
-//            throw new JsonProcessingException("Cannot read public key", jp.getCurrentLocation(), e);
             throw new IOException("Cannot read public key", e);
         }
     }

@@ -67,7 +67,6 @@ public abstract class ObjectModel implements Model, Faults {
      * 
      * @return true if the model is valid
      */
-	// @org.codehaus.jackson.annotate.JsonIgnore
 	@com.fasterxml.jackson.annotation.JsonIgnore
     @Override
     public final boolean isValid() {
@@ -90,7 +89,6 @@ public abstract class ObjectModel implements Model, Faults {
      * 
      * @return a list of faults 
      */
-	// @org.codehaus.jackson.annotate.JsonIgnore
 	@com.fasterxml.jackson.annotation.JsonIgnore
     @Override
     public final List<Fault> getFaults() {

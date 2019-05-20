@@ -12,7 +12,6 @@ import java.io.BufferedReader;
 import java.io.Console;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.SocketException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -182,9 +181,6 @@ public class Input {
         for(int i=0; i<level; i++) { spaces.append("  "); } // each level is indented two spaces from the previous level
         String indentation = spaces.toString(); 
         System.err.println(String.format("%s- %s", indentation, f.toString()));
-//        if( f.getCause() != null ) {
-//            System.err.println(String.format("%s  Caused by: %s", indentation, f.getCause().toString()));
-//        }
         if( !f.getFaults().isEmpty() ) {
             System.err.println(String.format("%s  Related errors:", indentation));
             for(Fault related : f.getFaults()) {
@@ -211,25 +207,4 @@ public class Input {
             // TODO: allow user to break by typing 'exit', 'cancel', 'abort', etc, and we can throw an exception like UserAbortException (must create it) so the main program can have a chance to save what has already been validated and exit, or skip to the next step, or something.
         }
     }
-    
-    /*
-    private InternetAddress getRequiredInternetAddressWithMenuPrompt(String prompt) throws SocketException, IOException {
-        SetMtWilsonURL cmd = new SetMtWilsonURL();
-        List<String> options = cmd.getLocalAddresses();
-        if( ctx.serverAddress != null && !options.contains(ctx.serverAddress.toString())) { 
-            options.add(ctx.serverAddress.toString());
-        }
-        options.add("Other");
-        int selected = getSelectionFromListWithPrompt(options, prompt);
-        InternetAddress address; 
-        if( selected == options.size() - 1 ) { // "Other"
-            address = getRequiredInternetAddressWithPrompt("Other "+prompt);
-        }
-        else {
-            address = new InternetAddress(options.get(selected));
-        }
-        return address;
-    }
-    */
-        
 }

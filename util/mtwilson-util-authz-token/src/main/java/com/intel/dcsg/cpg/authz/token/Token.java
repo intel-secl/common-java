@@ -4,21 +4,9 @@
  */
 package com.intel.dcsg.cpg.authz.token;
 
-import com.intel.dcsg.cpg.crypto.Aes;
-import com.intel.dcsg.cpg.crypto.CryptographyException;
-import com.intel.dcsg.cpg.io.ByteArray;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Arrays;
-import java.util.Date;
-import javax.crypto.SecretKey;
 
 /**
  * When encoded, the Token is an opaque token sent to the client that the
@@ -162,7 +150,6 @@ import javax.crypto.SecretKey;
 public class Token {
 
     private final byte version = 1;
-//    private byte[] keyId; // 16 bytes
     private byte[] nonce; // variable length 16-240 bytes
     private long timestamp; // seconds since unix epoch  Jan 1, 1970
     private byte[] content; // variable length application-specific data
@@ -173,10 +160,6 @@ public class Token {
     public int getVersion() {
         return version;
     }
-
-//    public byte[] getKeyId() {
-//        return keyId;
-//    }
 
     public byte[] getNonce() {
         return nonce;
@@ -189,10 +172,6 @@ public class Token {
     public byte[] getContent() {
         return content;
     }
-
-//    protected void setKeyId(byte[] keyId) {
-//        this.keyId = keyId;
-//    }
 
     protected void setNonce(byte[] nonce) {
         this.nonce = nonce;

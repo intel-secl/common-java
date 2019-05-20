@@ -4,8 +4,6 @@
  */
 package com.intel.dcsg.cpg.configuration;
 
-import com.intel.dcsg.cpg.configuration.AllCapsConfiguration;
-import com.intel.dcsg.cpg.configuration.PropertiesConfiguration;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

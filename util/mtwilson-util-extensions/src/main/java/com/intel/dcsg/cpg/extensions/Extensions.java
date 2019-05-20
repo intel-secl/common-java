@@ -91,9 +91,6 @@ import java.util.Map;
 public class Extensions {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Extensions.class);
-//    private static final Whiteboard whiteboard = new Whiteboard();
-//    private static final Filter<String> ANY = new AcceptAny();
-//    private static final ArrayList<String> ANY = ListUtils.EMPTY_LIST;
     private static final Collection<ExtensionProvider> providers = new ArrayList<>();
 
     static {
@@ -114,9 +111,7 @@ public class Extensions {
         }
     }
 
-//    public static Collection<ExtensionProvider> getProviders() { return providers; }
     public static class Extension {
-
         public ExtensionProvider provider;
         public String name;
 
@@ -197,11 +192,6 @@ public class Extensions {
         return implementation;
     }
 
-    /*
-     public static Object find(String serviceName) {
-     return find(serviceName, null);
-     }
-     */
     // same as find(class) but if not found throws exception
     public static <T> T require(Class<T> serviceInterface) {
         T instance = find(serviceInterface);
@@ -345,15 +335,8 @@ public class Extensions {
         return findAllAnnotated(annotationInterface, null);
     }
 
-    /*
-     public static List<Object> findAll(String serviceName) {
-     return findAll(serviceName, null);
-     }
-     */
     @Deprecated
     public static <T, C> T find(Class<T> serviceInterface, C context) {
-//        return find(serviceInterface, serviceInterface, context);
-//        throw new UnsupportedOperationException();
         List<T> items = findAll(serviceInterface, context);
         if( items.isEmpty() ) { return null; }
         T first = items.get(0);
@@ -371,8 +354,6 @@ public class Extensions {
 
     @Deprecated
     public static <C> Object findAnnotated(Class<? extends Annotation> annotationInterface, C context) {
-//        return find(Object.class, annotationInterface, context);
-//        throw new UnsupportedOperationException();
         List<Object> items = findAllAnnotated(annotationInterface, context);
         if( items.isEmpty() ) { return null; }
         Object first = items.get(0);
@@ -388,27 +369,8 @@ public class Extensions {
         return instance;
     }
 
-    /*
-     public static <C> Object find(String serviceName, C context) {
-     List<Class<?>> serviceImplementations = whiteboard.get(serviceName);
-     if (serviceImplementations == null || serviceImplementations.isEmpty()) {
-     return null;
-     }
-     List<String> preferenceOrder = preferences.get(serviceName);
-     if (preferenceOrder == null || preferenceOrder.isEmpty() ) {
-     // no preference as to which implementation is desirable
-     log.debug("No preference for service {}", serviceName);
-     //            return createFirst(serviceClass, matches);
-     preferenceOrder = ListUtils.EMPTY_LIST;
-     }
-     log.debug("There are {} preferences for service {}", preferenceOrder.size(), serviceName);
-     return createPreferred(serviceName, serviceImplementations, preferenceOrder, context);
-     }
-     */
     @Deprecated
     public static <T, C> List<T> findAll(Class<T> extension, C context) {
-//        return findAll(serviceInterface, serviceInterface, context);
-//        throw new UnsupportedOperationException();
         log.debug("Extensions findAll interface {} context {}", extension.getName(), (context==null?"null":context.getClass().getName()));
         ArrayList<T> result = new ArrayList<>();
         List<Extension> list = list(extension);
@@ -456,8 +418,6 @@ public class Extensions {
 
     @Deprecated
     public static <C> List<Object> findAllAnnotated(Class<? extends Annotation> annotation, C context) {
-//        return findAll(Object.class, annotationInterface, context);
-//        throw new UnsupportedOperationException();
         ArrayList<Object> result = new ArrayList<>();
         List<Extension> list = listAnnotated(annotation);
         for (Extension item : list) {
@@ -498,18 +458,6 @@ public class Extensions {
         return result;
     }
 
-    /*
-     public static <C> List<Object> findAll(String serviceName, C context) {
-     List<Class<?>> serviceImplementations = whiteboard.get(serviceName);
-     if (serviceImplementations == null || serviceImplementations.isEmpty()) {
-     log.debug("No registered implementations for {}", serviceName);
-     serviceImplementations = ListUtils.EMPTY_LIST;
-     }
-     return createAll(serviceName, serviceImplementations, context);
-     }
-     */
-    
-    
     ////////// deprecated functions delegated to WhiteboardExtensionProvider ///////////
 @Deprecated
 public static void clearAll() { WhiteboardExtensionProvider.clearAll(); }

@@ -35,13 +35,6 @@ public class CompositeObserver<T> implements Observer<T> {
     public CompositeObserver(List<Observer<T>> list) {
         observerList = list;
     }
-    /*
-    public CompositeObserver(Observer<T>[] array) {
-        observerList = new ArrayList<Observer<T>>();
-        for(Observer<T> observer : array) {
-            observerList.add(observer);
-        }
-    }*/
     public CompositeObserver(Observer<T>... array) {
         observerList = new ArrayList<Observer<T>>(array.length);
         for(Observer<T> observer : array) {

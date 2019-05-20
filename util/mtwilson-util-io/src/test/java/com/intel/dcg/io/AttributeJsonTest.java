@@ -6,9 +6,7 @@ package com.intel.dcg.io;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -85,25 +83,21 @@ public class AttributeJsonTest {
 
     public static class RectangleWithAttributeMembers extends AttributesWithUseClassPropertyType {
 
-//        @JsonGetter("length")
         public Integer getLength() {
             log.debug("RectangleWithAttributeMembers.getLength -> {}", (Integer) get("length"));
             return (Integer) get("length");
         }
 
-//        @JsonGetter("width")
         public Integer getWidth() {
             log.debug("RectangleWithAttributeMembers.getWidth -> {}", (Integer) get("width"));
             return (Integer) get("width");
         }
 
-//        @JsonSetter("length")
         public void setLength(Integer length) {
             log.debug("RectangleWithAttributeMembers.setLength {}", length);
             set("length", length);
         }
 
-//        @JsonSetter("width")
         public void setWidth(Integer width) {
             log.debug("RectangleWithAttributeMembers.setWidth {}", width);
             set("width", width);
@@ -116,19 +110,7 @@ public class AttributeJsonTest {
      * Using the Attributes class worked:  rectangle: {"color":"red","length":5,"width":2}
      */
     public static class ParentWithAttributesMap {
-        /*
-        protected Map<String, Object> attributes = new HashMap<>();
 
-        @JsonUnwrapped
-        public Map<String, Object> getAttributes() {
-            return attributes;
-        }
-
-        public void setAttributes(Map<String, Object> attributes) {
-            this.attributes = attributes;
-        }
-        */
-        
         @JsonUnwrapped
         protected final Attributes attributes = new Attributes();
 
@@ -381,7 +363,6 @@ public class AttributeJsonTest {
         assertEquals(null, rectangle.getAttributes().get("length"));
         assertEquals(null, rectangle.getAttributes().get("width"));
         assertEquals(10, rectangle.getAttributes().get("area")); // Integer
-//        assertEquals("candy", ((Flavor)rectangle.getAttributes().get("flavor")).getName()); // throws exception because flavor gets deserialized as linkedhashmap because there's no type information
         Map flavor = (Map)rectangle.getAttributes().get("flavor");
         assertEquals("candy", flavor.get("name"));
     }

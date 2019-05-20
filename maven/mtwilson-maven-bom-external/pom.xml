@@ -122,6 +122,38 @@
                 <version>2.78</version>
             </dependency>
             <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>3.2.1</version>
+             </dependency>
+             <dependency>
+                <groupId>commons-math</groupId>
+                <artifactId>commons-math3</artifactId>
+                <version>3.0</version>
+             </dependency>
+	     <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-jaxrs</artifactId>
+                <version>1.9.13</version>
+             </dependency>
+             <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-mapper-asl</artifactId>
+                <version>1.9.13</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.codehaus.jackson</groupId>
+                 <artifactId>jackson-core-asl</artifactId>
+                 <version>1.9.13</version>
+             </dependency>
+             <dependency>
+                  <groupId>org.codehaus.jackson</groupId>
+                  <artifactId>jackson-xc</artifactId>
+                  <version>1.9.13</version>
+             </dependency>
+
+
+            <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpcore</artifactId>
                 <version>4.4.8</version>
@@ -409,6 +441,11 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-servlet</artifactId>
+                <version>9.4.14.v20181114</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlets</artifactId>
                 <version>9.4.14.v20181114</version>
             </dependency>
             <dependency>

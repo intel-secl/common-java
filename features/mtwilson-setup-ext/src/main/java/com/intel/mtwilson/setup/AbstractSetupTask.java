@@ -7,7 +7,6 @@ package com.intel.mtwilson.setup;
 import com.intel.dcsg.cpg.configuration.Configuration;
 import com.intel.dcsg.cpg.configuration.PropertiesConfiguration;
 import com.intel.dcsg.cpg.validation.Fault;
-import com.intel.dcsg.cpg.validation.Model;
 import com.intel.mtwilson.setup.faults.ConfigurationFault;
 import com.intel.mtwilson.setup.faults.ValidationFault;
 import com.intel.mtwilson.util.validation.faults.Thrown;
@@ -47,7 +46,6 @@ import java.util.List;
 public abstract class AbstractSetupTask implements SetupTask {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AbstractSetupTask.class);
 
-//    private transient Integer lastHashCode = null;
     private transient Configuration configuration = new PropertiesConfiguration();
     private transient ArrayList<Fault> configurationFaults = new ArrayList<>();
     private transient ArrayList<Fault> validationFaults = new ArrayList<>();
@@ -201,14 +199,4 @@ public abstract class AbstractSetupTask implements SetupTask {
     protected final void validation(Throwable e, String format, Object... args) {
         validationFaults.add(new Thrown(e, format, args));
     }
-    
-    // convenience methods
-    /*
-    protected void requireNonEmptyString(String key) {
-        String value = configuration.getString(key);
-        if( value == null || value.isEmpty() ) {
-            configuration("Missing required setting: %s", key);
-        }
-    }
-    */
 }

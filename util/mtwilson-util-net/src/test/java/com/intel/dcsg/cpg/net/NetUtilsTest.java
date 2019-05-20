@@ -4,10 +4,7 @@
  */
 package com.intel.dcsg.cpg.net;
 
-import java.lang.reflect.Field;
-import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.List;
 import org.junit.Test;
 

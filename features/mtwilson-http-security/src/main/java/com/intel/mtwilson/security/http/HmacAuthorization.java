@@ -37,12 +37,7 @@ public class HmacAuthorization {
     private HmacCredential credentials;
     private String signatureMethod;
     private String realm = null;
-    
-    /*
-    public RequestAuthorization(Credentials credentials) {
-        this(new String(credentials.identity()), "", "SHA256"); 
-    }*/
-    
+
     public HmacAuthorization(HmacCredential credentials) {
         this(credentials,"HmacSHA256");
     }
@@ -192,10 +187,8 @@ public class HmacAuthorization {
         signatureBlock.timestamp = timestamp;
         String content = signatureBlock.toString();
         
-        //log.debug("signed content follows... ("+content.length()+") \n"+content);
-        String signature = sign(content); 
+        String signature = sign(content);
         String authorization = String.format("MtWilson %s", headerParams( httpMethod,  signatureBlock.absoluteUrl,  username,  nonce,  signatureMethod,  timestamp,  realm,  signature));
-        //log.debug("authorization: "+authorization);
         return authorization;
     }
     
@@ -218,9 +211,6 @@ public class HmacAuthorization {
         dos.write(nonce);
 
         dos.flush();
-        //byte[] noncedata = bos.toByteArray(); // should be 8 bytes timestamp + 16 bytes random numbers
-        //System.out.println("nonce data length = "+noncedata.length);
-        //assert noncedata.length == 24;
 
         dos.close();
         return bos.toByteArray();

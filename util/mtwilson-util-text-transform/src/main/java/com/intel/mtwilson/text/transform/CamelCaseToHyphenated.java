@@ -46,7 +46,6 @@ public class CamelCaseToHyphenated implements Transformer<String> {
         Matcher a = abbreviation.matcher(result);
         while( a.find() && a.groupCount() == 3 ) {
             log.debug("found abbreviation, before: {}", result);
-//            log.debug("groups: {}", a.groupCount());
             result = a.replaceFirst(a.group(1)+a.group(2).toLowerCase()+"-"+a.group(3)); // turns "FOOBar" to "Foo-Bar" (they will be lowercased later)
             log.debug("found abbreviation, after: {}", result);
             a = camelCase.matcher(result);

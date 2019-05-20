@@ -7,7 +7,6 @@ package test.rfc822;
 import com.intel.dcsg.cpg.rfc822.Message;
 import com.intel.dcsg.cpg.rfc822.MessageReader;
 import com.intel.dcsg.cpg.rfc822.MessageWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Random;

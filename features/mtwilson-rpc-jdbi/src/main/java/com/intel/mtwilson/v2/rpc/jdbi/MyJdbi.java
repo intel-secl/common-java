@@ -20,14 +20,7 @@ import org.slf4j.LoggerFactory;
 public class MyJdbi {
     private static Logger log = LoggerFactory.getLogger(MyJdbi.class);
   
-  /*
-  public static <T> T openDAO(T clazz) {
-    DBI dbi = new DBI(getDataSource());
-    T dao = dbi.open(clazz.getClass());
-    return null;
-  }*/
  public static RpcDAO rpc() throws SQLException {
-//     createTables();
          try {
              Connection connection = MyJdbc.openConnection();
              log.trace("MyJdbi (mtwilson-core-rpc-jdbi) connection: {}", connection);
@@ -39,20 +32,5 @@ public class MyJdbi {
              throw new RuntimeException(e);
          }
     
-  } 
-
- /*
- public static class ExistingConnectionFactory implements ConnectionFactory {
-        @Override
-        public Connection openConnection() throws SQLException {
-            try {
-                return MyJdbc.openConnection();
-            }
-            catch(Exception e) {
-                throw new RuntimeException(e);
-            }
-        }    
-}
-*/ 
- 
+  }
 }

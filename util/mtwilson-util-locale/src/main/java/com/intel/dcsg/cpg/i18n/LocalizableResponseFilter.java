@@ -4,10 +4,6 @@
  */
 package com.intel.dcsg.cpg.i18n;
 
-//import com.intel.dcsg.cpg.i18n.Localizable;
-//import com.sun.jersey.spi.container.ContainerRequest;
-//import com.sun.jersey.spi.container.ContainerResponse;
-//import com.sun.jersey.spi.container.ContainerResponseFilter;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
@@ -57,7 +53,6 @@ public class LocalizableResponseFilter implements ContainerResponseFilter {
                 log.error("Failed to set locale on object of class: {}", entity.getClass().getName(), e);
             }
         }
-//        return response;
     }
     
 }

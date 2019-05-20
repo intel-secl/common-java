@@ -73,18 +73,4 @@ public class X509CredentialsMatcher implements CredentialsMatcher {
             throw new AuthenticationException(e);
         }
     }
-    
-    
-/*  this is how you verify the signature when you have the complete input document for reference; but instead of passing the entire request entity around we compute its digest in the X509AuthenticationFilter
- * so that in this matcher we get the digest and the signature... and those cannot be used with the Signature
- * class below because the update() method will compute the digest of its input, but we already have the 
- * digest;  if the Signature class had a way to set the "plain" input digest (without the algorithm oid prepended)
- * then it would have been convenient to use it. 
-    private boolean verifySignature(byte[] document, Certificate certificate, String signatureAlgorithm, byte[] signature) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-        Signature rsa = Signature.getInstance(signatureAlgorithm);
-        rsa.initVerify(certificate);
-        rsa.update(document);
-        return rsa.verify(signature);
-    }
-    */
 }

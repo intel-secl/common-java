@@ -5,21 +5,12 @@
 package com.intel.mountwilson.http.security;
 
 import com.intel.dcsg.cpg.crypto.CryptographyException;
-import com.intel.dcsg.cpg.crypto.RandomUtil;
 import com.intel.mtwilson.security.http.RsaAuthorization;
 import com.intel.dcsg.cpg.crypto.RsaCredential;
 import java.io.IOException;
 import java.security.*;
 import java.util.HashMap;
-/*
-import java.security.SecureRandom;
-import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
-import org.bouncycastle.crypto.KeyGenerationParameters;
-import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
-import org.bouncycastle.crypto.params.RSAKeyParameters;
-*/
 import org.junit.Test;
-//import sun.security.rsa.RSAKeyPairGenerator;
 
 /**
  *
@@ -35,14 +26,6 @@ public class RsaAuthorizationTest {
         KeyPair keypair = r.generateKeyPair();
         RsaCredential credential = new RsaCredential(keypair);
         return credential;
-        /*
-        RSAKeyPairGenerator r = new RSAKeyPairGenerator();
-        r.init(new KeyGenerationParameters(RandomUtil.getSecureRandom(), keySizeInBits));
-        AsymmetricCipherKeyPair keys = r.generateKeyPair();
-        RSAKeyParameters publicKeyParams = (RSAKeyParameters)keys.getPublic();
-        RSAKeyParameters privateKeyParams = (RSAKeyParameters)keys.getPrivate();
-        RsaCredential = new RsaCredential(keys);
-        */
     }
     
     /**

@@ -32,7 +32,6 @@ import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.jce.provider.*;
 import javax.crypto.*;
 import javax.crypto.spec.*;
-import java.util.BitSet;
 import org.apache.commons.io.IOUtils;
 
 /**
@@ -351,7 +350,7 @@ public class TpmUtils {
         FileOutputStream newp12 = new FileOutputStream(p12FileName);
 
         try {
-            KeyStore keystore = KeyStore.getInstance("PKCS12");
+            KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
             keystore.load(null, newP12Pass.toCharArray());
             Certificate[] chain = {caCert};
             keystore.setKeyEntry("1", privKey, newP12Pass.toCharArray(), chain);
@@ -415,7 +414,7 @@ public class TpmUtils {
         FileOutputStream newp12 = new FileOutputStream(p12FileName);
 
         try {
-            KeyStore keystore = KeyStore.getInstance("PKCS12");
+            KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
             keystore.load(null, newP12Pass.toCharArray());
             System.out.println(clientCert.toString());
             System.out.println(caCert.toString());
@@ -594,7 +593,7 @@ public class TpmUtils {
             UnrecoverableKeyException,
             javax.security.cert.CertificateException,
             java.security.cert.CertificateException {
-        KeyStore caKs = KeyStore.getInstance("PKCS12");
+        KeyStore caKs = KeyStore.getInstance(KeyStore.getDefaultType());
         FileInputStream fis = new FileInputStream(filename);
         try {
             caKs.load(fis, password.toCharArray());
@@ -604,7 +603,6 @@ public class TpmUtils {
             fis.close();
         }
 
-        //caKs.load(ConfigHelper.getResourceAsStream(filename), password.toCharArray());
         Enumeration<String> aliases = caKs.aliases();
         RSAPrivateKey privKey = null;
         while (aliases.hasMoreElements()) {
@@ -633,7 +631,7 @@ public class TpmUtils {
             NoSuchAlgorithmException,
             javax.security.cert.CertificateException,
             java.security.cert.CertificateException {
-        KeyStore caKs = KeyStore.getInstance("PKCS12");
+        KeyStore caKs = KeyStore.getInstance(KeyStore.getDefaultType());
         FileInputStream fis = new FileInputStream(filename);
         try {
             caKs.load(fis, password.toCharArray());
@@ -671,19 +669,6 @@ public class TpmUtils {
             java.security.cert.CertificateException {
         try (InputStream certStream = new FileInputStream(filename)) {
             byte[] certBytes = IOUtils.toByteArray(certStream);
-            /*
-//		byte [] certBytes = new byte[certStream.available()];
-		byte[] certBytes = new byte[2048];
-		try {
-			int k = certStream.read(certBytes);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		finally{
-				 certStream.close();
-		}
-             */
             javax.security.cert.X509Certificate cert = javax.security.cert.X509Certificate.getInstance(certBytes);
             return convertX509Cert(cert);
         }
@@ -702,7 +687,6 @@ public class TpmUtils {
             throws CertificateException,
             CertificateEncodingException,
             java.security.cert.CertificateException {
-//		java.security.cert.CertificateFactory cf = java.security.cert.CertificateFactory.getInstance("X.509");
         java.security.cert.CertificateFactory cf = java.security.cert.CertificateFactory.getInstance("X.509", new BouncyCastleProvider());
         return (java.security.cert.X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certBytes));
     }
@@ -879,7 +863,6 @@ public class TpmUtils {
     public static byte[] createRandomBytes(int numBytes)
             throws IOException {
         SecureRandom random = new SecureRandom(BigInteger.valueOf(System.nanoTime()).toByteArray()); // previously was new Random(System.nanoTime())
-        //byte [] randomBytes = longToByteArray(random.nextLong());
         byte[] randomBytes = new byte[numBytes];
         random.nextBytes(randomBytes);
         return randomBytes;
@@ -966,7 +949,6 @@ public class TpmUtils {
             int index = 2 * i;
             byteVal = s.substring(index, index + 2);
             returnArray[i] = (byte) (Integer.parseInt(byteVal, 16));
-//			returnArray[i] = (byte)(Integer.parseInt(byteVal, 16) & 0xff);
         }
         return returnArray;
     }
@@ -985,7 +967,6 @@ public class TpmUtils {
             if (singleByte.length() != 2) {
                 singleByte = "0" + singleByte;
             }
-//			returnStr += singleByte;
             returnStr = sb.append(singleByte).toString();
         }
         return returnStr;
@@ -1259,7 +1240,6 @@ public class TpmUtils {
     public static String getHostname() {
         String hostname = "";
         try {
-            //hostname = InetAddress.getLocalHost().getHostName();
             hostname = InetAddress.getLocalHost().getCanonicalHostName();
         } catch (UnknownHostException u) {
             StringTokenizer st = new StringTokenizer(u.getMessage());

@@ -25,7 +25,6 @@ public class TpmPublicKey {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(TpmPublicKey.class);
     private static final int RSA_2048_ENCODED_LENGTH = 284;
-//    private static final int RSA_2048_HEADER_LENGTH = 28;
     private static final byte[] RSA_2048_HEADER = new byte[]{
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x03, (byte) 0x00, (byte) 0x01,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0c, (byte) 0x00, (byte) 0x00, (byte) 0x08, (byte) 0x00,
@@ -58,7 +57,6 @@ public class TpmPublicKey {
         }
         if (array.length() < length) {
             int padding = length - array.length();
-//            log.debug("Adding padding: {} bytes", padding);
             ByteArray zero = new ByteArray(new byte[padding]);
             return ByteArray.concat(zero, array);
         }

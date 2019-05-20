@@ -23,17 +23,6 @@ import java.util.concurrent.Callable;
  */
 public abstract class AbstractConfiguration implements Configuration {
 
-    /*
-     @Override
-     public String get(Property property) {
-     return get(property.getName(), property.getDefaultValue());
-     }
-    
-     @Override
-     public void set(Property property, String value) {
-     set(property.getName(), value);
-     }
-     */
     @Override
     public String get(String key, String defaultValue) {
         String value = get(key);

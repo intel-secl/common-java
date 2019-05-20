@@ -4,7 +4,6 @@
  */
 package com.intel.mtwilson.servlet;
 
-//import com.intel.mtwilson.My;
 import com.intel.mtwilson.configuration.ConfigurationFactory;
 import com.intel.dcsg.cpg.configuration.Configuration;
 import com.intel.dcsg.cpg.http.Query;
@@ -42,7 +41,6 @@ public void doGet(HttpServletRequest request, HttpServletResponse response)
                                throws ServletException, IOException {
 
     if( directory == null ) {
-        //setDirectory(My.configuration().getPortalHtml5Dir());
 		if( configuration == null ) { configuration = ConfigurationFactory.getConfiguration(); }
 		setDirectory(configuration.get("mtwilson.portal.html5.dir"));
         log.info("Static content directory: {}", directory);

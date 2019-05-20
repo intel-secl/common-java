@@ -98,8 +98,6 @@ public class IntegrityKeyAttributes extends Attributes implements Copyable {
     public IntegrityKeyAttributes copy() {
         IntegrityKeyAttributes newInstance = new IntegrityKeyAttributes();
         newInstance.copyFrom(this);
-//        copy.digestAlgorithm = this.digestAlgorithm;
-//        copy.digestKeyLength = this.digestKeyLength;
         return newInstance;
     }
     

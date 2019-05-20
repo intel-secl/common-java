@@ -5,13 +5,10 @@
 package com.intel.mtwilson.util.crypto.keystore;
 
 import com.intel.dcsg.cpg.crypto.key.password.Password;
-import com.intel.dcsg.cpg.io.ExistingFileResource;
 import com.intel.dcsg.cpg.io.FileResource;
 import com.intel.dcsg.cpg.io.Resource;
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,8 +31,7 @@ public abstract class AbstractKeyStore implements Closeable {
     private final char[] keystorePassword;
     private KeyStore keystore;
     private boolean modified = false;
-//    private KeyProtectionDelegate keyProtectionDelegate;
-    
+
     /**
      * 
      * @param keystoreType to use as argument to {@code KeyStore.getInstance()}
@@ -121,16 +117,6 @@ public abstract class AbstractKeyStore implements Closeable {
         return Collections.list(keystore.aliases());
     }
 
-    /*
-    public void setKeyProtectionDelegate(KeyProtectionDelegate keyProtectionDelegate) {
-        this.keyProtectionDelegate = keyProtectionDelegate;
-    }
-
-    public KeyProtectionDelegate getKeyProtectionDelegate() {
-        return keyProtectionDelegate;
-    }
-    */
-    
     /**
      * Call to indicate that the keystore has been modified and should be
      * written out when {@code close()} is called. 

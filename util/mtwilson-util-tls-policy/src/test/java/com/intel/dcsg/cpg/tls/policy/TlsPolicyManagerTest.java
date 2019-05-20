@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.net.MalformedURLException;
 import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
-//import com.intel.dcsg.cpg.tls.policy.impl.TrustKnownCertificateTlsPolicy;
 import com.intel.dcsg.cpg.x509.repository.ArrayCertificateRepository;
 import com.intel.mtwilson.core.junit.Env;
 import java.net.URL;
@@ -76,7 +75,6 @@ public class TlsPolicyManagerTest {
     
     private static void prepare(URL url, TlsPolicy tlsPolicy) throws NoSuchAlgorithmException, KeyManagementException, IOException {
         log.debug("Preparing policy {} for {}",tlsPolicy.getClass().getName(), url.toString());
-//        printCertificates(tlsPolicy.getCertificateRepository().getCertificates());
     	SSLContext ctx = SSLContext.getInstance("SSL"); // it's a factory, returns a new instance
         ctx.init(null, new javax.net.ssl.TrustManager[]{ tlsPolicy.getTrustManager() }, null); 
         HttpsURLConnection.setDefaultHostnameVerifier(tlsPolicy.getHostnameVerifier()); // without this, even InsecureTlsPolicy will not prevent java.security.cert.CertificateException: No subject alternative names matching IP address 192.168.0.1 found
@@ -85,7 +83,6 @@ public class TlsPolicyManagerTest {
 
     private static void prepareWithTlsPolicyManager(URL url, TlsPolicy tlsPolicy) throws NoSuchAlgorithmException, KeyManagementException, IOException {
         log.debug("Preparing policy {} for {} using TLS Policy Manager",tlsPolicy.getClass().getName(), url.toString());
-//        printCertificates(tlsPolicy.getCertificateRepository().getCertificates());
         TlsPolicyManager.getInstance().setTlsPolicy(url.getHost(), tlsPolicy);
     	SSLContext ctx = SSLContext.getInstance("SSL"); // it's a factory, returns a new instance
         ctx.init(null, new javax.net.ssl.TrustManager[]{ TlsPolicyManager.getInstance().getTrustManager() }, null); 
@@ -100,18 +97,6 @@ public class TlsPolicyManagerTest {
         else {
             prepare(url,tlsPolicy);
         }
-        /*
-            SSLContext sslcontext = SSLContext.getInstance("TLS");
-            sslcontext.init(null, new X509TrustManager[] { tlsPolicy.getTrustManager() }, null); // key manager, trust manager, securerandom
-            SSLSocketFactory sf = new SSLSocketFactory(
-                sslcontext,
-                tlsPolicy.getHostnameVerifier()
-                );
-            Scheme https = new Scheme("https", port, sf); // URl defaults to 443 for https but if user specified a different port we use that instead
-            sr.register(https);            
-*/
-//        SSLSocketFactory sslsocketfactory = ctx.getSocketFactory();
-//        SSLSocket sock = (SSLSocket) sslsocketfactory.createSocket();
         log.debug("Connecting to {} with policy: {}", url.toString(), tlsPolicy.getClass().getName());
         InputStream in = url.openStream();
         String content = IOUtils.toString(in);
@@ -123,14 +108,10 @@ public class TlsPolicyManagerTest {
     public void testSSLContextGetInstanceParameters() throws NoSuchAlgorithmException {
     	SSLContext ctx;
         ctx = SSLContext.getInstance("SSL");
-//    	ctx = SSLContext.getInstance("SSLv2"); // throws NoSuchAlgorithmException
     	ctx = SSLContext.getInstance("SSLv3");
     	ctx = SSLContext.getInstance("TLS");
     	ctx = SSLContext.getInstance("TLSv1.1");
     	ctx = SSLContext.getInstance("TLSv1.2");
-//    	ctx = SSLContext.getInstance("TLS1.1");// throws NoSuchAlgorithmException
-//    	ctx = SSLContext.getInstance("TLS1.2");// throws NoSuchAlgorithmException
-        
     }
     
     @Test

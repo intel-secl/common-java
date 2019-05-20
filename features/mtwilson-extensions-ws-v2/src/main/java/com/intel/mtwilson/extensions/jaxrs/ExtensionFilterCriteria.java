@@ -4,9 +4,6 @@
  */
 package com.intel.mtwilson.extensions.jaxrs;
 
-//import com.intel.mtwilson.configuration.v2.model.Configuration;
-//import com.intel.mtwilson.jaxrs2.DefaultFilterCriteria;
-//import com.intel.mtwilson.repository.FilterCriteria;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
 

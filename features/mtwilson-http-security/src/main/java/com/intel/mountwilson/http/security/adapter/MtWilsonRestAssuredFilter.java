@@ -83,27 +83,4 @@ public class MtWilsonRestAssuredFilter implements Filter {
         }
         return map;
     }
-    /*
-     * private void showParameters(FilterableRequestSpecification requestSpec) {
-     * System.err.println("MtWilsonRestAssuredFilter query params:");
-     * dumpMap(requestSpec.getQueryParams());
-     * System.err.println("MtWilsonRestAssuredFilter request params:");
-     * dumpMap(requestSpec.getRequestParams());
-     * System.err.println("MtWilsonRestAssuredFilter form params:");
-     * dumpMap(requestSpec.getFormParams());
-     * System.err.println("MtWilsonRestAssuredFilter path params:");
-     * dumpMap(requestSpec.getPathParams()); }
-     *
-     * private void dumpMap(Map<String,?> map) { Set<String> pkeys =
-     * map.keySet(); for(String key : pkeys) { Object value = map.get(key); if(
-     * value instanceof String ) { System.err.println("
-     * MtWilsonRestAssuredFilter param: "+key+" = "+(String)value); } else if(
-     * value instanceof String[] ) { System.err.println("
-     * MtWilsonRestAssuredFilter param: "+key+" = "+StringUtils.join((String
-     * [])value)); } else { System.err.println(" MtWilsonRestAssuredFilter
-     * param: Unknown data type for "+key+": "+value.getClass().getName()); } }
-     *
-     * }
-     *
-     */
 }

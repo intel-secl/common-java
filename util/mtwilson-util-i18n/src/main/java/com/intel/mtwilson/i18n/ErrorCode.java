@@ -14,24 +14,8 @@ public enum ErrorCode {
 
     OK(0, "OK"), 
     SYSTEM_ERROR(1,"System error: %s. More information is available in the server log."), 
-//    AUTH_FAILED(1000,"Authentication Failed"), 
-//    SQL_ERROR(1001, "SQL Error"), 
     UNKNOWN_ERROR(2,"Unknown error. More information is available in the server log."),  // Used in APIClient
-//    GENERAL_ERROR(1003,"Error in attestation service"), 
-//    DUPLICATE_HOST_NAME(1004,"Duplicate Host Name"), 
-//    TA_ERROR (1005, "TrustAgent Error"), 
-//    VALIDATION_ERROR(1006,"Validation Error"),  // used to be 1005 "Invalid Parameter" in AH ErrorCode
-//    WLM_SERVICE_ERROR(1007,"WLM Service Error"), 
-//    TRUST_ERROR(1008,"Trust Verification Error"),
-//    DATA_ERROR(1009,"Data Error"),
-//    AS_ERROR(1200,"AS Error"), // this used to be 1004, same as duplicate host name error. changed to 1200
-//    WML_ERROR(1201,"WLM Error"), // this one is from AH ErrorCode, is there a difference from 1007 WLM Service Error?
-//    HOST_NOT_FOUND(2000,"Host not found"), 
-//    NETWORK_ERROR(2001,"Network error"), 
-//    VMW_TPM_NOT_SUPPORTED(3000,"VMWare - Host does not support TXT"), 
-//    VMWARE_ERROR(3001, "VMWare Error"),
-//    DUPLICATE_ENTITY_ERROR(4001,"Entity already configured in the system."),
-    
+
     // HTTP error codes
     HTTP_INVALID_REQUEST(400, "HTTP 400 INVALID REQUEST"),
     HTTP_UNAUTHORIZED(401, "HTTP 401 UNAUTHORIZED"),

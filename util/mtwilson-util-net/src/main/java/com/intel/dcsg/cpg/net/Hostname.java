@@ -9,12 +9,9 @@ import com.intel.dcsg.cpg.validation.Fault;
 import com.intel.dcsg.cpg.validation.Model;
 import com.intel.dcsg.cpg.validation.RegexPatterns;
 import com.intel.dcsg.cpg.validation.ValidationUtil;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-//import org.codehaus.jackson.annotate.JsonValue;
 
 /**
  * Representation of a hostname. This class enforces some rules on the 
@@ -35,12 +32,6 @@ import java.util.List;
 public class Hostname implements Model {
 
     private String hostname = null;
-
-    /*
-    private Hostname() {
-    }
-    *
-    */
 
     public Hostname(String hostname) {
         setHostname(hostname);
@@ -69,19 +60,6 @@ public class Hostname implements Model {
         return hostname;
     }
 
-    // should deprecate? or still allow it?
-    /*
-    public static Hostname parse(String input) {
-        if (isValid(input)) {
-            Hostname h = new Hostname();
-            h.hostname = input;
-            return h; // new Hostname(input);
-        }
-        throw new IllegalArgumentException("invalid hostname: " + input);
-    }
-    * 
-    */
-    
     // XXX TODO need to extend ObjectModel so we get this for free...
     @Override
     public boolean isValid() {
@@ -99,25 +77,6 @@ public class Hostname implements Model {
      */
     public static boolean isValid(String hostname) {
         return ValidationUtil.isValidWithRegex(hostname, RegexPatterns.FQDN);
-        // previously valid hostname was any string that does not contain a comma
-        //return ( !hostname.contains(",") );
-        /*
-        try {
-            if (hostname.contains(":")) {
-                // IPv6 format
-                URI valid = new URI(String.format("//[%s]", hostname));
-                return valid.getHost() != null;
-            } else {
-                // IPv4 format
-                URI valid = new URI(String.format("//%s", hostname));
-                return valid.getHost() != null;
-            }
-        } catch (NullPointerException e) {
-            return false; // happens when hostname is null or invalid format like 1b.2.3i.4
-        } catch (URISyntaxException e) {
-            return false;
-        }
-        */
     }
     
     @Override

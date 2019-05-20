@@ -69,20 +69,6 @@ public class Term {
     
     public String clearLine() { return enabled ? String.format("\r%c[K", ESC) : ""; } 
     
-    /*
-    public void set(Attr attr, Color fg, Color bg) {
-        System.out.print(code(attr,fg,bg));
-    }
-
-    public void set(Attr attr, Color fg) {
-        System.out.print(code(attr,fg));
-    }
-
-    public void set(Attr attr) {
-        System.out.print(code(attr));
-    }
-    */
-    
     public String wrap(Attr attr, Color fg, Color bg, String format, Object... args) {
         return code(attr,fg,bg) + String.format(format,args) + reset();
     }
@@ -130,10 +116,6 @@ public class Term {
     public String cyanBackground() { return code(Attr.BRIGHT,Color.NORMAL,Color.CYAN); }
     public String whiteBackground() { return code(Attr.BRIGHT,Color.NORMAL,Color.WHITE); }
     public String normalBackground() { return code(Attr.BRIGHT,Color.NORMAL,Color.NORMAL); }
-    
-//    public String red(String text) { return red() + text + normal(); }
-//    public String yellow(String text) { return yellow() + text + normal(); }
-//    public String green(String text) { return green() + text + normal(); }
 
     public String red(String text) { return wrap(Attr.BRIGHT,Color.RED,text); }
     public String yellow(String text) { return wrap(Attr.BRIGHT,Color.YELLOW,text); }

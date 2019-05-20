@@ -5,7 +5,6 @@
 package com.intel.dcsg.cpg.x509;
 
 import com.intel.dcsg.cpg.crypto.RsaUtil;
-import com.intel.dcsg.cpg.io.ByteArrayResource;
 import com.intel.dcsg.cpg.x509.repository.KeystoreCertificateRepository;
 import java.io.IOException;
 import java.security.KeyManagementException;

@@ -45,7 +45,7 @@ public class Pkcs12 {
     public Pkcs12(Resource resource, String password) throws IOException, KeyStoreException {
         keystoreResource = resource;
         keystorePassword = password;
-        keystore = KeyStore.getInstance("PKCS12"); // throws KeyStoreException if this keystore type is not available
+        keystore = KeyStore.getInstance(KeyStore.getDefaultType()); // throws KeyStoreException if this keystore type is not available
         try {
             InputStream in = keystoreResource.getInputStream();
             try {
@@ -122,8 +122,6 @@ public class Pkcs12 {
                 return new RsaCredentialX509(myPrivateKey, (X509Certificate)myCertificate); //CertificateEncodingException, NoSuchAlgorithmException
             }
             throw new IllegalArgumentException("Key has a certificate that is not X509: "+myCertificate.getType());
-            //PublicKey myPublicKey = pkEntry.getCertificate().getPublicKey();
-            //return new RsaCredential(myPrivateKey, myPublicKey);
         }
         // key pair not found
         throw new FileNotFoundException("Keystore does not contain the specified key");        

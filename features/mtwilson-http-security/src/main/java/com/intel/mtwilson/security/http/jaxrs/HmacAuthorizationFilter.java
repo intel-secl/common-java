@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 package com.intel.mtwilson.security.http.jaxrs;
-import com.intel.mountwilson.http.security.adapter.*;
 import javax.ws.rs.client.ClientRequestFilter;
 import javax.annotation.Priority;
 import javax.ws.rs.client.ClientRequestContext;

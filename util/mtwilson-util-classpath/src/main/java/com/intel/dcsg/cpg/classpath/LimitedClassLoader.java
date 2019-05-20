@@ -29,8 +29,6 @@ import com.intel.mtwilson.pipe.Filter;
 public class LimitedClassLoader extends ClassLoader {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(LimitedClassLoader.class);
-//    private final ConcurrentHashMap<String,Class> cache = new ConcurrentHashMap<String,Class>();
-    // fencing:
     private Filter<String> include = null;
     private Filter<String> exclude = null;
 

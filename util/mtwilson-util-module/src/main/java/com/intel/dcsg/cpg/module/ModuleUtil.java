@@ -6,11 +6,8 @@ package com.intel.dcsg.cpg.module;
 
 import com.intel.dcsg.cpg.classpath.JarUtil;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.jar.Attributes;
-import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
 /**

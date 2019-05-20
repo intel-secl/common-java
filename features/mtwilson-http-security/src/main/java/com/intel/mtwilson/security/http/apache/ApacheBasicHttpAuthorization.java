@@ -4,8 +4,6 @@
  */
 package com.intel.mtwilson.security.http.apache;
 
-import java.io.IOException;
-import java.security.SignatureException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;

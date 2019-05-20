@@ -22,18 +22,6 @@ public class ExtensibleResourceConfig extends ResourceConfig {
     
     public ExtensibleResourceConfig() {
         log.debug("ExtensibleResourceConfig constructor");
-//        register(JacksonFeature.class); // implements Feature
-//        register(com.intel.mtwilson.shiro.AuthorizationExceptionMapper.class); // implements ExceptionMapper @Provider // catches shiro exceptions and converts them to http unauthorized responses
-//        register(com.intel.mtwilson.util.ThrowableMapper.class); // implements ExceptionMapper @Provider
-//        register(com.intel.mtwilson.jaxrs2.provider.JacksonObjectMapperProvider.class); // implements ContextResolver @Provider
-//        register(com.intel.mtwilson.jaxrs2.provider.JacksonXmlMapperProvider.class);  // implements ContextResolver @Provider
-//        register(com.intel.mtwilson.jaxrs2.provider.JacksonYamlObjectMapperProvider.class); // implements ContextResolver @Provider
-//        register(com.intel.mtwilson.jaxrs2.provider.X509CertificatePemProvider.class);// implements MessageBodyWriter/MessageBodyReader @Provider
-//        register(com.intel.mtwilson.jaxrs2.provider.X509CertificateDerProvider.class);// implements MessageBodyWriter/MessageBodyReader @Provider
-//        register(com.intel.mtwilson.jaxrs2.provider.X509CertificateArrayPemProvider.class); // implements MessageBodyWriter/MessageBodyReader @Provider
-//        register(com.intel.mtwilson.jaxrs2.provider.ApplicationYamlProvider.class); // implements MessageBodyWriter/MessageBodyReader @Provider
-//        register(com.intel.mtwilson.jaxrs2.server.filter.ErrorLogFilter.class); // implements ContainerResponseFilter
-//        register(com.intel.mtwilson.jaxrs2.provider.DateParamConverterProvider.class); // implements ParamConverterProvider @Provider
         register(org.glassfish.jersey.server.filter.HttpMethodOverrideFilter.class); // jersey2 equivalent of com.sun.jersey.api.container.filter.PostReplaceFilter
         register(org.glassfish.jersey.server.wadl.internal.WadlResource.class);
         

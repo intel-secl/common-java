@@ -12,7 +12,6 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.net.ssl.HostnameVerifier;
-//import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.X509TrustManager;
@@ -51,20 +50,9 @@ public class TlsPolicyManager implements HostnameVerifier {
      */
     public void setTlsPolicy(String address, TlsPolicy tlsPolicy) {
         log.debug("TlsPolicyManager: adding {} with policy: {}", address, tlsPolicy.getClass().toString());
-        /*
-        TlsPolicy previousValue = map.get(address);
-        if( previousValue != null ) {
-            // XXX TODO unfortuantely we don't have a good way right now to give any more details about the policy...
-            // so the two policies might be of the same class yet their trusted certs etc. might be different.
-            // maybe we need a toString() override in each TlsPolicy implementation that summarizes what's in the policy?
-            // then instead of tlsPolicy.getClass().toString() we would call tlsPolicy.toString() 
-            log.warn("TlsPolicyManager: policy for address {} replaced {} with {}", address, previousValue.getClass().toString(), tlsPolicy.getClass().toString());
-        }
-        */
-         map.put(address, tlsPolicy);        
+         map.put(address, tlsPolicy);
     }
     
-//    @Override
     public X509TrustManager getTrustManager() {
         log.debug("TlsPolicyManager: providing workaround allow-all X509TrustManager");
         // using anonymous class equivalent to AllowAllX509TrustManager but
@@ -84,17 +72,6 @@ public class TlsPolicyManager implements HostnameVerifier {
 
     }
 
-    /*
-    @Override
-    public CertificateRepository getCertificateRepository() {
-        ArrayList<X509Certificate> list = new ArrayList<X509Certificate>();
-        for (TlsPolicy tlsPolicy : map.values()) {
-            list.addAll(tlsPolicy.getCertificateRepository().getCertificates());
-        }
-        return new ArrayCertificateRepository(list.toArray(new X509Certificate[list.size()]));
-    }
-    */
-    
     public TlsPolicy getTlsPolicy(String address, int port) {
         TlsPolicy tlsPolicy;
         String addressPort = String.format("%s:%d", address, port);
@@ -162,9 +139,7 @@ public class TlsPolicyManager implements HostnameVerifier {
         try {
             Certificate[] certificates = ssls.getPeerCertificates(); // throws SSLPeerUnverifiedException
             for (Certificate cert : certificates) {
-                //                log.debug("TlsPolicyManager: verify: certificate {} is {}", cert.getType(), DigestUtils.sha(cert.getEncoded())); // throws CertificateEncodingException
                 if (cert.getType() != null && cert.getType().equals("X.509")) {
-                    //                    x509list.add( X509Util.decodeDerCertificate(cert.getEncoded()) );
                     x509list.add((X509Certificate) cert);
                 }
             }
@@ -179,7 +154,6 @@ public class TlsPolicyManager implements HostnameVerifier {
             log.debug("TlsPolicyManager: Server certificate is trusted: {}", address);
         } catch (CertificateException e) {
             log.error("TlsPolicyManager: Server certificate not trusted: {}: " + e.toString(), address, e);
-//                return false; // looks like this: java.io.IOException: HTTPS hostname wrong:  should be <192.168.0.1>
             throw new TlsPolicyException("Server certificate is not trusted", address, tlsPolicy, serverCertificates); // looks like this: com.intel.mtwilson.tls.ServerCertificateNotTrustedException: TlsPolicyManager: Server certificate is not trusted
         }
         log.debug("TlsPolicyManager: using policy for {}", address);
@@ -189,8 +163,6 @@ public class TlsPolicyManager implements HostnameVerifier {
         if (hostnameVerified) {
             return true;
         }
-//            return hostnameVerified; // looks like this: java.io.IOException: HTTPS hostname wrong:  should be <192.168.0.1>
-        // but instead of returning false, we're going to throw our custom exception that also provides the tls policy in effect
         throw new TlsPolicyException("Hostname verification failed", address, tlsPolicy, serverCertificates); // looks like this: com.intel.mtwilson.tls.ServerCertificateNotTrustedException: TlsPolicyManager: Hostname verification failed: Should be <192.168.0.1>
     }
 

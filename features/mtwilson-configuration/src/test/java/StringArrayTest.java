@@ -1,16 +1,14 @@
+/*
+ * Copyright (C) 2019 Intel Corporation
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 
 import java.util.HashMap;
 import java.util.Properties;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.MapConfiguration;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
 import static org.junit.Assert.*;
-
-/*
- * Copyright (C) 2019 Intel Corporation
- * SPDX-License-Identifier: BSD-3-Clause
- */
 
 /**
  *

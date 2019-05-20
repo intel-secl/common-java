@@ -249,9 +249,6 @@ public class CsrfFilter extends AuthorizationFilter {
         } catch (UnsupportedTokenVersionException e) {
             log.warn("Token version not supported", e);
             return null;
-//        } catch (CryptographyException e) {
-//            log.warn("Cannot validate token", e);
-//            return null;
         } catch (ExpiredTokenException e) {
             log.warn("Token is expired", e);
             return null;

@@ -8,7 +8,6 @@ import com.intel.dcsg.cpg.classpath.JarClassIterator;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
 /**

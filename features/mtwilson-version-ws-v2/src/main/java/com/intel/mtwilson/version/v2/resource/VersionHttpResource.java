@@ -9,7 +9,6 @@ import com.intel.mtwilson.jaxrs2.mediatype.DataMediaType;
 import com.intel.mtwilson.launcher.ws.ext.V2;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
-//import javax.ejb.Stateless;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
@@ -20,7 +19,6 @@ import javax.ws.rs.core.MediaType;
  * @author jbuhacoff
  */
 @V2
-//@Stateless
 @Path("/version")
 public class VersionHttpResource {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(VersionHttpResource.class);

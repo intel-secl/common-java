@@ -44,17 +44,6 @@ public class KeyEnvelope implements PemKeyEncryption, PemIntegrity {
        
     public KeyEnvelope(KeyEnvelopeV1 envelope) {
         this.document = new Pem(envelope.getDocument()); // makes a copy 
-        /*
-        // automatically upgrade v1 format to v2 format; if you don't want to auto-upgrade use the EncryptedKeyEnvelopeV1 class instead which will keep the v1 format
-        if( document.getHeader(EncryptedKeyEnvelopeV1.CONTENT_ALGORITHM_HEADER) != null && document.getHeader(EncryptedKeyEnvelopeV1.ENVELOPE_KEY_ID_HEADER) != null && document.getHeader(EncryptedKeyEnvelopeV1.ENVELOPE_ALGORITHM_HEADER) != null ) {
-            document.setHeader(CONTENT_ALGORITHM_HEADER, document.getHeader(EncryptedKeyEnvelopeV1.CONTENT_ALGORITHM_HEADER));
-            document.setHeader(ENCRYPTION_KEY_ID_HEADER, document.getHeader(EncryptedKeyEnvelopeV1.ENVELOPE_KEY_ID_HEADER));
-            document.setHeader(ENCRYPTION_ALGORITHM_HEADER, document.getHeader(EncryptedKeyEnvelopeV1.ENVELOPE_ALGORITHM_HEADER));
-            document.removeHeader(EncryptedKeyEnvelopeV1.CONTENT_ALGORITHM_HEADER);
-            document.removeHeader(EncryptedKeyEnvelopeV1.ENVELOPE_KEY_ID_HEADER);
-            document.removeHeader(EncryptedKeyEnvelopeV1.ENVELOPE_ALGORITHM_HEADER);
-        }
-        */
     }
        
     public void setContentAlgorithm(String contentAlgorithm) { document.setHeader(CONTENT_ALGORITHM_HEADER, contentAlgorithm); }
@@ -85,7 +74,6 @@ public class KeyEnvelope implements PemKeyEncryption, PemIntegrity {
         @Override
     public String getEncryptionAlgorithm() { return document.getHeader(ENCRYPTION_ALGORITHM_HEADER); }
     
-//    @Override
     public Integer getEncryptionKeyLength() {
         if( document.getHeader(ENCRYPTION_KEY_LENGTH_HEADER) == null ) { return null; }
         return Integer.valueOf(document.getHeader(ENCRYPTION_KEY_LENGTH_HEADER));
@@ -96,7 +84,6 @@ public class KeyEnvelope implements PemKeyEncryption, PemIntegrity {
         @Override
     public String getEncryptionPaddingMode() { return document.getHeader(ENCRYPTION_PADDING_MODE_HEADER); }
         
-//    @Override
     public static boolean isCompatible(Pem pem) {
         return pem.getBanner().equals(PEM_BANNER) && pem.getHeaders().containsKey(CONTENT_ALGORITHM_HEADER) && pem.getHeaders().containsKey(ENCRYPTION_KEY_ID_HEADER) && pem.getHeaders().containsKey(ENCRYPTION_ALGORITHM_HEADER);
     }

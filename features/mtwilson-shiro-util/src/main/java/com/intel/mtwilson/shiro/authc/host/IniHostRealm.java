@@ -4,7 +4,6 @@
  */
 package com.intel.mtwilson.shiro.authc.host;
 
-import com.intel.mtwilson.shiro.*;
 import java.util.Collection;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -81,7 +80,6 @@ public class IniHostRealm extends AuthorizingRealm {
             if (hostAllowCsvFilter.accept(address)) {
                 log.debug("remote address {} is in allow list {}", address, allow);
                 SimplePrincipalCollection principals = new SimplePrincipalCollection();
-//                principals.add(new Username((String) xToken.getPrincipal()), getName());
                 principals.add(new LoginHostPrincipal(xToken.getHost()), getName());
                 HostAuthenticationInfo info = new HostAuthenticationInfo();
                 info.setPrincipals(principals);

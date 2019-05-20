@@ -39,19 +39,16 @@ public class PooledConnection extends DelegatingConnection {
 
     @Override
     public Statement createStatement() throws SQLException {
-        log.debug("[{}] createStatement", id);
         return super.createStatement();
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql) throws SQLException {
-        log.debug("[{}] prepareStatement {}",id,  sql);
         return super.prepareStatement(sql);
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException {
-        log.debug("[{}] prepareStatement {} with columns {}", id, sql, columnNames);
         return super.prepareStatement(sql, columnNames);
     }
 
@@ -59,7 +56,5 @@ public class PooledConnection extends DelegatingConnection {
     public String toString() {
         return String.format("PooledConnection[%s] wrapping %s", id, delegate);
     }
-
-    
-    
+   
 }

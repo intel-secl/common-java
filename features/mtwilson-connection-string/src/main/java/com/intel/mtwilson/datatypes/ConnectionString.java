@@ -44,9 +44,6 @@ public class ConnectionString {
     public static final String OPT_USERNAME = "u";
     public static final String OPT_PASSWORD = "p";
     public static final String OPT_HOSTNAME = "h";
-//    public static final String LONGOPT_USERNAME = "username";
-//    public static final String LONGOPT_PASSWORD = "password";
-//    public static final String LONGOPT_HOSTNAME = "hostname";
 
     public static class VendorConnection {
         public Vendor vendor;
@@ -55,7 +52,6 @@ public class ConnectionString {
     }
     
     public static VendorConnection parseConnectionString(String connectionString) throws MalformedURLException {
-//        log.debug("Connection string: {}", connectionString);  // do not log this regularly because it may contain a password
         VendorConnection vc = new VendorConnection();
         vc.vendor = vendorFromURL(connectionString);
         String vendorURL;
@@ -67,12 +63,10 @@ public class ConnectionString {
             vendorURL = connectionString.substring(vc.vendor.name().length()+1);
         }
         if( vc.vendor != null ) {
-//            log.debug("Vendor URL: {}", vendorURL); // do not log this regularly because it may contain a password
             int optionStartIndex = vendorURL.indexOf(urlOptionsDelimiter);
             if( optionStartIndex > -1 ) {
                 String urlPart = vendorURL.substring(0, optionStartIndex);
                 String optionsPart = vendorURL.substring(optionStartIndex+1); // skip the delimiter
-//                log.debug("Options part: {}", optionsPart);  // do not log this regularly because it may contain a password
                 vc.url = new URL(urlPart); // vendorURL without the options
                 vc.options = parseOptions(optionsPart);
             }
@@ -158,17 +152,6 @@ public class ConnectionString {
            } else {
                v = Vendor.INTEL;
            }
-        /*
-        // In this case we do not have the prefix
-        if (url.matches(intelVendorRegEx2)) {
-            v = Vendor.INTEL;
-        } else {
-            if (url.contains("/sdk")) {
-                v = Vendor.VMWARE;
-            } else {
-                v = Vendor.CITRIX;
-            }
-        }*/
         return v;
     }
 
@@ -333,7 +316,6 @@ public class ConnectionString {
         }
         catch(MalformedURLException e) {
             log.error("ConnectionString.getURL: "+e.toString(), e);
-//            log.debug("Connection string: ", this.addOnConnectionString);
             throw new IllegalArgumentException("Invalid connection string");
         }
     }
@@ -512,7 +494,6 @@ public class ConnectionString {
             return String.format("https://%s:%d/;u=%s;p=%s", hostAddress.toString(), port, username, guardedPasswordCitrix.getInsPassword());
         }
         public static CitrixConnectionString forURL(String url) throws MalformedURLException {
-//            log.debug("CitrixConnectionString forURL {}", url); //REMOVED debug log statement as it has the password in the connection string
             CitrixConnectionString cs = new CitrixConnectionString();
             VendorConnection info = parseConnectionString(url);
             try {
@@ -575,7 +556,6 @@ public class ConnectionString {
             return String.format("https://%s:%d/sdk;u=%s;p=%s;h=%s", vcenterAddress.toString(), port, username, guardedPasswordVmware.getInsPassword(), hostAddress.toString());
         }
         public static VmwareConnectionString forURL(String url) throws MalformedURLException {
-//            log.debug("VmwareConnectionString forURL {}", url);
             VmwareConnectionString cs = new VmwareConnectionString();
             VendorConnection info = parseConnectionString(url);
             try {
@@ -663,18 +643,7 @@ public class ConnectionString {
         }
         return conn;
     }
-    
-    /**
-     * Creates a connection string for an Intel host with specified port
-     * @param url like https://hostname:9999
-     * @return 
-     */
-    /*
-    public static ConnectionString forIntel(URL url) {
-        return forIntel(new Hostname(url.getHost()), portFromURL(url));
-    }
-    */
-    
+
     /**
      * Creates a connection string for an Intel host with default port 9999
      * @param hostname DNS name or IP address
@@ -788,20 +757,7 @@ public class ConnectionString {
         }
         return conn;
     }
-    
-    /**
-     * Creates a connection string for a Citrix host with specified port
-     * @param url like https://hostname:443;username;password or https://hostname:443;u=username;p=password
-     * @return 
-     */
-    /*
-    public static ConnectionString forCitrix(URL url) {
-        return forCitrix(new Hostname(url.getHost()), portFromURL(url), usernameFromURL(url), passwordFromURL(url));
-    }
-    */
-    
-    
-    
+
     /**
      * Creates a connection string for a VMware host with default port 443
      * @param hostname DNS name or IP address of the host
@@ -878,40 +834,6 @@ public class ConnectionString {
         return conn;
     }
 
-    /**
-     * Creates a connection string for a VMware host with specified port
-     * @param url like https://vcenter:443/sdk;username;password;hostname or https://hostname:443;u=username;p=password;h=hostname
-     * @return 
-     */
-    /*
-    public static ConnectionString forVmware(URL url) {
-        return forVmware(new Hostname(url.getHost()), new Hostname(hostnameFromURL(url)), portFromURL(url), usernameFromURL(url), passwordFromURL(url));
-    }
-    */
-    
-    /**
-     * Creates a connection string with the given vendor and vendor-specific URL
-     * @param vendor like INTEL, CITRIX, VMWARE
-     * @param url vendor-specific URL like https://citrix:443;username;password or https://vcenter:443/sdk;u=username;p=password;h=hostname or https://hostname:9999
-     * @return 
-     */
-    /*
-    public static ConnectionString forVendor(Vendor vendor, String url) {
-        if( vendor == null ) { return null; }
-        switch(vendor) {
-            case INTEL:
-                return forIntel(url);
-            case CITRIX:
-                return forCitrix(url);
-            case VMWARE:
-                return forVmware(url);
-            default:
-                log.error("Unknown vendor: "+vendor.name());
-                return null;
-        }
-    }
-    */
-    
     /**
      * The URL object returns -1 for the port number if it was not explicitly defined in the URL.
      * So this method checks for -1 and returns default https or default http port depending on 
@@ -1079,13 +1001,7 @@ public class ConnectionString {
         }
         return null;
     }        
-    
-    /*
-    private static Vendor vendorFromURL(URL url) {
-        return vendorFromURL(url.toExternalForm());
-    }
-    */
-    
+
     private static Vendor vendorFromURL(String url) {
         for( Vendor v : Vendor.values() ) {
             if( url.toLowerCase().startsWith(v.name().toLowerCase()+":") ) {
@@ -1094,21 +1010,13 @@ public class ConnectionString {
         }
         return null;
     }
-    
-//    private static String vendorConnectionFromURL(URL url) throws MalformedURLException {
-//        return vendorConnectionFromURL(url.toExternalForm());
-//    }
 
     private static String vendorConnectionFromURL(String url) throws MalformedURLException {
-//        log.debug("url: {}", url);  // do not log this regularly because it may contain a password
         Vendor v = vendorFromURL(url);
         if( v == null ) {
             return null;
         }
-//        log.debug("vendor name: {}", v.name());
-//        log.debug("vendor name length: {}", v.name().length());
         String str = url.substring(v.name().length()+1); // start one character after the vendor prefix (vendor name followed by the colon)
-//        log.debug("vendor connection: {}", str);
         return str;
     }
 }

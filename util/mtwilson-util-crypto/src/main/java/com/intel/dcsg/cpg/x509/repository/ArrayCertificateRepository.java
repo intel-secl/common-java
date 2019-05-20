@@ -46,8 +46,6 @@ public class ArrayCertificateRepository implements CertificateRepository {
      * @param dnsHostnameOrIpAddress
      * @return the first matching certificate in the list
      */
-    // XXX not being used;  was part of previous draft interface of CertificateRepository
-//    @Override
     public X509Certificate getCertificateForAddress(String dnsHostnameOrIpAddress) {
         log.trace("getCertificateForAddress: {}", dnsHostnameOrIpAddress);
         for (X509Certificate x509 : keystore) {
@@ -70,8 +68,6 @@ public class ArrayCertificateRepository implements CertificateRepository {
         return null;
     }
 
-    // XXX not being used;  was part of previous draft interface of CertificateRepository
-//    @Override
     public List<X509Certificate> getCertificateForSubject(String subjectDN) {
         log.trace("getCertificateForSubject: {}", subjectDN);
         ArrayList<X509Certificate> subjectCerts = new ArrayList<>(keystore.length);
@@ -85,8 +81,6 @@ public class ArrayCertificateRepository implements CertificateRepository {
         return subjectCerts;
     }
 
-    // XXX not being used;  was part of previous draft interface of CertificateRepository
-//    @Override
     public List<X509Certificate> getCertificateAuthorities() {
         ArrayList<X509Certificate> caCerts = new ArrayList<>(keystore.length);
         for (X509Certificate cert : keystore) {

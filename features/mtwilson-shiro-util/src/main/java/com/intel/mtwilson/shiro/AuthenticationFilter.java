@@ -81,20 +81,7 @@ public abstract class AuthenticationFilter extends PathMatchingFilter {
     public void setPermissive(boolean permissive) {
         this.permissive = permissive;
     }
-    
-    
-    
-/*
-    private boolean multifactorAuthentication = false;
 
-    public void setMultifactorAuthentication(boolean multifactorAuthentication) {
-        this.multifactorAuthentication = multifactorAuthentication;
-    }
-
-    public boolean isMultifactorAuthentication() {
-        return multifactorAuthentication;
-    }*/
-    
     /**
              in multifactor authentication mode we always look for an authentication
              token in the request and if we find one we attempt to authenticate with

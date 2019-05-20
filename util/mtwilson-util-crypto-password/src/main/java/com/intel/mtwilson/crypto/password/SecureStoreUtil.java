@@ -69,7 +69,7 @@ public  class SecureStoreUtil {
 
     public static void createKeyStore(String pathToFile, String keystorePassword)
             throws Exception {
-        KeyStore ks = KeyStore.getInstance("JCEKS");
+        KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
         char[] pwdArray = keystorePassword.toCharArray();
         ks.load(null, pwdArray);
         try (FileOutputStream fos = new FileOutputStream(pathToFile)) {
@@ -83,7 +83,6 @@ public  class SecureStoreUtil {
         try {
             keyStore = loadKeyStore(pathToFile, keystorePassword);
         } catch (Exception e) {
-            //e.printStackTrace();
         }
         Enumeration<String> aliases = null;
         try {
@@ -93,7 +92,6 @@ public  class SecureStoreUtil {
                 log.info("No matching keystore found ");
             }
         } catch (KeyStoreException e) {
-            //e.printStackTrace();
         }
         if(aliases != null)
         {
@@ -102,7 +100,6 @@ public  class SecureStoreUtil {
             try {
                 keyStore.deleteEntry(alias);
             } catch (KeyStoreException e) {
-                //e.printStackTrace();
             }
         }
         }
@@ -115,14 +112,13 @@ public  class SecureStoreUtil {
         try {
             Files.delete(Paths.get(pathToFile));
         } catch (IOException e) {
-            //e.printStackTrace();
         }
     }
 
     public static KeyStore loadKeyStore(String pathToFile, String keystorePassword)
             throws Exception {
         File file = new File(pathToFile);
-        KeyStore keyStore = KeyStore.getInstance("JCEKS");
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         FileInputStream fis = new FileInputStream(file);
         try {
             keyStore.load(fis, keystorePassword.toCharArray());

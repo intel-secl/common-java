@@ -23,7 +23,6 @@ import java.util.List;
  * @author jbuhacoff
  */
 @V2
-//@Stateless
 @Path("/rpcs")
 public class RpcRepository implements DocumentRepository<Rpc, RpcCollection, RpcFilterCriteria, RpcLocator> {
 
@@ -63,16 +62,6 @@ public class RpcRepository implements DocumentRepository<Rpc, RpcCollection, Rpc
            if( dao != null ) { dao.close(); }
         }
     }
-    /*
-    private Rpc convert(RpcPriv from) {
-            Rpc rpc = new Rpc();
-            rpc.setId(from.getId());
-            rpc.setName(from.getName());
-            rpc.setStatus(from.getStatus());
-            rpc.setCurrent(from.getCurrent());
-            rpc.setMax(from.getMax());
-            return rpc;
-    }*/
 
     @Override
     public Rpc retrieve(RpcLocator locator) {

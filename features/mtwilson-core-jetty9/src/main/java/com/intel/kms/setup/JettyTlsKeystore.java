@@ -71,7 +71,7 @@ public class JettyTlsKeystore extends AbstractSetupTask {
         
         String keystorePath = getConfiguration().get(JAVAX_NET_SSL_KEYSTORE, null);
         if( keystorePath == null ) {
-            keystorePath = Folders.configuration()+File.separator+"keystore.jks";
+            keystorePath = Folders.configuration()+File.separator+"keystore.p12";
         }
         keystoreFile = new File(keystorePath);
         
@@ -135,12 +135,6 @@ public class JettyTlsKeystore extends AbstractSetupTask {
             log.debug("Incorrect password for existing key; will create new key: {}", e.getMessage());
             validation("Key must be recreated");
         }
-        /*
-        catch(NullPointerException e) {
-            log.debug("Invalid TLS certificate", e);
-            validation("Certificate must be recreated");
-        }
-        */
     }
 
     @Override
@@ -202,7 +196,6 @@ public class JettyTlsKeystore extends AbstractSetupTask {
         // look for an existing tls keypair and delete it
         SimpleKeystore keystore = new SimpleKeystore(new FileResource(keystoreFile), keystorePassword);
         try {
-//            String alias = String.format("%s (ssl)", TLS_ALIAS);
             String alias = TLS_ALIAS;
             List<String> aliases = Arrays.asList(keystore.aliases());
             if( aliases.contains(alias) ) {
@@ -279,7 +272,6 @@ public class JettyTlsKeystore extends AbstractSetupTask {
     }
     // note: duplicated from TrustagentConfiguration
     public String[] getTrustagentTlsCertIpArray() throws SocketException {
-//        return getConfiguration().getString(KMS_TLS_CERT_IP, "127.0.0.1").split(",");
         String[] TlsCertIPs = getConfiguration().get(JETTY_TLS_CERT_IP, "").split(",");
         if (TlsCertIPs != null && !TlsCertIPs[0].isEmpty()) {
             log.debug("Retrieved IPs from configuration: {}", (Object[])TlsCertIPs);
@@ -300,7 +292,6 @@ public class JettyTlsKeystore extends AbstractSetupTask {
     }
     // note: duplicated from TrustagentConfiguration
     public String[] getTrustagentTlsCertDnsArray() throws SocketException {
-//        return getConfiguration().getString(KMS_TLS_CERT_DNS, "localhost").split(",");
         String[] TlsCertDNs = getConfiguration().get(JETTY_TLS_CERT_DNS, "").split(",");
         if (TlsCertDNs != null && !TlsCertDNs[0].isEmpty()) {
             log.debug("Retrieved Domain Names from configuration: {}", (Object[])TlsCertDNs);

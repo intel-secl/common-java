@@ -83,31 +83,12 @@ import org.slf4j.LoggerFactory;
 public class MyConfiguration {
 
     private Logger log = LoggerFactory.getLogger(getClass());
-//    private final String PROPERTIES_FILENAME = "mtwilson.properties";
     private Preferences prefs = Preferences.userRoot().node(getClass().getName());
-//    private Properties conf = new Properties();
     private Configuration conf = null;
     private HashMap<String, String> keySourceMap = new HashMap<>();
 
     // look in default locations
     public MyConfiguration() {
-        /*
-         File directory = getDirectory();
-         if( !directory.exists() && !directory.mkdirs() ) {
-         throw new IOException("Cannot create configuration directory: "+directory.getAbsolutePath());
-         }
-         File file = getConfigFile();
-         if( !file.exists() ) {
-         // write a "starter" configuratio file (not encrypted) which the user can then customize and use, or encrypt, etc.
-         FileOutputStream out = new FileOutputStream(file);
-         getDefaultProperties().store(out, "Default Mt Wilson Settings... Customize for your environment");
-         out.close();
-         }
-         // here we load the configuration file, which could be either plain or encrypted
-         FileInputStream in = new FileInputStream(file);
-         conf.load(in);
-         in.close();
-         */
         conf = gatherConfiguration(null);
     }
 
@@ -116,26 +97,6 @@ public class MyConfiguration {
         conf = gatherConfiguration(custom);
     }
 
-    // commenting out unused function for removal (6/11 1.2)
-    //
-    //private Properties getDefaultProperties() {
-    //    Properties p = new Properties();
-    // api client
-    //    p.setProperty("mtwilson.api.username", System.getProperty("user.name", "anonymous"));
-    //    p.setProperty("mtwilson.api.password", "password");
-    //    p.setProperty("mtwilson.api.url", "https://127.0.0.1:8181");
-    //    p.setProperty("mtwilson.api.roles", "Attestation,Whitelist,Security,Report,Audit");
-    // database
-    //    p.setProperty("mtwilson.db.protocol", "postgresql"); // new default in mtwilson 1.2
-    //    p.setProperty("mtwilson.db.driver", "org.postgresql.Driver"); // new default in mtwilson 1.2
-    //    p.setProperty("mtwilson.db.host", "127.0.0.1");
-    //    p.setProperty("mtwilson.db.schema", "mw_as");
-    //    p.setProperty("mtwilson.db.user", ""); // we must keep this entry because we use it to write out the "starter" config file;  but in mtwilson 1.2 we remove the default value; both mysql and postgresql support localhost connection without authentication
-    //    p.setProperty("mtwilson.db.password", ""); // we must keep this entry because we use it to write out the "starter" config file;  but in mtwilson 1.2 we remove the default value;  both mysql and postgresql support localhost connection without authentication
-    //    p.setProperty("mtwilson.db.port", "5432"); // in mtwilson 1.2 the default changed from mysql/3306 to postgresql/5432
-    //    p.setProperty("mtwilson.as.dek", "");   // we must keep this entry because we use it to write out the "starter" config file;  but in mtwilson 1.2 we remove the default value;  we must force customer to create one during install
-    //    return p;
-    //}
     private void logConfiguration(String source, Configuration config) {
         log.debug("Loaded configuration keys from {}: {}", source, StringUtils.join(config.getKeys(), ", "));
         // we log the source of each configuration key;  CompositeConfiguration has a method called getSource() but it throws IllegalArgumentException if more than one child configuration has the key, which is wrong because get*() functions return from the first configuration to have it, and so getSource() should also return the first configuration that has the key... but it doesn't. so we keep track ourselves.
@@ -182,7 +143,6 @@ public class MyConfiguration {
 
                             StringWriter writer = new StringWriter();
                             p.store(writer, String.format("Changed: %s", key));
-//                            log.debug("Updated: {} = {}", key, value);
                             encryptedFile.saveString(writer.toString());
                             break;
                         }
@@ -223,15 +183,10 @@ public class MyConfiguration {
         EnvironmentConfiguration env = new EnvironmentConfiguration();
         logConfiguration("environment", env);
         composite.addConfiguration(env);
-//        AllCapsEnvironmentConfiguration envAllCaps = new AllCapsEnvironmentConfiguration();
-//        logConfiguration("environment_allcaps", envAllCaps);
-//        composite.addConfiguration(envAllCaps);
-
 
         List<File> files = listConfigurationFiles();
         // add all the files we found so far, in the priority order
         for (File f : files) {
-//            System.out.println("Looking for "+f.getAbsolutePath());
             try {
                 if (f.exists() && f.canRead()) {
                     // first check if the file is encrypted... if it is, we need to decrypt it before loading!
@@ -326,20 +281,12 @@ public class MyConfiguration {
      * testSetMyConfigDir)
      */
     public final String getDirectoryPath() {
-//        return prefs.get("mtwilson.config.dir", System.getProperty("user.home") + File.separator + ".mtwilson");
         return Folders.configuration(); //getDirectory().getAbsolutePath();
     }
 
     public final File getDirectory() {
-//        return new File(getDirectoryPath());
         return new File(Folders.configuration()); //new File(getMtWilsonConf()); // use MTWILSON_CONF instead of java preferences, so admin can set it before running setup
     }
-    /* /// this one is a bad idea because the configuration can come from several places, and the config file is not the top priority source,
-     * // so providing this could create a situation where someone think that by writing to this config file they can affect the configuration
-     * // when in reality it may be overridden by a number of sources.
-     public final File getConfigFile() {
-     return new File(getDirectoryPath() + File.separator + "mtwilson.properties");
-     }*/
 
     /**
      * The list of files returned is in priority order -- properties defined in
@@ -369,8 +316,6 @@ public class MyConfiguration {
             files.add(new File(getMtWilsonConf() + File.separator + "mtwilson.properties")); // like C:\Intel\MtWilson\conf\mtwilson.properties
             files.add(new File("C:" + File.separator + "Intel" + File.separator
                     + "CloudSecurity" + File.separator + "mtwilson.properties"));
-//            files.add(new File(System.getProperty("user.home") + File.separator
-//                    + propertiesFilename));
 
             files.add(new File("C:" + File.separator + "Intel" + File.separator
                     + "CloudSecurity" + File.separator + "management-service.properties"));
@@ -382,8 +327,6 @@ public class MyConfiguration {
                     + "CloudSecurity" + File.separator + "mtwilson-portal.properties"));
             files.add(new File("C:" + File.separator + "Intel" + File.separator
                     + "CloudSecurity" + File.separator + "management-cmdutil.properties"));
-//             files.add(new File("C:" + File.separator + "Intel" + File.separator
-//                    + "CloudSecurity" + File.separator + "PrivacyCA.properties"));
 
         }
         // linux-specific location
@@ -440,7 +383,7 @@ public class MyConfiguration {
 
     public File getKeystoreFile() {
         String username = getKeystoreUsername();
-        return new File(getDirectoryPath() + File.separator + username + ".jks");
+        return new File(getDirectoryPath() + File.separator + username + ".p12");
     }
 
     public String getKeystoreUsername() {
@@ -520,22 +463,6 @@ public class MyConfiguration {
         }
         return locales;
     }
-
-    /*
-    // localization
-    // guarantees to return at least one element
-    public String[] getAvailableLocales() {
-        Locale[] locales = Locale.getAvailableLocales();
-        if (locales == null || locales.length == 0) {
-            return new String[]{"en-US"};
-        }
-        String[] localeNames = new String[locales.length];
-        for (int i = 0; i < locales.length; i++) {
-            localeNames[i] = LocaleUtil.toLanguageTag(locales[i]);
-        }
-        return localeNames;
-    }
-    * */
 
     ///////////////////////// database //////////////////////////////////
     public String getDatabaseProtocol() {
@@ -716,7 +643,7 @@ public class MyConfiguration {
     }
 
     public File getSamlKeystoreFile() {
-        return findConfigurationFile(conf.getString("saml.keystore.file", "mtwilson-saml.jks"));
+        return findConfigurationFile(conf.getString("saml.keystore.file", "mtwilson-saml.p12"));
     }
 
     public String getSamlKeystorePassword() {
@@ -752,7 +679,7 @@ public class MyConfiguration {
     }
 
     public File getTlsKeystoreFile() {
-        return new File(conf.getString("mtwilson.tls.keystore.file", getMtWilsonConf() + File.separator + "mtwilson-tls.jks"));
+        return new File(conf.getString("mtwilson.tls.keystore.file", getMtWilsonConf() + File.separator + "mtwilson-tls.p12"));
     }
 
     public String getTlsKeystorePassword() {
@@ -781,19 +708,6 @@ public class MyConfiguration {
         return conf.getString("mtwilson.atag.url", "https://localhost:9999");
     }
 
-    /*
-     public String getAssetTagKeyStorePath() {
-     return conf.getString("mtwilson.atag.keystore", "serverAtag.jks");
-     }
-
-     public String getAssetTagKeyStorePassword() {
-     return conf.getString("mtwilson.atag.keystore.password"); // must not have default password; run setup
-     }
-
-     public String getAssetTagKeyPassword() {
-     return conf.getString("mtwilson.atag.key.password");// must not have default password; run setup
-     }
-     */
     public String getAssetTagApiUsername() {
         return conf.getString("mtwilson.atag.api.username", "admin");
     }
@@ -829,24 +743,6 @@ public class MyConfiguration {
      * @return /opt/mtwilson on Linux or value of MTWILSON_HOME
      */
     public String getMtWilsonHome() {
-        /*
-         String mtwilsonHome = System.getenv("MTWILSON_HOME");
-         log.debug("MTWILSON_HOME={}", mtwilsonHome);
-         if (mtwilsonHome == null) {
-         if (Platform.isUnix()) {
-         mtwilsonHome = "/opt/mtwilson";
-         log.debug("MTWILSON_HOME={} (Linux default)", mtwilsonHome);
-         }
-         if (Platform.isWindows()) {
-         mtwilsonHome = "C:" + File.separator + "mtwilson"; // applications in Program Files need administrator permission to write to their folders
-         log.debug("MTWILSON_HOME={} (Windows default)", mtwilsonHome);
-         }
-         }
-         if (mtwilsonHome == null) {
-         throw new IllegalStateException("MTWILSON_HOME environment variable must be defined");
-         }
-         return mtwilsonHome;
-         */
         return Folders.application();
     }
 
@@ -855,25 +751,6 @@ public class MyConfiguration {
      * @return /etc/mtwilson on Linux or value of MTWILSON_CONF
      */
     public String getMtWilsonConf() {
-        /*
-         String mtwilsonConf = System.getenv("MTWILSON_CONF");
-         log.debug("MTWILSON_CONF={}", mtwilsonConf);
-         if (mtwilsonConf == null) {
-         if (Platform.isUnix()) {
-         //mtwilsonConf = "/etc/mtwilson";
-         mtwilsonConf = "/etc/intel/cloudsecurity";
-         log.debug("MTWILSON_CONF={} (Linux default)", mtwilsonConf);
-         }
-         if (Platform.isWindows()) {
-         mtwilsonConf = getMtWilsonHome() + File.separator + "configuration";
-         log.debug("MTWILSON_CONF={} (Windows default)", mtwilsonConf);
-         }
-         }
-         if (mtwilsonConf == null) {
-         throw new IllegalStateException("MTWILSON_CONF environment variable must be defined");
-         }
-         return mtwilsonConf;
-         */
         return Folders.configuration();
     }
 
@@ -901,11 +778,6 @@ public class MyConfiguration {
     public String getMtWilsonJava() {
         String mtwilsonJava = System.getenv("MTWILSON_JAVA");
         log.debug("MTWILSON_JAVA={}", mtwilsonJava);
-        /*
-         if (mtwilsonJava == null) {
-         mtwilsonJava = conf.getString("mtwilson.fs.java");
-         }
-         */
         if (mtwilsonJava == null) {
             mtwilsonJava = getMtWilsonHome() + File.separator + "java";
         }

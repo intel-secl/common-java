@@ -22,41 +22,6 @@ public class JdbcUtil {
     public static Connection conn = null;
     public static DataSource ds = null;
 
-    /*  Commented out getDataSource and getConnection because it appears they
-     *  are not being used at all, and cannot use "My" from here
-    public static DataSource getDataSource() {        
-        try {
-            if (ds == null) {
-                String driver = My.jdbc().driver();
-                String dbUrl = My.jdbc().url();
-                BasicDataSource dataSource = new BasicDataSource();
-                dataSource.setDriverClassName(driver); // or com.mysql.jdbc.Driver  for mysql
-                dataSource.setUrl(dbUrl);
-                Configuration configuration = ConfigurationFactory.getConfiguration();
-                dataSource.setUsername(My.configuration().getDatabaseUsername());
-                dataSource.setPassword(My.configuration().getDatabasePassword());
-                ds = dataSource;
-            }
-        } catch (Exception ex) {
-            log.error("Error connecting to the database. {}", ex.getMessage());
-        }
-        return ds;
-    }
-
-     public static Connection getConnection() {
-        try {
-            if (conn == null) {
-                conn = getDataSource().getConnection();
-            }
-            return conn;
-        } catch (Exception ex) {
-            log.error("Error connection to the database. {}", ex.getMessage());
-        }
-        return null;
-    }    
-    */
-    
-    
     /**
      * Does NOT close the result set.
      *

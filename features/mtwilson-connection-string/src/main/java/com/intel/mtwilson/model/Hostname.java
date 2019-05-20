@@ -13,7 +13,6 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.intel.dcsg.cpg.validation.RegexPatterns;
 import com.intel.dcsg.cpg.validation.ValidationUtil;
-//import org.codehaus.jackson.annotate.JsonValue;
 
 /**
  * Representation of a hostname. This class enforces some rules on the 
@@ -28,12 +27,6 @@ import com.intel.dcsg.cpg.validation.ValidationUtil;
 public class Hostname implements Model {
 
     private String hostname = null;
-
-    /*
-    private Hostname() {
-    }
-    *
-    */
 
     public Hostname(String hostname) {
         setHostname(hostname);
@@ -62,19 +55,6 @@ public class Hostname implements Model {
         return hostname;
     }
 
-    // should deprecate? or still allow it?
-    /*
-    public static Hostname parse(String input) {
-        if (isValid(input)) {
-            Hostname h = new Hostname();
-            h.hostname = input;
-            return h; // new Hostname(input);
-        }
-        throw new IllegalArgumentException("invalid hostname: " + input);
-    }
-    * 
-    */
-    
     @Override
     public boolean isValid() {
         return isValid(hostname);
@@ -90,26 +70,7 @@ public class Hostname implements Model {
      * false if the hostname is null or otherwise invalid
      */
     public static boolean isValid(String hostname) {
-        // right now valid hostname can be any string that does not contain a comma
-//        return ( !hostname.contains(",") );
         return ValidationUtil.isValidWithRegex(hostname, RegexPatterns.IPADDR_FQDN);
-        /*
-        try {
-            if (hostname.contains(":")) {
-                // IPv6 format
-                URI valid = new URI(String.format("//[%s]", hostname));
-                return valid.getHost() != null;
-            } else {
-                // IPv4 format
-                URI valid = new URI(String.format("//%s", hostname));
-                return valid.getHost() != null;
-            }
-        } catch (NullPointerException e) {
-            return false; // happens when hostname is null or invalid format like 1b.2.3i.4
-        } catch (URISyntaxException e) {
-            return false;
-        }
-        */
     }
     
     @Override

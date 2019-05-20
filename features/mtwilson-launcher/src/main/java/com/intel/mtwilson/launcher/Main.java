@@ -27,7 +27,7 @@ public class Main {
     
     public static void main(String[] args) {
         try {
-        String mtwilsonHomePath = Folders.application(); //home.getPath();
+        String mtwilsonHomePath = Folders.application();
         
         // make sure MTWILSON_HOME exists
         File mtwilsonHome = new File(mtwilsonHomePath);
@@ -39,8 +39,6 @@ public class Main {
         
         // create directory jar file resolver
         launcher.setDirectory(new File(mtwilsonHomePath + File.separator + "java"));
-        // use the only container we have right now
-//        launcher.setContainer(new Container()); // don't need to set it unless we develop more than one... right now each launcher instantiates a container by default
         // create container and load modules
            launcher.launch();
             // start event loop (block in foreground so http module etc can listen for connections)

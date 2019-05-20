@@ -9,13 +9,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
 
 /**
  * The Maven pom.xm for this module specifies a few modules to copy into the "target" folder during the build;
@@ -25,32 +22,6 @@ import org.junit.Test;
  */
 public class DirectoryModuleRepositoryTest {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DirectoryModuleRepositoryTest.class);
-
-    // XXX TODO   this test needs to be rewritten for new DirectoryLauncher
-    /*
-    @Test
-    public void testListModulesInDirectory() throws IOException {
-        String dir = System.getProperty("mtwilson.module.dir", "."+File.separator+"target"+File.separator+"jmod");
-        log.debug("mtwilson.module.dir={}", dir);
-        File directory = new File(dir);
-        if( !directory.exists() ) {
-            log.debug("Creating module directory: {}", dir);
-            if( !directory.mkdirs() ) {
-                log.error("Cannot create module directory: {}", dir);
-            }
-        }
-        DirectoryModuleRepository repository = new DirectoryModuleRepository();
-        repository.setDirectory(directory);
-        List<Module> modules = repository.listModules();
-        log.debug("Found {} modules", modules.size());
-        for(Module module : modules) {
-            log.debug("Module: {}", module.getImplementationTitle()+"-"+module.getImplementationVersion());
-            log.debug("Class-Path: {}", module.getClasspath());
-            log.debug("Module-Components: {}", module.getComponentNames());
-//            printModuleManifest(module);
-        }
-    }
-    */
     
     private void printCollection(String label, Collection<Object> values) {
         log.debug(label+": "+StringUtils.join("|", values));
@@ -78,36 +49,6 @@ public class DirectoryModuleRepositoryTest {
         log.debug("vendor: {}", vendor);
         log.debug("classpath: {}", classpath);
         log.debug("modules: {}", moduleComponents);
-                /*
-        log.debug("there is a manifest");
-        Map<String,Attributes> map = mf.getEntries();
-        log.debug("the manifest has {} entry keys", map.keySet().size());
-        for(String key : map.keySet()) {
-            Attributes attr  = map.get(key);
-            printCollection(key+"-keyset", attr.keySet());
-            printCollection(key+"-values", attr.values());
-        }
-        Attributes classpathAttr = mf.getAttributes(Attributes.Name.CLASS_PATH.toString()); // Class-Path
-        Attributes versionAttr = mf.getAttributes(Attributes.Name.IMPLEMENTATION_VERSION.toString()); // Implementation-Version
-        Attributes titleAttr = mf.getAttributes(Attributes.Name.IMPLEMENTATION_TITLE.toString()); // Implementation-Title
-        Attributes vendorAttr = mf.getAttributes(Attributes.Name.IMPLEMENTATION_VENDOR.toString()); // Implementation-Vendor
-//        log.debug("classpath name: {}", Attributes.Name.CLASS_PATH.toString()); // "Class-Path"
-        if( titleAttr != null ) {
-        String title = titleAttr.getValue(Attributes.Name.IMPLEMENTATION_TITLE);
-        log.debug("title: {}", title);
-        }
-        if( versionAttr != null ) {
-        String version = versionAttr.getValue(Attributes.Name.IMPLEMENTATION_VERSION);
-        log.debug("version: {}", version);
-        }
-        if( vendorAttr != null ) {
-        String vendor = vendorAttr.getValue(Attributes.Name.IMPLEMENTATION_VENDOR);
-        log.debug("vendor: {}", vendor);
-        }
-        if( classpathAttr != null ) {
-        String classpath = classpathAttr.getValue(Attributes.Name.CLASS_PATH);
-        log.debug("classpath: {}", classpath);
-        }*/
         jarStream.close();
     }
 }

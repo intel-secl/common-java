@@ -10,7 +10,6 @@ import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicyException;
 import com.intel.dcsg.cpg.tls.policy.TrustDelegate;
 import com.intel.dcsg.cpg.x509.repository.CertificateRepository;
-import java.net.Socket;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -117,12 +116,6 @@ public class CertificateTlsPolicy extends X509ExtendedServerTrustManager impleme
         return new X509Certificate[0];
     }
 
-    /*
-     @Override
-     public CertificateRepository getCertificateRepository() {
-     return repository;
-     }
-     */
     @Override
     public ProtocolSelector getProtocolSelector() {
         return selector;

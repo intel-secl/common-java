@@ -11,8 +11,6 @@ import com.intel.mtwilson.launcher.ext.Initialize;
 import com.intel.mtwilson.launcher.ext.Stop;
 import com.intel.mtwilson.launcher.ext.Start;
 import com.intel.mtwilson.launcher.ext.Validate;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 
 /**

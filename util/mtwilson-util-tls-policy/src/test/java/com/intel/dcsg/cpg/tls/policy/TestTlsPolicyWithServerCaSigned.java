@@ -27,7 +27,6 @@ import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -46,13 +45,9 @@ import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.eclipse.jetty.server.Server;
-//import org.eclipse.jetty.server.ssl.SslSocketConnector;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-//import org.mortbay.jetty.Server;
-//import org.mortbay.jetty.handler.ContextHandlerCollection;
-//import org.mortbay.jetty.security.SslSocketConnector;
 
 /**
  * Sample http output from Jetty configured with no content handlers:
@@ -93,7 +88,6 @@ public class TestTlsPolicyWithServerCaSigned {
         KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
         keystore.load(null, keystorePassword.toCharArray());
         keystore.setKeyEntry(certificate.getSubjectX500Principal().getName(), privateKey, keystorePassword.toCharArray(), new X509Certificate[] { certificate });
-//        keystore.setCertificateEntry(certificate.getSubjectX500Principal().getName(), certificate); // unnecessary, certificate is already set with setKeyEntry;   if you try to do this you would get KeyStoreException: Cannot overwrite own certificate
         FileResource keystoreResource = new FileResource(keystoreFile);
         OutputStream out = keystoreResource.getOutputStream();
         keystore.store(out, keystorePassword.toCharArray());
@@ -106,9 +100,6 @@ public class TestTlsPolicyWithServerCaSigned {
         KeyPair caKeys = generateRsaKeyPair(1024);
         caCert = X509Builder.factory().selfSigned("CN=testca", caKeys).expires(30, TimeUnit.DAYS).keyUsageCertificateAuthority().build();
         System.out.println("Created CA cert with CA flag: "+caCert.getBasicConstraints());
-        // RsaCredentialX509 ca = new RsaCredentialX509(caKeys.getPrivate(), caCert);
-//        System.out.println("CA CERT PEM:");
-//        System.out.println(X509Util.encodePemCertificate(caCert));  // weird:   getBasicConstraints() above returns -1, when it should return Integer.MAX_VALUE according to the javadoc... writing cert to file as PEM and reading with java keytool shows the CA basic constraint with path length Integer.MAX_VALUE, so we know the certificate is generated correctly... not sure why it's not giving the right value here for getBasicConstraints() ... which is causing X509Util.isCA():booelan to return false incorrectly for the CA cert.
         // create tls cert
         KeyPair tlsKeys = generateRsaKeyPair(1024);
         tlsCert = X509Builder.factory().subjectName("CN=testserver,O=ca-signed").dnsAlternativeName("localhost").subjectPublicKey(tlsKeys.getPublic()).issuerName(caCert).issuerPrivateKey(caKeys.getPrivate()).expires(30, TimeUnit.DAYS).keyUsageDataEncipherment().build();
@@ -119,11 +110,6 @@ public class TestTlsPolicyWithServerCaSigned {
         keystore.setKeyEntry(tlsCert.getSubjectX500Principal().getName(), tlsKeys.getPrivate(), keystorePassword.toCharArray(), new X509Certificate[] { tlsCert });
         createKeystoreWithCredential(new File(filename), tlsKeys.getPrivate(), tlsCert);
         keystore.setCertificateEntry(caCert.getSubjectX500Principal().getName(), caCert); // if you add the CA to the keystore, must add it as a certificate and not the full credential with private key, because then the web server will not know which private key to use and may send the ca instead of the server cert...   other servers like glassfish may allow you to select the alias of the server cert to use . looks like jetty does not.
-        // create a bogus ca cert and include it in the keystore... let's see what the trust manager gets
-//        KeyPair caKeys2 = RsaUtil.generateRsaKeyPair(1024);
-//        X509Certificate caCert2 = X509Builder.factory().selfSigned("CN=testca2", caKeys2).expires(30, TimeUnit.DAYS).keyUsageCertificateAuthority().build();
-//        RsaCredentialX509 ca2 = new RsaCredentialX509(caKeys2.getPrivate(), caCert2);
-//        keystore.setRsaCredentialX509(ca2, "ca2", "password"); // looks like if the ca signed the tls cert (normal case) only the ca is sent to the x509trustmanager, which would be ok except that it's also sent to the hostnameverifier which does NOT make sense (the CA is not going to have the hostname in it!!!)
         FileResource keystoreResource = new FileResource(new File(filename));
         OutputStream out = keystoreResource.getOutputStream();
         keystore.store(out, keystorePassword.toCharArray());
@@ -145,28 +131,6 @@ public class TestTlsPolicyWithServerCaSigned {
     
     @BeforeClass
     public static void startJetty() throws Exception {
-        // randomize server port because sometimes it doesn't shut down cleanly from a previous test, and we don't want that to interfere
-//        Random rnd = new Random();
-//        serverPort += rnd.nextInt(10000);
-//        httpsURL = new URL("https://localhost:"+serverPort);
-//        System.out.println("Starting Jetty on port "+serverPort);
-//        // create a CA signed cert for the server
-//        caKeystorePath = System.getProperty("java.io.tmpdir")+File.separator+"ca"+serverPort+".jks"; // with port number to ensure we create a different file each time, in  case the contents need to change
-//        createTestCa(caKeystorePath);
-////        createSelfSigned(caKeystorePath);
-//        System.out.println("Server keystore: "+caKeystorePath);
-//        
-//        
-//        jetty = new Server(serverPort-1);   // jetty will listen for http on serverPort-1, and https on serverPort
-//        jetty.setHandler(new HelloWorldHandler());
-//        SslSocketConnector sslConnector = new SslSocketConnector();
-//        sslConnector.setKeystore(caKeystorePath);
-//        sslConnector.setKeyPassword("password");
-//        sslConnector.setTruststore(caKeystorePath);
-//        sslConnector.setTrustPassword("password");
-//        sslConnector.setPort(serverPort); // jetty will listen for https on serverPort
-//        jetty.addConnector(sslConnector);
-//        jetty.start();
     }
     
     @AfterClass
@@ -212,7 +176,6 @@ public class TestTlsPolicyWithServerCaSigned {
         httpClient.getConnectionManager().shutdown();
     }
 
-//    @Test
     public void testTrustUnnownCertificateClientWithDelegate() throws Exception {
         HashSetMutablePublicKeyRepository repository = new HashSetMutablePublicKeyRepository();
         TlsPolicy tlsPolicyTrustKnownCertificate = new PublicKeyTlsPolicy(repository, new ConsoleTrustDelegate(repository));

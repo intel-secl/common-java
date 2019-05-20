@@ -7,13 +7,11 @@ package com.intel.mtwilson.jaxrs2;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.intel.dcsg.cpg.crypto.Sha1Digest;
-import com.intel.dcsg.cpg.io.UUID;
 import com.intel.dcsg.cpg.io.ByteArray;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-//import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  *
@@ -25,7 +23,6 @@ import java.util.Map;
  * 
  * @author jbuhacoff
  */
-//@JsonSerialize(include=JsonSerialize.Inclusion.NON_EMPTY) // jackson 1.9
 @JsonInclude(JsonInclude.Include.NON_EMPTY) // jackson 2.0
 @JsonIgnoreProperties(ignoreUnknown=true)
 public abstract class Document extends AbstractDocument {

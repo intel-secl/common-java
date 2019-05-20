@@ -6,7 +6,6 @@ package com.intel.dcsg.cpg.jpa;
 
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,10 +83,6 @@ public abstract class GenericJpaController<T> {
             else if( parameterValue instanceof java.sql.Timestamp  ) {
                 query.setParameter(parameterName, (java.util.Date)parameterValue, TemporalType.TIMESTAMP);                    
             }
-//            //unnecessary: klocwork 76
-//            else if( parameterValue instanceof java.sql.Date ) {
-//                query.setParameter(parameterName, (java.util.Date)parameterValue, TemporalType.DATE);                    
-//            }
             else {
                 query.setParameter(parameterName, (java.util.Date)parameterValue, TemporalType.DATE);                   
             }

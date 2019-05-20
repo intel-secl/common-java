@@ -16,17 +16,7 @@ public class ValidationException extends RuntimeException implements Faults {
     public ValidationException() {
         super();
     }
-    /*
-    public ValidationException(String message) {
-        super(message);
-    }
-    public ValidationException(String message, Throwable cause) {
-        super(message, cause);
-    }
-    public ValidationException(Throwable cause) {
-        super(cause);
-    }
-    */
+
     public ValidationException(Collection<Fault> faults) {
         super();
         this.faults = faults;

@@ -44,7 +44,6 @@ public class AnnotationRegistrar implements Registrar {
             if( parent.getName().startsWith("java.") || parent.getName().startsWith("javax.") ) { log.debug("Skipping java. or javax. parent"); return false; }
             log.trace("Scanning parent2 {}", parent.getName());
             while (!accepted && parent != null && parent != Object.class && parent != clazz) {
-//                log.debug("Scanning parent {}", parent.getName());
                 if( ReflectionUtil.isAnnotatedClass(parent, annotation)) {
                      log.debug("Found extension {} with annotation {} in parent {}", clazz.getSimpleName(), annotationName, parent.getClass().getName());
                     WhiteboardExtensionProvider.registerAnnotated(annotation, clazz);

@@ -4,8 +4,6 @@
  */
 package com.intel.dcsg.cpg.module;
 
-import com.intel.mtwilson.pipe.Filter;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
@@ -121,7 +119,7 @@ public class ComponentHolder {
     
     // NOTE:  if a component implements  notice(A) and notice(B) where A is a subclass of B,  only A (the best match) will be called for a component that exports A ... we only notify the best match.      
     // XXX TODO do we need to create a NoticeHolder object and pass that around instead?
-    public void notice(/*NoticeHolder*/Object message) throws ComponentNotificationException {
+    public void notice(Object message) throws ComponentNotificationException {
         // first we find the most specific type we can connect to
         log.debug("Checking if {} accepts notice for {}", getComponentName(), message.getClass().getName());
         Class<?> bestNotice = ReflectionUtil.getMostSpecificType(message/*.getWrappedObject()*/.getClass(), noticeTypes);
@@ -155,11 +153,6 @@ public class ComponentHolder {
         }
     }
 
-    /*
-     public Method getActivateMethod() {
-     return activateMethod;
-     }
-     */
     public void activate() throws ComponentActivationException {
         if (active) {
             return;
@@ -181,11 +174,6 @@ public class ComponentHolder {
         this.activateMethod = activateMethod;
     }
 
-    /*
-     public Method getDeactivateMethod() {
-     return deactivateMethod;
-     }
-     */
     public void deactivate() throws ComponentDeactivationException {
         if (!active) {
             return;

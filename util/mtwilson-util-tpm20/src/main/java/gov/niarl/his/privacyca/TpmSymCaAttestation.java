@@ -15,7 +15,6 @@ package gov.niarl.his.privacyca;
 
 import java.io.ByteArrayInputStream;
 import java.security.cert.*;
-//import java.util.*;
 import java.io.*;
 import java.security.*;
 import javax.crypto.*;
@@ -104,7 +103,6 @@ public class TpmSymCaAttestation {
 		algorithm.setTrouSerSmode(TrousersModeIV); //set trousers mode
 		//create a random key for AES (128 bit = 16 byte)
 		byte [] newKey = TpmUtils.createRandomBytes(16);
-		//System.out.println("The symmetric key is " + newKey.length + " bytes long");
 		//encrypt
 		Cipher symCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 		IvParameterSpec ivSpec = new IvParameterSpec(newIv);

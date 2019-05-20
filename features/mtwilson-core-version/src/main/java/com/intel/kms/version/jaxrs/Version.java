@@ -8,14 +8,11 @@ import com.intel.kms.version.VersionInfo;
 import com.intel.kms.version.VersionProperties;
 import com.intel.mtwilson.launcher.ws.ext.V2;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.Properties;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import org.apache.commons.io.IOUtils;
 
 /**
  * Reads a file from the classpath /com/intel/mtwilson/version.properties

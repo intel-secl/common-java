@@ -32,7 +32,6 @@ public class LocalizationUtil {
             // the getString(key) function will return the text only up to the first comma, e.g. "en"
             // the getStringArray(key) function never returns null,  if the key is missing or null it returns empty array, and if the value is empty string it returns an array with one element whose value is empty string
             String localesCSV = conf.get("mtwilson.locales", "");
-//        String[] locales = conf.getStringArray("mtwilson.locales");
             String[] locales = StringUtils.split(localesCSV, ", ");
             if (locales == null || locales.length == 0 || locales[0] == null || locales[0].isEmpty()) {
                 return new String[]{LocaleUtil.toLanguageTag(Locale.getDefault())};

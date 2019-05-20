@@ -52,8 +52,6 @@ if [ $? -ne 0 ]; then echo "Failed to change version in \"features/mtwilson-core
 sed -i 's/\(<version>\).*\(<\/version>\)/\1'${version}'\2/g' features/mtwilson-core-version/feature.xml
 if [ $? -ne 0 ]; then echo "Failed to change version in \"features/mtwilson-core-version/feature.xml\"" >&2; exit 3; fi
 
-(cd features-deprecated  && $changeVersionCommand)
-if [ $? -ne 0 ]; then echo "Failed to change maven version on \"features-deprecated\" folder" >&2; exit 3; fi
 (cd features-linux  && $changeVersionCommand)
 if [ $? -ne 0 ]; then echo "Failed to change maven version on \"features-linux\" folder" >&2; exit 3; fi
 (cd util  && $changeVersionCommand)

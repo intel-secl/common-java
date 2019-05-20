@@ -33,10 +33,7 @@ public class IPv6Address extends ObjectModel {
     private static final Pattern pStandardNotation = Pattern.compile(rStandardNotation);
     private static final String rMixedNotation = "^(?:"+rStandardWord+":){6}"+rIPv6+"$";
     private static final Pattern pMixedNotation = Pattern.compile(rMixedNotation);
-//    private static final String rCompactWord = "[A-F0-9]{0,4}";
-//    private static final String rCompactNotation7 = "^(?:"+rCompactWord+":){0,7}"+rCompactWord+"$";
-//    private static final String rCompactNotation8 = "^(?:"+rStandardWord+":){7}:|:(?::"+rStandardWord+"){7}$";
-    
+
     private String input;
     private transient Notation notation = null;
     

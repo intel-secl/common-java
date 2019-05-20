@@ -83,6 +83,5 @@ public interface Configuration {
      * @return true if the implementation supports {@code set}
      */
     boolean isEditable();
-//    String get(Property property);
 
 }

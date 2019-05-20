@@ -30,7 +30,6 @@ public class PublicKeyDigestTlsPolicy extends PublicKeyTlsPolicy {
 
     @Override
     public boolean isPublicKeyTrusted(final X509Certificate publicKeyCertificate) {
-//        Cache<String, byte[]> publicKeyDigests = new Cache<>();
         List<Digest> trustedPublicKeyDigests = repository.getDigests();
         for (Digest trustedPublicKeyDigest : trustedPublicKeyDigests) {
             try {

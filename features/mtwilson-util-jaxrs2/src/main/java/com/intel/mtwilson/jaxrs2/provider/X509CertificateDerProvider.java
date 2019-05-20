@@ -5,10 +5,6 @@
 package com.intel.mtwilson.jaxrs2.provider;
 
 import com.intel.mtwilson.jaxrs2.mediatype.CryptoMediaType;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.intel.dcsg.cpg.x509.X509Util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,7 +23,6 @@ import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 import org.apache.commons.io.IOUtils;
-//import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 
 /**
  * Reference: https://jersey.java.net/documentation/latest/message-body-workers.html

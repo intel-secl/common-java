@@ -5,9 +5,7 @@
 package com.intel.dcsg.cpg.x509.repository;
 
 import com.intel.mtwilson.codec.ByteArrayCodec;
-import com.intel.mtwilson.codec.ObjectCodec;
 import com.intel.dcsg.cpg.crypto.PublicKeyCodec;
-import com.intel.dcsg.cpg.crypto.RsaUtil;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Collection;

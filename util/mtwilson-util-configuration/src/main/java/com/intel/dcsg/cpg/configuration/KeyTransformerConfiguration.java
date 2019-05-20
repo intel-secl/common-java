@@ -44,7 +44,6 @@ public class KeyTransformerConfiguration extends AbstractConfiguration implement
     public String get(String key) {
         String key2 = transformer.transform(key);
         String value = configuration.get(key2);
-        //log.debug("get key {} transformed {} -> value {}", key, key2, value);
         return value;
     }
     

@@ -103,15 +103,6 @@ public class TestJavassist {
         Class aClass = factory.createClass();
         log.debug("Created new class {}", aClass.getName());
 
-        /*
-         final Example newInstance = (Example) aClass.newInstance();
-         MethodHandler methodHandler = new MethodHandler() {
-         @Override
-         public Object invoke(Object self, Method overridden, Method proceed, Object[] args) throws Throwable {
-         }
-         };
-         ((ProxyObject)newInstance).setHandler(methodHandler);
-         */
         ExamplePool objectPool = new ExamplePool();
         Example pooledObject = objectPool.borrowObject();
         Example newInstance = (Example) aClass.newInstance();
@@ -120,16 +111,4 @@ public class TestJavassist {
         log.debug("new instance class is {}", newInstance.getClass().getName());
         newInstance.close();
     }
-    /*
-     @Test
-     public void testAddMethod() throws NotFoundException, CannotCompileException {
-     CtClass point = ClassPool.getDefault().get("Example");
-     CtField f = CtField.make("public ObjectPool<?> __objectPool = null;", point);
-     point.addField(f);
-
-     CtMethod m = CtNewMethod.make(
-     "public void setObjectPool(ObjectPool<?> objectPool) { this.__objectPool = objectPool; }",
-     point);
-     point.addMethod(m);        
-     }*/
 }

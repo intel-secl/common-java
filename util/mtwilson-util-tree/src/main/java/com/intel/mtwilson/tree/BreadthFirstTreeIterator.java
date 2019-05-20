@@ -18,7 +18,6 @@ import java.util.List;
  * @author jbuhacoff
  */
 public class BreadthFirstTreeIterator<T> implements Iterator<T> {
-//    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(BreadthFirstTreeSearch.class);
     private final Tree<T> tree;
     protected T current;
     private final Filter<T> filter;

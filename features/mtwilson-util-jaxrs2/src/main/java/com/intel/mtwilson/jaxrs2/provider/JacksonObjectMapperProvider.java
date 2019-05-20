@@ -69,9 +69,6 @@ public class JacksonObjectMapperProvider implements ContextResolver<ObjectMapper
             log.trace("JacksonObjectMapperProvider registering module: {} class: {}", module.getModuleName(), module.getClass().getName());
             mapper.registerModule(module); // for example com.intel.mtwilson.jackson.bouncycastle.BouncyCastleModule, com.intel.mtwilson.jackson.validation.ValidationModule, com.intel.mtwilson.jackson.v2api.V2Module
         }
-//        mapper.registerModule(new BouncyCastleModule());  // this is a good spot for an extension point
-//        mapper.registerModule(new ValidationModule());  // this is a good spot for an extension point
-
         return mapper;
     }
  

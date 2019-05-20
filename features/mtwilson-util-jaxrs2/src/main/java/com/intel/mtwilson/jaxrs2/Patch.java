@@ -6,11 +6,8 @@ package com.intel.mtwilson.jaxrs2;
 
 import com.intel.mtwilson.repository.FilterCriteria;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-//import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  *

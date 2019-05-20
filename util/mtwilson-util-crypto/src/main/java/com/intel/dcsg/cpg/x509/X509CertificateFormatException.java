@@ -21,15 +21,6 @@ public class X509CertificateFormatException extends IllegalArgumentException {
         this.certificate = certificate;
     }
 
-    /*
-    public X509CertificateFormatException(String message) {
-    super(message);
-    }
-    public X509CertificateFormatException(String message, Throwable cause) {
-    super(message, cause);
-    }
-     */
-    
     public byte[] getBytes() {
         return certificate;
     }

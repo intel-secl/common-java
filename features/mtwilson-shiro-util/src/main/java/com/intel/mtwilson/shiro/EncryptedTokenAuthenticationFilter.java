@@ -90,7 +90,6 @@ public class EncryptedTokenAuthenticationFilter extends AuthenticatingFilter {
 
             XStream xs = new XStream();
             EncryptedTokenContent existingToken = (EncryptedTokenContent)xs.fromXML(new String(validatedToken.getContent(), Charset.forName("UTF-8")));
-//                byte[] validatedToken.getContent();
                 // this block of code repeated in EncryptedTokenAuthenticationFilter
                 EncryptedTokenContent tokenContent = new EncryptedTokenContent();
                 tokenContent.loginPasswordId = existingToken.loginPasswordId;
@@ -200,9 +199,6 @@ public class EncryptedTokenAuthenticationFilter extends AuthenticatingFilter {
         } catch (UnsupportedTokenVersionException e) {
             log.warn("Token version not supported", e);
             return null;
-//        } catch (CryptographyException e) {
-//            log.warn("Cannot validate token", e);
-//            return null;
         } catch (ExpiredTokenException e) {
             log.warn("Token is expired", e);
             return null;

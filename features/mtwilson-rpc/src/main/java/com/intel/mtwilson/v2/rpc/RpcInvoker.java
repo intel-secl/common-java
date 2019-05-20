@@ -27,14 +27,9 @@ import java.util.List;
 public class RpcInvoker implements Runnable {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RpcInvoker.class);
 
-//    private static final RpcInvoker instance = new RpcInvoker();
-//    public static RpcInvoker getInstance() { return instance; }
-    
     private RpcRepository repository = new RpcRepository();
     private ConcurrentLinkedQueue<UUID> queue = new ConcurrentLinkedQueue<>(); // of rpc request uuid's to run
     private ObjectMapper mapper = new ObjectMapper(); 
-    
-//    public void setRepository(RpcRepository repository) { this.repository = repository; }
     
     public void add(UUID id) { queue.offer(id); }
     public void remove(UUID id) { queue.remove(id); }
@@ -101,11 +96,8 @@ public class RpcInvoker implements Runnable {
         // run
         try {
         // assume that the rpc adapter is RunnableRpcAdapter   
-//            Runnable runnable = (Runnable)taskObject;
-//            runnable.run();
             adapter.setInput(taskObject);
             adapter.invoke();            
-//            log.debug("After run: {}", mapper.writeValueAsString(taskObject));
             log.debug("After run: {}", mapper.writeValueAsString(adapter.getOutput()));
         }
         catch(Exception e) {
@@ -118,18 +110,6 @@ public class RpcInvoker implements Runnable {
 
         // format output
         try {
-            /*
-            javax.ws.rs.core.MultivaluedHashMap jaxrsHeaders = new javax.ws.rs.core.MultivaluedHashMap();
-            jaxrsHeaders.putAll(headerMap.getMap());
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            messageBodyWriter.writeTo(taskObject, adapter.getOutputClass(), adapter.getOutputClass(), new Annotation[]{}, outputMediaType, jaxrsHeaders, out);
-            byte[] output = out.toByteArray(); // this will go in database
-            log.debug("Intermediate output: {}", new String(output)); // we can only do this because we know the output is xml format for testing...
-            rpc.setOutput(output);
-            rpc.setOutputContentType(adapter.getContentType());
-            rpc.setOutputContentClass(adapter.getOutputClass().getName());
-            */
-//            rpc.setOutput( xs.toXML(taskObject).getBytes("UTF-8"));
             rpc.setOutput(xs.toXML(adapter.getOutput()).getBytes("UTF-8"));
             // the OUTPUT status indicates the task has completed and output is avaialble
             rpc.setStatus(Rpc.Status.OUTPUT);
@@ -151,7 +131,5 @@ public class RpcInvoker implements Runnable {
         
         repository.store(rpc);
         log.debug("RPC processing complete, output stored, status updated to OUTPUT");
-                
     }
-    
 }

@@ -2103,6 +2103,12 @@ postgres_configure_connection() {
 #      fi
 }
 
+postgres_change_owner() {
+prev_user=$1
+sudo -u postgres psql  postgres -c "GRANT ALL PRIVILEGES ON DATABASE mw_as to ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" 1>/dev/null
+sudo -u postgres psql -d mw_as postgres -c "REASSIGN OWNED BY $prev_user TO ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" 1>/dev/null
+sudo -u postgres psql  postgres -c "REVOKE ALL PRIVILEGES ON DATABASE mw_as FROM $prev_user" 1>/dev/null
+}
 
 # requires a postgres connection that can access the existing database, OR (if it doesn't exist)
 # requires a postgres connection that can create databases and grant privileges
@@ -2140,6 +2146,11 @@ if postgres_server_detect ; then
       if [ -z "$user_is_superuser" ]; then
         local create_user_sql="CREATE USER ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME} WITH PASSWORD '${POSTGRES_PASSWORD:-$DEFAULT_POSTGRES_PASSWORD}';"
         sudo -u postgres psql postgres -c "${create_user_sql}" 1>/dev/null
+        local detect_prevuser=$(sudo -u postgres psql -d mw_as  postgres -t -c "select tableowner from pg_tables where tablename = 'mw_flavor'" 2>&1 )
+        local POSTGRES_PREVUSERNAME=${detect_prevuser##* }
+        if [ "$POSTGRES_PREVUSERNAME" != "${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" ]; then
+          postgres_change_owner $POSTGRES_PREVUSERNAME
+        fi
       fi
       # Do not provide Superuser Privileges to HVS Database User ISECL-3860
       local superuser_alter="ALTER USER ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME} WITH NOSUPERUSER;"
@@ -2769,10 +2780,10 @@ tomcat_create_ssl_cert() {
     fi
     
     echo "Creating SSL Certificate for ${serverName}..."
-    # Delete public insecure certs within keystore.jks and cacerts.jks
+    # Delete public insecure certs within keystore.p12 and cacerts.p12
     $keytool -delete -alias tomcat -keystore "$keystore" -storepass "$keystorePassword" 2>&1 >/dev/null
 
-    # Update keystore.jks
+    # Update keystore.p12
     $keytool -genkeypair -alias tomcat -dname "$cert_cns, OU=Mt Wilson, O=Trusted Data Center, C=US" -ext san="$cert_sans" -keyalg RSA -keysize 2048 -validity 3650 -keystore "$keystore" -keypass "$keystorePassword" -storepass "$keystorePassword"
     
     echo "Restarting Tomcat as a new SSL certificate was generated..."
@@ -2784,7 +2795,7 @@ tomcat_create_ssl_cert() {
     $keytool -export -alias tomcat -file "${TOMCAT_HOME}/ssl/ssl.${tmpHost}.crt" -keystore $keystore -storepass "$keystorePassword"
     openssl x509 -in "${TOMCAT_HOME}/ssl/ssl.${tmpHost}.crt" -inform der -out "$configDir/ssl.crt.pem" -outform pem
     cp "${TOMCAT_HOME}/ssl/ssl.${tmpHost}.crt" "$configDir/ssl.crt"
-    cp "$keystore" "$configDir/mtwilson-tls.jks"
+    cp "$keystore" "$configDir/mtwilson-tls.p12"
     mtwilson_tls_cert_sha1=`openssl sha1 -hex "$configDir/ssl.crt" | awk -F '=' '{ print $2 }' | tr -d ' '`
     update_property_in_file "mtwilson.api.tls.policy.certificate.sha1" "$configDir/mtwilson.properties" "$mtwilson_tls_cert_sha1"
     mtwilson_tls_cert_sha256=`openssl sha256 -hex "$configDir/ssl.crt" | awk -F '=' '{ print $2 }' | tr -d ' '`
@@ -3326,7 +3337,7 @@ java_install_in_home() {
 }
 
 java_keystore_cert_report() {
-  local keystore="${1:-keystore.jks}"
+  local keystore="${1:-keystore.p12}"
   local keystorePassword="${2:-changeit}"
   local alias="${3:-s1as}"
   local keytool=${JAVA_HOME}/bin/keytool
@@ -3964,7 +3975,7 @@ load_defaults() {
   export DEFAULT_WEBSERVICE_MANAGER_PASSWORD=$(generate_password 16)
   export DEFAULT_DATABASE_VENDOR=""
   export DEFAULT_PRIVACYCA_SERVER=""
-  export DEFAULT_SAML_KEYSTORE_FILE="SAML.jks"
+  export DEFAULT_SAML_KEYSTORE_FILE="SAML.p12"
   export DEFAULT_SAML_KEYSTORE_PASSWORD=""
   export DEFAULT_SAML_KEY_ALIAS="samlkey1"
   export DEFAULT_SAML_KEY_PASSWORD=""
@@ -4343,3 +4354,29 @@ setup_pgpass() {
   if [ $(whoami) == "root" ]; then cp ${MTWILSON_CONFIGURATION}/.pgpass ~/.pgpass;
   fi
 }
+function configure_cron() {
+   action=$1
+   interval=$2
+   command=$3
+
+   if [[ -z "$action" ]] ;then echo_failure " no action specified\n"; return 1 ;fi
+   if [[ -z "$interval" ]] ;then echo_failure " no interval specified\n"; return 1 ;fi
+   if [[ -z "$command" ]] ;then echo_failure " no command specified\n"; return 1 ;fi
+
+   case $action in
+   "add" )
+      if ! crontab -l | egrep -v '^(#|$)' | grep -Fq "$command"
+      then
+         ( crontab -l; echo "$interval $command" ) | crontab -
+      fi
+      ;;
+   "remove" )
+      ( crontab -l | grep -v -F -w "$command" ) | crontab -
+      ;;
+   * )
+      echo_failure "configure_cron <add|remove> '<interval>' '<command>'"
+      return 1
+      ;;
+   esac
+}
+

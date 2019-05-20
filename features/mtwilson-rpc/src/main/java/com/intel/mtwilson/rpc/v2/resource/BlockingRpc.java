@@ -6,28 +6,12 @@ package com.intel.mtwilson.rpc.v2.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.intel.dcsg.cpg.extensions.Extensions;
 import com.intel.dcsg.cpg.io.UUID;
-import com.intel.dcsg.cpg.rfc822.Message;
-import com.intel.mtwilson.collection.MultivaluedHashMap;
 import com.intel.dcsg.cpg.validation.Fault;
-import com.intel.mtwilson.jaxrs2.mediatype.CryptoMediaType;
-import com.intel.mtwilson.launcher.ws.ext.RPC;
 import com.intel.mtwilson.launcher.ws.ext.V2;
 import com.intel.mtwilson.rpc.v2.model.Rpc;
 import com.intel.mtwilson.rpc.v2.model.RpcPriv;
-import com.intel.mtwilson.v2.rpc.RpcInvoker;
-import com.intel.mtwilson.v2.rpc.RpcUtil;
-import com.thoughtworks.xstream.XStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
-//import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -36,17 +20,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-//import javax.ws.rs.core.MultivaluedHashMap;
-//import com.intel.dcsg.cpg.util.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.ext.MessageBodyReader;
-import javax.ws.rs.ext.MessageBodyWriter;
-import org.apache.commons.lang3.StringUtils;
-import org.glassfish.jersey.message.MessageBodyWorkers;
 
 /**
  * Characteristics of a Remote Procedure Call is that the input and output are
@@ -67,7 +42,6 @@ import org.glassfish.jersey.message.MessageBodyWorkers;
  * @author jbuhacoff
  */
 @V2
-//@Stateless
 @Path("/rpc")
 public class BlockingRpc extends AbstractRpc {
 
@@ -106,8 +80,6 @@ public class BlockingRpc extends AbstractRpc {
         rpc.setId(new UUID());
         rpc.setName(name);
         rpc.setInput(inputXml);
-//        com.intel.dcsg.cpg.util.MultivaluedHashMap<String,String> headers = RpcUtil.convertHeadersToMultivaluedMap(request);
-//        rpc.setInputHeaders(toRfc822(headers));
         rpc.setStatus(Rpc.Status.PROGRESS); // unlike async where we store it with QUEUE and the RpcInvoker picks it up,  in blocking mode we store it with PROGRESS because we will handle it here and don't want RpcInvoker to get it also
 
         // store it
@@ -127,8 +99,6 @@ public class BlockingRpc extends AbstractRpc {
                 }
                 throw new Exception("Error during RPC execution"); // this will get converted to the web application exception in the catch block.
             }
-//            ((Runnable)inputObject).run();
-//            outputObject = inputObject;
         }
         catch(Exception e) {
             log.error("Error while executing RPC {}", rpc.getName(), e);
@@ -140,17 +110,6 @@ public class BlockingRpc extends AbstractRpc {
         
         // format output
         try {
-            /*
-            javax.ws.rs.core.MultivaluedHashMap jaxrsHeaders = new javax.ws.rs.core.MultivaluedHashMap();
-            jaxrsHeaders.putAll(headerMap.getMap());
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            messageBodyWriter.writeTo(taskObject, adapter.getOutputClass(), adapter.getOutputClass(), new Annotation[]{}, outputMediaType, jaxrsHeaders, out);
-            byte[] output = out.toByteArray(); // this will go in database
-            log.debug("Intermediate output: {}", new String(output)); // we can only do this because we know the output is xml format for testing...
-            rpc.setOutput(output);
-            rpc.setOutputContentType(adapter.getContentType());
-            rpc.setOutputContentClass(adapter.getOutputClass().getName());
-            */
             rpc.setOutput( xstream.toXML(outputObject).getBytes("UTF-8"));
             // the OUTPUT status indicates the task has completed and output is avaialble
             rpc.setStatus(Rpc.Status.OUTPUT);
@@ -176,15 +135,4 @@ public class BlockingRpc extends AbstractRpc {
         
         return outputObject;
     }
-
-    /*
-     private String toRfc822(com.intel.dcsg.cpg.util.MultivaluedHashMap<String,String> headers) {
-     ArrayList<String> lines = new ArrayList<String>();
-     for(String name : headers.keySet()) {
-     for(String value : headers.getAll(name)) {
-     lines.add(String.format("%s: %s", name, value));
-     }
-     }
-     return StringUtils.join(lines, "\n");
-     }*/
 }

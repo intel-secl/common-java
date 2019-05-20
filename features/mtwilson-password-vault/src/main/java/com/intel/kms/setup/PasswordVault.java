@@ -36,8 +36,6 @@ public class PasswordVault extends AbstractSetupTask {
     private Password keystorePassword;
     private PasswordVaultFactory passwordVaultFactory;
 
-//    private String storageKeyAlgorithm;
-//    private int storageKeyLengthBits;
     @Override
     protected void configure() throws Exception {
         passwordVaultFactory = new PasswordVaultFactory(getConfiguration());

@@ -159,7 +159,6 @@ public class Sha1Digest extends AbstractDigest {
      * @param text can be either hex or base-64 encoded representation of a SHA-1 digest (20 bytes)
      * @return a Sha1Digest instance or null if the input was not a valid SHA-1 representation
      */
-    //@org.codehaus.jackson.annotate.JsonCreator // jackson 1.x
     @com.fasterxml.jackson.annotation.JsonCreator // jackson 2.x
     public static Sha1Digest valueOf(String text) {
         if( text == null || text.isEmpty() ) {

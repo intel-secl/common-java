@@ -7,17 +7,8 @@ package com.intel.mountwilson.http.security.adapter;
 import java.io.IOException;
 import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.client.ClientRequestContext;
-//import javax.ws.rs.client.ClientResponseFilter;
-//import javax.ws.rs.container.ContainerRequestContext;
-
-//import com.sun.jersey.api.client.ClientHandlerException;
-//import com.sun.jersey.api.client.ClientRequest;
-//import com.sun.jersey.api.client.ClientResponse;
-//import com.sun.jersey.api.client.filter.ClientFilter;
 import com.intel.mtwilson.security.http.HmacAuthorization;
 import com.intel.dcsg.cpg.crypto.HmacCredential;
-//import org.apache.commons.logging.Log;
-//import org.apache.commons.logging.LogFactory;
 
 /**
  * This is a HTTP CLIENT filter to handle OUTGOING requests.
@@ -43,11 +34,8 @@ import com.intel.dcsg.cpg.crypto.HmacCredential;
  * @author jbuhacoff
  * @since 0.5.1
  */
-//public class MtWilsonJerseyClientFilter extends ClientFilter {
 public class MtWilsonJerseyClientFilter implements ClientRequestFilter {
-//    private static Log log = LogFactory.getLog(MtWilsonJerseyClientFilter.class);
     private HmacAuthorization auth;
-    //ContainerRequestContext crc = new ClientRequestFilter() {
 
     @Override
     public void filter(ClientRequestContext requestContext) throws IOException {
@@ -68,41 +56,4 @@ public class MtWilsonJerseyClientFilter implements ClientRequestFilter {
     public MtWilsonJerseyClientFilter(String clientId, String secretKey) {
         auth = new HmacAuthorization(new HmacCredential(clientId, secretKey));
     }
-    
-    /**
-     * This method assumes that the entity body of the request is either null or a String or
-     * has a toString() method that returns the String that should be signed.
-     * 
-     * @param cr
-     * @return
-     * @throws ClientHandlerException 
-     */
-//    @Override
-//    public ClientResponse handle(ClientRequest cr) throws ClientHandlerException {
-//        // Modify the request
-//        try {
-//            String header;
-//            if( cr.getEntity() == null ) {
-//                header = auth.getAuthorization(cr.getMethod(), cr.getURI().toURL().toString());
-//            }
-//            else {
-//                header = auth.getAuthorization(cr.getMethod(), cr.getURI().toURL().toString(), cr.getEntity().toString());            
-//            }
-//            cr.getHeaders().add("Authorization", header);
-//            
-//        }
-//        catch(Exception e) {
-//            throw new ClientHandlerException(e);
-//        }
-//        
-//        // Call the next client handler in the filter chain
-//        ClientResponse resp = getNext().handle(cr);
-//        
-//        // Return the response; we don't need to modify it in the current implementation
-//        // but if the server implements server-nonces or tokens then here we would look for
-//        // a 403 forbidden message with the token and automatically re-send the request once
-//        // with authorization using the new token before returning the final response
-//        return resp;
-//    }
-    
 }

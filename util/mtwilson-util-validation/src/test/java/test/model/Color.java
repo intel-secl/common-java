@@ -4,9 +4,7 @@
  */
 package test.model;
 
-import com.intel.dcsg.cpg.validation.Fault;
 import com.intel.dcsg.cpg.validation.ObjectModel;
-import java.util.List;
 
 /**
  * A model object for testing purposes

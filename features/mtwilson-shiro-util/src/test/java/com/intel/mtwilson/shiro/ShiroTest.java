@@ -25,8 +25,6 @@ public class ShiroTest {
     public static void login() throws Exception {
         // define the known users with passwords, roles, and permissions
         Ini ini = new Ini();
-//        ini.addSection("users");
-//        ini.addSection("roles");
         ini.setSectionProperty("users", "alice", "password,document_reader");
         ini.setSectionProperty("users", "bob", "password,document_writer");
         ini.setSectionProperty("roles", "document_reader", "document:read");

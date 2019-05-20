@@ -27,17 +27,13 @@ import javax.crypto.SecretKey;
  */
 public class EncryptionKeySource {
     private transient HashMap<String,EncryptionKey> current = new HashMap<String,EncryptionKey>(); // one current key for each specification
-//    private EncryptionKey currentKey;
     private MutableSecretKeyRepository repository;
-//    private Protection protection;
-    
+
     public EncryptionKeySource() {
         this.repository = new HashMapMutableSecretKeyRepository(new HashMap<String,EncryptionKey>());
-//        this.protection = protection;
     }
-    public EncryptionKeySource(MutableSecretKeyRepository repository/*, Protection protection*/) {
+    public EncryptionKeySource(MutableSecretKeyRepository repository) {
         this.repository = repository;
-//        this.protection = protection;
     }
     
     public MutableSecretKeyRepository getRepository() {
@@ -47,16 +43,7 @@ public class EncryptionKeySource {
     protected void setRepository(MutableSecretKeyRepository repository) {
         this.repository = repository;
     }
-/*
-    public Protection getProtection() {
-        return protection;
-    }
 
-    protected void setProtection(Protection protection) {
-        this.protection = protection;
-    }
-    */
-    
     public EncryptionKey getEncryptionKey(Protection protection) throws NoSuchAlgorithmException  {
         EncryptionKey key = current.get(protection.cipher);
         if( key == null ) {
@@ -101,15 +88,10 @@ public class EncryptionKeySource {
     }
     
     private SecretKey generateKey(Protection protection) throws NoSuchAlgorithmException {
-//        try {
             KeyGenerator kgen = KeyGenerator.getInstance(protection.getAlgorithm()); // "AES"  // throws NoSuchAlgorithmException
             kgen.init(protection.getKeyLengthBits());
             SecretKey skey = kgen.generateKey();
             return skey;
-//        }
-//        catch(NoSuchAlgorithmException e) {
-//            throw new CryptographyException(e);
-//        }
     }
     
 }
