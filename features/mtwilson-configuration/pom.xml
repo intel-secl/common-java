@@ -11,7 +11,7 @@
     <parent>
         <groupId>com.intel.mtwilson</groupId>
         <artifactId>mtwilson-maven-build-coreutil-features</artifactId>
-        <version>5.0-SNAPSHOT</version>
+        <version>4.5-SNAPSHOT</version>
     </parent>
     
     <build>
@@ -58,11 +58,6 @@
         but still needed for com.intel.mtwilson.util.Aes128DataCipher. 
         TODO: replace at the earliest opportunity with mtwilson-util-crypto
         -->
-        <dependency>
-            <groupId>com.intel.mtwilson.common</groupId>
-            <artifactId>mtwilson-crypto</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.intel.mtwilson.util</groupId>
             <artifactId>mtwilson-util-configuration</artifactId>
