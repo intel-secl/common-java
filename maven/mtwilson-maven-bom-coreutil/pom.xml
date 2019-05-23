@@ -227,6 +227,11 @@
             </dependency>
             <dependency>
                 <groupId>com.intel.mtwilson.util</groupId>
+                <artifactId>mtwilson-util-validate-tpm-quote</artifactId>
+                <version>4.5-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.intel.mtwilson.util</groupId>
                 <artifactId>mtwilson-util-crypto</artifactId>
                 <version>4.5-SNAPSHOT</version>
             </dependency>
