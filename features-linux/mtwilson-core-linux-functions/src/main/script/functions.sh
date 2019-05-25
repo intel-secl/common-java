@@ -2104,10 +2104,10 @@ postgres_configure_connection() {
 }
 
 postgres_change_owner() {
-prev_user=$1
-sudo -u postgres psql  postgres -c "GRANT ALL PRIVILEGES ON DATABASE mw_as to ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" 1>/dev/null
-sudo -u postgres psql -d mw_as postgres -c "REASSIGN OWNED BY $prev_user TO ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" 1>/dev/null
-sudo -u postgres psql  postgres -c "REVOKE ALL PRIVILEGES ON DATABASE mw_as FROM $prev_user" 1>/dev/null
+POSTGRES_PREVUSERNAME=$1
+sudo -u postgres psql  postgres -c "GRANT ALL PRIVILEGES ON DATABASE ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} to ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" 1>/dev/null
+sudo -u postgres psql -d ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} postgres -c "REASSIGN OWNED BY $POSTGRES_PREVUSERNAME TO ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" 1>/dev/null
+sudo -u postgres psql  postgres -c "REVOKE ALL PRIVILEGES ON DATABASE ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} FROM $POSTGRES_PREVUSERNAME" 1>/dev/null
 }
 
 # requires a postgres connection that can access the existing database, OR (if it doesn't exist)
@@ -2144,11 +2144,13 @@ if postgres_server_detect ; then
     if [ "$(whoami)" == "root" ]; then
       user_is_superuser=$(sudo -u postgres psql postgres -c "$detect_superuser" 2>&1 | grep "(1 row)")
       if [ -z "$user_is_superuser" ]; then
-        local create_user_sql="CREATE USER ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME} WITH PASSWORD '${POSTGRES_PASSWORD:-$DEFAULT_POSTGRES_PASSWORD}';"
-        sudo -u postgres psql postgres -c "${create_user_sql}" 1>/dev/null
-        local detect_prevuser=$(sudo -u postgres psql -d mw_as  postgres -t -c "select tableowner from pg_tables where tablename = 'mw_flavor'" 2>&1 )
-        local POSTGRES_PREVUSERNAME=${detect_prevuser##* }
-        if [ "$POSTGRES_PREVUSERNAME" != "${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" ]; then
+        local user_exists=`sudo -u postgres psql postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}'"`
+        if [[ -z "$user_exists" || ! user_exists ]]; then
+          local create_user_sql="CREATE USER ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME} WITH PASSWORD '${POSTGRES_PASSWORD:-$DEFAULT_POSTGRES_PASSWORD}';"
+          sudo -u postgres psql postgres -c "${create_user_sql}" 1>/dev/null
+        fi
+        local POSTGRES_PREVUSERNAME=$(sudo -u postgres psql -d ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} postgres -t -c "select tableowner from pg_tables where schemaname='public' limit 1" | tr -d '[:space:]')
+        if [[ ! -z "$POSTGRES_PREVUSERNAME" && "$POSTGRES_PREVUSERNAME" != "${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" ]]; then
           postgres_change_owner $POSTGRES_PREVUSERNAME
         fi
       fi
