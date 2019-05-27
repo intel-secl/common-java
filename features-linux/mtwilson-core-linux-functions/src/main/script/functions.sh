@@ -2104,10 +2104,12 @@ postgres_configure_connection() {
 }
 
 postgres_change_owner() {
-POSTGRES_PREVUSERNAME=$1
-sudo -u postgres psql  postgres -c "GRANT ALL PRIVILEGES ON DATABASE ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} to ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" 1>/dev/null
-sudo -u postgres psql -d ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} postgres -c "REASSIGN OWNED BY $POSTGRES_PREVUSERNAME TO ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" 1>/dev/null
-sudo -u postgres psql  postgres -c "REVOKE ALL PRIVILEGES ON DATABASE ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} FROM $POSTGRES_PREVUSERNAME" 1>/dev/null
+  local POSTGRES_PREVUSERNAME=$(sudo -u postgres psql -d ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} postgres -t -c "select tableowner from pg_tables where schemaname='public' limit 1" | tr -d '[:space:]')
+  if [[ ! -z "$POSTGRES_PREVUSERNAME" && "$POSTGRES_PREVUSERNAME" != "${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" ]]; then
+    sudo -u postgres psql  postgres -c "GRANT ALL PRIVILEGES ON DATABASE ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} to ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" 1>/dev/null
+    sudo -u postgres psql -d ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} postgres -c "REASSIGN OWNED BY $POSTGRES_PREVUSERNAME TO ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" 1>/dev/null
+    sudo -u postgres psql  postgres -c "REVOKE ALL PRIVILEGES ON DATABASE ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} FROM $POSTGRES_PREVUSERNAME" 1>/dev/null
+  fi
 }
 
 # requires a postgres connection that can access the existing database, OR (if it doesn't exist)
@@ -2117,7 +2119,13 @@ postgres_create_database() {
 if postgres_server_detect ; then
   if [ -n "$postgres_conf" ]; then
     #set password_encryption to on so our password can be encrypted
-    sed -i 's|^#\(password_encryption[ ]*\)=\(.*\)|\1= on|g' $postgres_conf
+    grep 'password_encryption = on' $postgres_conf > /dev/null
+    if [ $? -ne 0 ]; then
+      sed -i 's|^#\(password_encryption[ ]*\)=\(.*\)|\1= on|g' $postgres_conf
+      echo "Restarting PostgreSQL for updates to support password encryption."
+      postgres_restart >> $INSTALL_LOG_FILE
+      sleep 10
+    fi
 
     #we first need to find if the user has specified a different port than the once currently configured for postgres
     current_port=`grep "port =" $postgres_conf | awk '{print $3}'`
@@ -2125,11 +2133,10 @@ if postgres_server_detect ; then
     if [ -z "$has_correct_port" ]; then
       echo "Port needs to be reconfigured from $current_port to $POSTGRES_PORTNUM"
       sed -i s/$current_port/$POSTGRES_PORTNUM/g $postgres_conf
+      echo "Restarting PostgreSQL for updates to take effect."
+      postgres_restart >> $INSTALL_LOG_FILE
+      sleep 10
     fi
-
-    echo "Restarting PostgreSQL for updates to take effect."
-    postgres_restart >> $INSTALL_LOG_FILE
-    sleep 10
   else
     echo "warning: postgresql.conf not found" >> $INSTALL_LOG_FILE
   fi
@@ -2137,6 +2144,12 @@ if postgres_server_detect ; then
   postgres_test_connection
   if [ -n "$is_postgres_available" ]; then
     echo_success "Database [${POSTGRES_DATABASE}] already exists"
+    if [ "$(whoami)" == "root" ]; then
+      sudo -u postgres psql -lqt | cut -d \| -f 1 | grep ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} >/dev/null
+      if [ $? -eq 0 ]; then
+        postgres_change_owner
+      fi
+    fi
     return 0
   else
     echo "Creating database..."
@@ -2148,22 +2161,24 @@ if postgres_server_detect ; then
         if [[ -z "$user_exists" || ! user_exists ]]; then
           local create_user_sql="CREATE USER ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME} WITH PASSWORD '${POSTGRES_PASSWORD:-$DEFAULT_POSTGRES_PASSWORD}';"
           sudo -u postgres psql postgres -c "${create_user_sql}" 1>/dev/null
-        fi
-        local POSTGRES_PREVUSERNAME=$(sudo -u postgres psql -d ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} postgres -t -c "select tableowner from pg_tables where schemaname='public' limit 1" | tr -d '[:space:]')
-        if [[ ! -z "$POSTGRES_PREVUSERNAME" && "$POSTGRES_PREVUSERNAME" != "${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" ]]; then
-          postgres_change_owner $POSTGRES_PREVUSERNAME
+
+          # Do not provide Superuser Privileges to HVS Database User ISECL-3860
+          local superuser_alter="ALTER USER ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME} WITH NOSUPERUSER;"
+          sudo -u postgres psql postgres -c "${superuser_alter}" 1>/dev/null
+          superuser_alter="ALTER USER ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME} WITH CREATEDB;"
+          sudo -u postgres psql postgres -c "${superuser_alter}" 1>/dev/null
         fi
       fi
-      # Do not provide Superuser Privileges to HVS Database User ISECL-3860
-      local superuser_alter="ALTER USER ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME} WITH NOSUPERUSER;"
-      sudo -u postgres psql postgres -c "${superuser_alter}" 1>/dev/null
-      superuser_alter="ALTER USER ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME} WITH CREATEDB;"
-      sudo -u postgres psql postgres -c "${superuser_alter}" 1>/dev/null
-	  
+
+    sudo -u postgres psql -lqt | cut -d \| -f 1 | grep ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} >/dev/null
+    if [ $? -eq 0 ]; then
+      postgres_change_owner
+    else
       local create_sql="CREATE DATABASE ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE};"
       sudo -u postgres psql postgres -c "${create_sql}" 2>/dev/null 1>/dev/null
       local grant_sql="GRANT ALL PRIVILEGES ON DATABASE ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} TO ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME};"
       sudo -u postgres psql postgres -c "${grant_sql}" 2>/dev/null 1>/dev/null
+    fi
     else
       user_is_superuser=$(psql postgres -U "${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" -c "$detect_superuser" 2>&1 | grep "(1 row)")
       if [ -z "$user_is_superuser" ]; then
