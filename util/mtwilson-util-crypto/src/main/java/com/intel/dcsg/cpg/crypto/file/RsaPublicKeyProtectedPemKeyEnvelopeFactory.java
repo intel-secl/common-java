@@ -26,7 +26,7 @@ import javax.crypto.spec.PSource;
  * 
  * To open the envelopes, use the RsaKeyEnvelopeRecipient class with the corresponding RSA private key.
  * 
- * This class uses the algorithm RSA/ECB/OAEPWithSHA-256AndMGF1Padding which is expected to be present
+ * This class uses the algorithm RSA/ECB/OAEPWithSHA-384AndMGF1Padding which is expected to be present
  * on every Java platform.  http://docs.oracle.com/javase/7/docs/api/javax/crypto/Cipher.html
  * 
  * Developer see also:
@@ -45,7 +45,7 @@ import javax.crypto.spec.PSource;
  * @author jbuhacoff
  */
 public class RsaPublicKeyProtectedPemKeyEnvelopeFactory {
-    public static final String DEFAULT_ALGORITHM = "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"; // RSA encryption in ECB mode (since we expect to only have one block anyway) with OAEP padding that uses SHA-256 and MGF1
+    public static final String DEFAULT_ALGORITHM = "RSA/ECB/OAEPWithSHA-384AndMGF1Padding"; // RSA encryption in ECB mode (since we expect to only have one block anyway) with OAEP padding that uses SHA-384 and MGF1
     private PublicKey publicKey;
     private String publicKeyId;
     private String algorithm = null;
@@ -76,7 +76,7 @@ public class RsaPublicKeyProtectedPemKeyEnvelopeFactory {
     /**
      * Set algorithm, cipher mode, and padding.
      * If you don't call this method, the default algorithm will be used.
-     * @param algorithm to use for encrypting a  key, for example RSA/ECB/OAEPWithSHA-256AndMGF1Padding
+     * @param algorithm to use for encrypting a  key, for example RSA/ECB/OAEPWithSHA-384AndMGF1Padding
      */
     public void setAlgorithm(String algorithm) throws NoSuchAlgorithmException {
         this.algorithm = algorithm;

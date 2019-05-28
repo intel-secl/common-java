@@ -207,14 +207,14 @@ public class X509AuthenticationFilter extends HttpAuthenticationFilter {
 
     /**
      * Standardizes signature algorithm names to the Java name.
-     * "SHA256withRSA".equals(signatureAlgorithm("RSA-SHA256")); // true
+     * "SHA384withRSA".equals(signatureAlgorithm("RSA-SHA384")); // true
      *
      * @param name
      * @return
      */
     private String signatureAlgorithm(String name) {
-        if ("RSA-SHA256".equals(name)) {
-            return "SHA256withRSA";
+        if ("RSA-SHA384".equals(name)) {
+            return "SHA384withRSA";
         }
         return name;
     }

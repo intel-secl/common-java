@@ -76,7 +76,7 @@ public class SignatureClient {
          * @param urlstring URL such as http://www.example.com/path/to/resource
          * @param body optional; if not needed use null
          * @throws IOException 
-         * @return the resonse body only; headers are not available through this method
+         * @return the response body only; headers are not available through this method
          * @throws NoSuchAlgorithmException if your environment is missing the HmacSHA256 algorithm
          * @throws InvalidKeyException if the secretKey value you provided to the constructor is not suitable for use with HmacSHA256
          * @throws IOException if there was a problem generating the nonce

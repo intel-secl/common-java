@@ -76,7 +76,7 @@ public class Password implements Command {
         }   
         return guardedPassword.getInsPassword();
     }
-    // get the 3rd arg if it's usrename passsword permissions, or the 2nd arg if it's username --nopass permissions
+    // get the 3rd arg if it's username password permissions, or the 2nd arg if it's username --nopass permissions
     private String getPermissions(String[] args) {
         String permissions = null;
         if( args.length == 2 && options.getBoolean("nopass", false) ) {
@@ -142,7 +142,7 @@ public class Password implements Command {
         
         // create the new user record
         UserPassword userPassword = new UserPassword();
-        userPassword.setAlgorithm("SHA256");
+        userPassword.setAlgorithm("SHA384");
         userPassword.setIterations(1);
         userPassword.setSalt(RandomUtil.randomByteArray(8));
         byte[] hashedPassword = PasswordUtil.hash(password.getBytes(Charset.forName("UTF-8")), userPassword);

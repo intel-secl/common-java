@@ -74,7 +74,7 @@ public class Md5Digest extends AbstractDigest {
     /**
      * @since 0.1.2
      * @param base64 value without any punctuation or spaces; can be null
-     * @return true if the value is a valid base64 representation of an SHA256 digest (length is checked)
+     * @return true if the value is a valid base64 representation of an MD5 digest (length is checked)
      */
     public static boolean isValidBase64(String base64Value) {
         return ALGORITHM.isValidBase64(base64Value);

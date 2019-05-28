@@ -72,7 +72,7 @@ public class AdminUser extends LocalSetupTask {
         if( user == null ) {
             user = new UserPassword();
             user.setUsername(username);
-            user.setAlgorithm("SHA256");
+            user.setAlgorithm("SHA384");
             user.setIterations(1);
             user.setSalt(RandomUtil.randomByteArray(8));
             user.setPasswordHash(PasswordUtil.hash(password.getBytes(), user));

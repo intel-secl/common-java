@@ -53,10 +53,12 @@ public class PropertiesTlsPolicyFactory {
     public static TlsPolicy createTlsPolicy(Configuration configuration) {
         String certificateKeystoreFile = configuration.get("tls.policy.certificate.keystore.file", configuration.get("mtwilson.api.tls.policy.certificate.keystore.file", null));
         String certificateKeystorePassword = configuration.get("tls.policy.certificate.keystore.password", configuration.get("mtwilson.api.tls.policy.certificate.keystore.password", null));
+        String certificateDigestSha384 = configuration.get("tls.policy.certificate.sha384", configuration.get("mtwilson.api.tls.policy.certificate.sha384", null));
         String certificateDigestSha256 = configuration.get("tls.policy.certificate.sha256", configuration.get("mtwilson.api.tls.policy.certificate.sha256", null));
         String certificateDigestSha1 = configuration.get("tls.policy.certificate.sha1", configuration.get("mtwilson.api.tls.policy.certificate.sha1", null));
         String publicKeyKeystoreFile = configuration.get("tls.policy.publickey.keystore.file", configuration.get("mtwilson.api.tls.policy.publickey.keystore.file", null));
         String publicKeyKeystorePassword = configuration.get("tls.policy.publickey.keystore.password", configuration.get("mtwilson.api.tls.policy.publickey.keystore.password", null));
+        String publicKeyDigestSha384 = configuration.get("tls.policy.publickey.sha384", configuration.get("mtwilson.api.tls.policy.publickey.sha384", null));
         String publicKeyDigestSha256 = configuration.get("tls.policy.publickey.sha256", configuration.get("mtwilson.api.tls.policy.publickey.sha256", null));
         String publicKeyDigestSha1 = configuration.get("tls.policy.publickey.sha1", configuration.get("mtwilson.api.tls.policy.publickey.sha1", null));
         String insecure = configuration.get("tls.policy.insecure", configuration.get("mtwilson.api.tls.policy.insecure", null));
@@ -69,6 +71,11 @@ public class PropertiesTlsPolicyFactory {
         } else if (publicKeyKeystoreFile != null && publicKeyKeystorePassword != null) {
             tlsPolicyDescriptor.setPolicyType("public-key");
             tlsPolicyDescriptor.getData().addAll(encodeCertificates(getCertificates(certificateKeystoreFile, certificateKeystorePassword)));
+        } else if (certificateDigestSha384 != null) {
+            tlsPolicyDescriptor.setPolicyType("certificate-digest");
+            tlsPolicyDescriptor.getMeta().put("digestAlgorithm", "SHA-384");
+            tlsPolicyDescriptor.getMeta().put("digestEncoding", "hex");
+            tlsPolicyDescriptor.getData().add(certificateDigestSha384);
         } else if (certificateDigestSha256 != null) {
             tlsPolicyDescriptor.setPolicyType("certificate-digest");
             tlsPolicyDescriptor.getMeta().put("digestAlgorithm", "SHA-256");
@@ -79,6 +86,11 @@ public class PropertiesTlsPolicyFactory {
             tlsPolicyDescriptor.getMeta().put("digestAlgorithm", "SHA-1");
             tlsPolicyDescriptor.getMeta().put("digestEncoding", "hex");
             tlsPolicyDescriptor.getData().add(certificateDigestSha1);
+        } else if (publicKeyDigestSha384 != null) {
+            tlsPolicyDescriptor.setPolicyType("public-key-digest");
+            tlsPolicyDescriptor.getMeta().put("digestAlgorithm", "SHA-384");
+            tlsPolicyDescriptor.getMeta().put("digestEncoding", "hex");
+            tlsPolicyDescriptor.getData().add(publicKeyDigestSha384);
         } else if (publicKeyDigestSha256 != null) {
             tlsPolicyDescriptor.setPolicyType("public-key-digest");
             tlsPolicyDescriptor.getMeta().put("digestAlgorithm", "SHA-256");

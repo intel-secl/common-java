@@ -56,12 +56,12 @@ public class X509Util {
     
     /**
      * See also RsaCredential in the security project.
-     * See also Sha256Digest in the datatypes project
+     * See also Sha384Digest in the datatypes project
      * @param certificate
      * @return
      */
-    public static byte[] sha256fingerprint(X509Certificate certificate) throws NoSuchAlgorithmException, CertificateEncodingException {
-        MessageDigest hash = MessageDigest.getInstance("SHA-256");
+    public static byte[] sha384fingerprint(X509Certificate certificate) throws NoSuchAlgorithmException, CertificateEncodingException {
+        MessageDigest hash = MessageDigest.getInstance("SHA-384");
         byte[] digest = hash.digest(certificate.getEncoded());
         return digest;
     }

@@ -4,7 +4,7 @@
  */
 package com.intel.mtwilson.crypto.password;
 
-import com.intel.dcsg.cpg.crypto.Sha256Digest;
+import com.intel.dcsg.cpg.crypto.Sha384Digest;
 import com.intel.dcsg.cpg.io.ByteArray;
 
 /**
@@ -22,13 +22,13 @@ public class PasswordUtil {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PasswordUtil.class);
     
     public static byte[] hash(byte[] inputPasswordBytes, HashProtection hashProtection) {
-        // SHA-256 is the standard Java name but we also accept SHA256 
-        if( "SHA-256".equalsIgnoreCase(hashProtection.getAlgorithm()) ||  "SHA256".equalsIgnoreCase(hashProtection.getAlgorithm()) ) {
+        // SHA-384 is the standard Java name but we also accept SHA384
+        if( "SHA-384".equalsIgnoreCase(hashProtection.getAlgorithm()) ||  "SHA384".equalsIgnoreCase(hashProtection.getAlgorithm()) ) {
             // first iteration is mandatory
-            Sha256Digest digest = Sha256Digest.digestOf(ByteArray.concat(hashProtection.getSalt(), inputPasswordBytes));
+            Sha384Digest digest = Sha384Digest.digestOf(ByteArray.concat(hashProtection.getSalt(), inputPasswordBytes));
             int max = hashProtection.getIterations() - 1; // -1 because we just completed the first iteration
             for(int i=0; i<max; i++) {
-                digest = Sha256Digest.digestOf(digest.toByteArray());
+                digest = Sha384Digest.digestOf(digest.toByteArray());
             }
             return digest.toByteArray();
         }

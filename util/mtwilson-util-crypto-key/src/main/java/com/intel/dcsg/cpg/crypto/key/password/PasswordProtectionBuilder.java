@@ -58,6 +58,11 @@ public class PasswordProtectionBuilder extends ProtectionBuilder {
         return this;
     }
 
+    public PasswordProtectionBuilder pbkdf2WithHmacSha256() {
+        passwordProtection.keyAlgorithm = "PBKDF2WithHmacSHA256";
+        return this;
+    }
+
     @Override
     public PasswordProtectionBuilder aes(int keyLengthBits) {
         super.aes(keyLengthBits);

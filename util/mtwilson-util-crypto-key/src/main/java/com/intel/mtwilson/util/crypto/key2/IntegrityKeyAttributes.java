@@ -31,7 +31,7 @@ public class IntegrityKeyAttributes extends Attributes implements Copyable {
     }
     
     /**
-     * Refers to the signature algorithm, for example RSA-SHA256 
+     * Refers to the signature algorithm, for example RSA-SHA384
      * or HMAC-SHA256.  This includes choice of RSA or HMAC as well as
      * the digest algorithm used with it. 
      */
@@ -61,8 +61,8 @@ public class IntegrityKeyAttributes extends Attributes implements Copyable {
      * SHA384 input block size (B) is 1024-bit (128 byte), output size (L) is 384-bit (48 byte)
      * SHA512 input block size (B) is 1024-bit (128 byte), output size (L) is 512-bit (64 byte)
      * 
-     * For RSA, the key length can be any valid RSA key length such as 1024
-     * or 2048.
+     * For RSA, the key length can be any valid RSA key length such as 1024,
+     * 2048 or 3072.
      */
     public Integer getKeyLength() {
         return keyLength;

@@ -58,12 +58,12 @@ public class EncryptedConfigurationProvider implements ConfigurationProvider {
     
     private PasswordProtection getProtection() {
         if( protection == null ) {
-            protection = PasswordProtectionBuilder.factory().aes(256).block().sha256().pbkdf2WithHmacSha1().saltBytes(8).iterations(1000).build();
+            protection = PasswordProtectionBuilder.factory().aes(256).block().sha384().pbkdf2WithHmacSha256().saltBytes(16).iterations(2000).build();
             // aes-256 is only available if administrator has enabled java's 
             // strong cryptography suite, so check it and downgrade to aes-128 if necessary
             if( !protection.isAvailable() ) {
     //                log.warn("Protection algorithm {} key length {} mode {} padding {} not available", protection.getAlgorithm(), protection.getKeyLengthBits(), protection.getMode(), protection.getPadding());
-                protection = PasswordProtectionBuilder.factory().aes(128).block().sha256().pbkdf2WithHmacSha1().saltBytes(8).iterations(1000).build();
+                protection = PasswordProtectionBuilder.factory().aes(128).block().sha384().pbkdf2WithHmacSha256().saltBytes(16).iterations(2000).build();
             }
         }
         return protection;

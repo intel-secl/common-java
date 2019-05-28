@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * http://docs.oracle.com/javase/1.4.2/docs/guide/security/CryptoSpec.html#AppA
  * http://docs.oracle.com/javase/1.4.2/docs/guide/security/jce/JCERefGuide.html#AppA
  *
- * TODO: Support other keystore providers such as PBE with SHA1 or SHA256 and
+ * TODO: Support other keystore providers such as PBE with SHA1, SHA256 or SHA384 and
  * AES-128.
  *
  * @since 0.1

@@ -4,7 +4,7 @@
  */
 package com.intel.dcsg.cpg.tls.policy.impl;
 
-import com.intel.dcsg.cpg.crypto.Sha256Digest;
+import com.intel.dcsg.cpg.crypto.Sha384Digest;
 import com.intel.dcsg.cpg.tls.policy.TrustDelegate;
 import com.intel.dcsg.cpg.x509.repository.MutablePublicKeyRepository;
 import java.security.PublicKey;
@@ -46,8 +46,8 @@ public class FirstPublicKeyTrustDelegate implements TrustDelegate {
     @Override
     public boolean acceptUnknownCertificate(X509Certificate certificate) {
         // basic check that the public key certificate format is something we can work with
-        String digest = Sha256Digest.digestOf(certificate.getPublicKey().getEncoded()).toHexString();
-        log.debug("acceptUnknownCertificate SHA256 Fingerprint: {}", digest);
+        String digest = Sha384Digest.digestOf(certificate.getPublicKey().getEncoded()).toHexString();
+        log.debug("acceptUnknownCertificate SHA384 Fingerprint: {}", digest);
         
         // trust first certificate means only accept a new certificate automatically if the repository is empty
         List<PublicKey> list = repository.getPublicKeys();

@@ -63,9 +63,9 @@ public class TokenCipherCodec extends CipherCodec<Token> {
      * 16+ bytes nonce
      * 8 bytes timestamp
      * 0+ bytes body/payload
-     * 32 bytes digest (sha256)
+     * 48 bytes digest (sha384)
      * 
-     * So minimum length of a valid version 1 token is 89 bytes. 
+     * So minimum length of a valid version 1 token is 105 bytes.
      * Any additional length is due to variable-length nonce and payload.
      * 
      * 
@@ -74,7 +74,7 @@ public class TokenCipherCodec extends CipherCodec<Token> {
      */
     @Override
     protected Ciphertext parseCiphertext(byte[] ciphertext) {
-        if( ciphertext.length < 89 ) {
+        if( ciphertext.length < 105 ) {
             throw new IllegalArgumentException("Invalid token"); // see comment on method about minimum length of valid token
         }
         try {

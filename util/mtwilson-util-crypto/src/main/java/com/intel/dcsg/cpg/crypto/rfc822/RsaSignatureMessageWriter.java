@@ -23,7 +23,7 @@ import org.apache.commons.codec.binary.Base64;
  */
 public class RsaSignatureMessageWriter {
     private PrivateKey privateKey;
-    private String signatureAlgorithm = "SHA256withRSA";
+    private String signatureAlgorithm = "SHA384withRSA";
     private final Charset utf8 = Charset.forName("UTF-8");
     
     public void setPrivateKey(PrivateKey privateKey) {
@@ -57,7 +57,7 @@ public class RsaSignatureMessageWriter {
         Message message = new Message();
         message.setContent(Base64.encodeBase64Chunked(messageBytes));
         message.setContentLength(messageBytes.length); // we're using it to indicate the length of the original message (to help detect errors) - this is non-standard, the http and mime specs say that if a transfer encoding is used, then content-length must not be used (probably because they couldn't decide if it should be the length before or after encoding or because they assumed it would be streaming and length wouldn't be available)
-        message.setContentType("application/signature.java; alg=\"SHA256withRSA\"; key=\"default\""); // TODO  convert from RSAwithSHA256 , add keyId parameter
+        message.setContentType("application/signature.java; alg=\"SHA384withRSA\"; key=\"default\""); // TODO  convert from RSAwithSHA384 , add keyId parameter
         message.setContentTransferEncoding("base64");
         return message.toByteArray();
     }

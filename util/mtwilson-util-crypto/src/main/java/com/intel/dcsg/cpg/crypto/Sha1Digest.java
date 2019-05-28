@@ -121,7 +121,7 @@ public class Sha1Digest extends AbstractDigest {
 
     /**
      * @param base64 value without any punctuation or spaces; can be null
-     * @return true if the value is a valid base64 representation of an SHA256 digest
+     * @return true if the value is a valid base64 representation of an SHA1 digest
      */
     public static boolean isValidBase64(String base64Value) {
         return ALGORITHM.isValidBase64(base64Value);
