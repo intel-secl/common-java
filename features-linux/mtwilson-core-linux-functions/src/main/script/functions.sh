@@ -2121,23 +2121,31 @@ postgres_create_database() {
 if postgres_server_detect ; then
   if [ -n "$postgres_conf" ]; then
     #set password_encryption to on so our password can be encrypted
-    grep 'password_encryption = on' $postgres_conf > /dev/null
+    grep '^password_encryption = on' $postgres_conf > /dev/null
     if [ $? -ne 0 ]; then
-      sed -i 's|^#\(password_encryption[ ]*\)=\(.*\)|\1= on|g' $postgres_conf
-      echo "Restarting PostgreSQL for updates to support password encryption."
-      postgres_restart >> $INSTALL_LOG_FILE
-      sleep 10
+      if [ "$(whoami)" == "root" ]; then
+        sed -i 's|^#\(password_encryption[ ]*\)=\(.*\)|\1= on|g' $postgres_conf
+        echo "Restarting PostgreSQL for updates to support password encryption."
+        postgres_restart >> $INSTALL_LOG_FILE
+        sleep 10
+      else
+        echo_warning "Following line must be in $postgres_conf: password_encryption = on"
+      fi
     fi
 
   #we first need to find if the user has specified a different port than the once currently configured for postgres
     current_port=`grep "port =" $postgres_conf | awk '{print $3}'`
     has_correct_port=`grep $POSTGRES_PORTNUM $postgres_conf`
     if [ -z "$has_correct_port" ]; then
-      echo "Port needs to be reconfigured from $current_port to $POSTGRES_PORTNUM"
-      sed -i s/$current_port/$POSTGRES_PORTNUM/g $postgres_conf
-      echo "Restarting PostgreSQL for updates to take effect."
-      postgres_restart >> $INSTALL_LOG_FILE
-      sleep 10
+      if [ "$(whoami)" == "root" ]; then
+        echo "Port needs to be reconfigured from $current_port to $POSTGRES_PORTNUM"
+        sed -i s/$current_port/$POSTGRES_PORTNUM/g $postgres_conf
+        echo "Restarting PostgreSQL for port config updates to take effect."
+        postgres_restart >> $INSTALL_LOG_FILE
+        sleep 10
+      else
+        echo_warning "Port '$POSTGRES_PORTNUM' must be updated in $postgres_conf"
+      fi
     fi
   else
     echo "warning: postgresql.conf not found" >> $INSTALL_LOG_FILE
@@ -2201,6 +2209,7 @@ if postgres_server_detect ; then
         has_host=`grep "^host" $postgres_pghb_conf | grep "127.0.0.1" | grep -E "md5"`
         if [ -z "$has_host" ]; then
           echo host  all  all  127.0.0.1/32  md5 >> $postgres_pghb_conf
+          echo "Restarting PostgreSQL for pghb updates to take effect."
           postgres_restart >> $INSTALL_LOG_FILE
         fi
       else
@@ -2218,6 +2227,7 @@ if postgres_server_detect ; then
         has_listen_addresses=`grep "^listen_addresses" $postgres_conf`
         if [ -z "$has_listen_addresses" ]; then
           echo listen_addresses=\'127.0.0.1\' >> $postgres_conf
+          echo "Restarting PostgreSQL for local address updates to take effect."
           postgres_restart >> $INSTALL_LOG_FILE
         fi
       else
@@ -4123,6 +4133,7 @@ change_db_pass() {
       #temp="$temp:$new_db_pass"
       #echo $temp > ~/.pgpass;
     fi
+    echo "Restarting PostgreSQL for change DB password updates to take effect."
     postgres_restart
     echo_success "Done"
   fi
