@@ -33,7 +33,7 @@ import sun.security.x509.*;
 public class RsaUtil {
 
     private static Logger log = LoggerFactory.getLogger(RsaUtil.class);
-    public static final int MINIMUM_RSA_KEY_SIZE = 2048; // minimum 2048 bits required by Intel SAFE Guidelines
+    public static final int MINIMUM_RSA_KEY_SIZE = 3072; // minimum 3072 bits required by Intel SAFE Guidelines
     public static final int DEFAULT_RSA_KEY_EXPIRES_DAYS = 3650; // default 10 years validity for generated keys
 
     public static KeyPair generateRsaKeyPair(int keySizeInBits) throws NoSuchAlgorithmException {

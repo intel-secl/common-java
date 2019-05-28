@@ -25,8 +25,8 @@ public class SignatureWriter {
     
     public Message sign(Message message, SecretKey key, String keyId) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
         MessageReader reader = new MessageReader();
-        byte[] content = reader.read(message); // to automatically decode the emssage if there's base64 or gizip encoding ... that functionality should probably be included somewhere else... not necessarily in Message so that it can stay free of surprises, but maybe a sublcass EncodedMessage that automatically does it...
-        byte[] contentDigest = MessageDigest.getInstance("SHA-256").digest(content);
+        byte[] content = reader.read(message); // to automatically decode the message if there's base64 or gizip encoding ... that functionality should probably be included somewhere else... not necessarily in Message so that it can stay free of surprises, but maybe a sublcass EncodedMessage that automatically does it...
+        byte[] contentDigest = MessageDigest.getInstance("SHA-384").digest(content);
         String contentId = Base64.encodeBase64String(contentDigest);
         // if the message object does not have a content-id , we add it.  
         List<String> contentIds = message.getHeaderMap().get("Content-ID");
@@ -38,7 +38,7 @@ public class SignatureWriter {
         byte[] signatureBytes = signature(content, key, "HmacSHA256");
         MessageWriter writer = new MessageWriter();
         Message signatureMessage = writer.write(signatureBytes); // with base64...   XXX TODO the MessageReader/MessageWriter interface is confusing... need to come up with alternate names of structure to make it easier to understand whether we are just writing into the conetnt of a message or write the entire message it self... XXX TODO  getting a Message object out of messagewriter isn't intuitive.
-        signatureMessage.setContentType("application/signature.java; alg=\"HmacSHA256\"; key=\""+keyId+"\"; digest-alg=\"SHA-256\"");
+        signatureMessage.setContentType("application/signature.java; alg=\"HmacSHA256\"; key=\""+keyId+"\"; digest-alg=\"SHA-384\"");
         signatureMessage.getHeaderMap().add("Link", "<cid:"+contentId+">; rel=\"cite\"");
         return signatureMessage;//.toByteArray();
     }

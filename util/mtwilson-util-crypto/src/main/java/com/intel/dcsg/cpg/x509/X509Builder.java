@@ -631,7 +631,7 @@ public class X509Builder extends BuilderModel {
         }
         // Note: alternativeName is optional so we don't have any defaults or errors for it here
         if( algorithm == null ) {
-            algorithm(new AlgorithmId(AlgorithmId.sha256WithRSAEncryption_oid));
+            algorithm(new AlgorithmId(AlgorithmId.sha384WithRSAEncryption_oid));
         }
         
         try {

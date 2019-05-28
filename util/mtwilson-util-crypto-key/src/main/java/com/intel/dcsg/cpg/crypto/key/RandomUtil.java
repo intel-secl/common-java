@@ -49,7 +49,7 @@ public class RandomUtil {
             if (random == null) {
                 try {
                     Security.addProvider(new MtWilsonProvider());
-                    random = SecureRandom.getInstance("SHA256PRNG", "MtWilson");
+                    random = SecureRandom.getInstance("SHA384PRNG", "MtWilson");
                 } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
                     log.error("Fallback required: {}", e.getMessage());
                     random = new SecureRandom();

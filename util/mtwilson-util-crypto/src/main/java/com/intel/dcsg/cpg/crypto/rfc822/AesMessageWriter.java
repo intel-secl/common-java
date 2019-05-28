@@ -125,8 +125,8 @@ public class AesMessageWriter {
      */
     public byte[] encrypt(byte[] input, String contentType, SecretKey key, String keyName) throws IOException, CryptographyException {
         try {
-            MessageDigest sha256 = MessageDigest.getInstance("SHA-256"); // default digest-alg to use
-            return encrypt(input, contentType, key, keyName, sha256);
+            MessageDigest sha384 = MessageDigest.getInstance("SHA-384"); // default digest-alg to use
+            return encrypt(input, contentType, key, keyName, sha384);
         }
         catch(NoSuchAlgorithmException e) {
             throw new CryptographyException(e);

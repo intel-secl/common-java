@@ -110,7 +110,7 @@ public class ProtectionPolicyBuilder {
     
     /**
      * 
-     * @param digestAlgorithm for example "SHA-256"
+     * @param digestAlgorithm for example "SHA-384"
      * @return 
      */
     public ProtectionPolicyBuilder digestAlgorithms(String... digestAlgorithms) {

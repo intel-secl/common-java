@@ -1665,7 +1665,7 @@ mysql_create_ca() {
     chmod 700 "${mysql_ssl_ca_dir}"
     touch "${mysql_ssl_ca_key}"
     chmod 600 "${mysql_ssl_ca_key}"
-    openssl genrsa 2048 > "${mysql_ssl_ca_key}"
+    openssl genrsa 3072 > "${mysql_ssl_ca_key}"
     openssl req -new -x509 -nodes -days 3650 -key "${mysql_ssl_ca_key}" -out "${mysql_ssl_ca_cert}" -subj "/CN=MySQL SSL CA/OU=Mt Wilson/O=Intel/C=US/"
     echo 0 > "${mysql_ssl_ca_index}"
   fi
@@ -1714,7 +1714,7 @@ mysql_create_ssl() {
   local filename=`echo "${dname}" | sed "s/[^a-zA-Z0-9-]/_/g"`
   local ssl_key="${mysql_ssl_dir}/${filename}.key.pem"
   local ssl_cert="${mysql_ssl_dir}/${filename}.cert.pem"
-  openssl req -newkey rsa:1024 -days 3650 -nodes -keyout "${ssl_key}" -out "${ssl_cert}.req" -subj "/CN=${dname}/OU=Mt Wilson/O=Intel/C=US/"
+  openssl req -newkey rsa:3072 -days 3650 -nodes -keyout "${ssl_key}" -out "${ssl_cert}.req" -subj "/CN=${dname}/OU=Mt Wilson/O=Intel/C=US/"
   openssl rsa -in "${ssl_key}" -out "${ssl_key}"
   mysql_ca_sign "${ssl_cert}.req" "${ssl_cert}" "${mysql_ssl_ca_dir}"
   rm -rf "${ssl_cert}.req"
@@ -2340,7 +2340,7 @@ postgres_create_ca() {
     chmod 700 "${postgres_ssl_ca_dir}"
     touch "${postgres_ssl_ca_key}"
     chmod 600 "${postgres_ssl_ca_key}"
-    openssl genrsa 2048 > "${postgres_ssl_ca_key}"
+    openssl genrsa 3072 > "${postgres_ssl_ca_key}"
     openssl req -new -x509 -nodes -days 3650 -key "${postgres_ssl_ca_key}" -out "${postgres_ssl_ca_cert}" -subj "/CN=Posgres SSL CA/OU=Mt Wilson/O=Intel/C=US/"
     echo 0 > "${postgres_ssl_ca_index}"
   fi
@@ -2389,7 +2389,7 @@ postgres_create_ssl() {
   local filename=`echo "${dname}" | sed "s/[^a-zA-Z0-9-]/_/g"`
   local ssl_key="${postgres_ssl_dir}/${filename}.key.pem"
   local ssl_cert="${postgres_ssl_dir}/${filename}.cert.pem"
-  openssl req -newkey rsa:1024 -days 3650 -nodes -keyout "${ssl_key}" -out "${ssl_cert}.req" -subj "/CN=${dname}/OU=Mt Wilson/O=Intel/C=US/"
+  openssl req -newkey rsa:3072 -days 3650 -nodes -keyout "${ssl_key}" -out "${ssl_cert}.req" -subj "/CN=${dname}/OU=Mt Wilson/O=Intel/C=US/"
   openssl rsa -in "${ssl_key}" -out "${ssl_key}"
   postgres_ca_sign "${ssl_cert}.req" "${ssl_cert}" "${postgres_ssl_ca_dir}"
   rm -rf "${ssl_cert}.req"
@@ -2813,7 +2813,7 @@ tomcat_create_ssl_cert() {
     $keytool -delete -alias tomcat -keystore "$keystore" -storepass "$keystorePassword" 2>&1 >/dev/null
 
     # Update keystore.p12
-    $keytool -genkeypair -alias tomcat -dname "$cert_cns, OU=Mt Wilson, O=Trusted Data Center, C=US" -ext san="$cert_sans" -keyalg RSA -keysize 2048 -validity 3650 -keystore "$keystore" -keypass "$keystorePassword" -storepass "$keystorePassword"
+    $keytool -genkeypair -alias tomcat -dname "$cert_cns, OU=Mt Wilson, O=Trusted Data Center, C=US" -ext san="$cert_sans" -keyalg RSA -keysize 3072 -validity 3650 -keystore "$keystore" -keypass "$keystorePassword" -storepass "$keystorePassword"
     
     echo "Restarting Tomcat as a new SSL certificate was generated..."
     tomcat_restart >/dev/null
@@ -2827,8 +2827,8 @@ tomcat_create_ssl_cert() {
     cp "$keystore" "$configDir/mtwilson-tls.p12"
     mtwilson_tls_cert_sha1=`openssl sha1 -hex "$configDir/ssl.crt" | awk -F '=' '{ print $2 }' | tr -d ' '`
     update_property_in_file "mtwilson.api.tls.policy.certificate.sha1" "$configDir/mtwilson.properties" "$mtwilson_tls_cert_sha1"
-    mtwilson_tls_cert_sha256=`openssl sha256 -hex "$configDir/ssl.crt" | awk -F '=' '{ print $2 }' | tr -d ' '`
-    update_property_in_file "mtwilson.api.tls.policy.certificate.sha256" "$configDir/mtwilson.properties" "$mtwilson_tls_cert_sha256"
+    mtwilson_tls_cert_sha384=`openssl sha384 -hex "$configDir/ssl.crt" | awk -F '=' '{ print $2 }' | tr -d ' '`
+    update_property_in_file "mtwilson.api.tls.policy.certificate.sha384" "$configDir/mtwilson.properties" "$mtwilson_tls_cert_sha384"
 else
     echo_warning "No SSL certificate found in Tomcat keystore"
   fi
@@ -3372,7 +3372,7 @@ java_keystore_cert_report() {
   local keytool=${JAVA_HOME}/bin/keytool
   local owner_expires=`$keytool -list -v -alias $alias -keystore $keystore -storepass $keystorePassword 2>&1 | grep -E "^Owner|^Valid"`
   echo "$owner_expires"
-  local fingerprints=`$keytool -list -v -alias $alias -keystore $keystore -storepass $keystorePassword 2>&1 | grep -E "SHA256:"`
+  local fingerprints=`$keytool -list -v -alias $alias -keystore $keystore -storepass $keystorePassword 2>&1 | grep -E "SHA384:"`
   echo "$fingerprints" | sed 's/^ *//g'
 }
 

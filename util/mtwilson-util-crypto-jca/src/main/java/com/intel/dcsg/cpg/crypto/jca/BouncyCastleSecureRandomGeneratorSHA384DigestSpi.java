@@ -7,14 +7,14 @@ package com.intel.dcsg.cpg.crypto.jca;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.SecureRandomSpi;
-import org.bouncycastle.crypto.digests.SHA256Digest;
+import org.bouncycastle.crypto.digests.SHA384Digest;
 import org.bouncycastle.crypto.prng.DigestRandomGenerator;
 import org.bouncycastle.crypto.prng.ThreadedSeedGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Uses BouncyCastle's DigestRandomGenerator with SHA256, and either Java's
+ * Uses BouncyCastle's DigestRandomGenerator with SHA384, and either Java's
  * NativePRNG (on Linux) or BouncyCastle's ThreadedSeedGenerator (where
  * NativePRNG is not available).
  *
@@ -22,17 +22,17 @@ import org.slf4j.LoggerFactory;
  *
  * @author jbuhacoff
  */
-public class BouncyCastleSecureRandomGeneratorSHA256DigestSpi extends SecureRandomSpi {
+public class BouncyCastleSecureRandomGeneratorSHA384DigestSpi extends SecureRandomSpi {
 
-    //private final static Logger log = LoggerFactory.getLogger(BouncyCastleSecureRandomGeneratorSHA256DigestSpi.class);
+    //private final static Logger log = LoggerFactory.getLogger(BouncyCastleSecureRandomGeneratorSHA384DigestSpi.class);
     private static final LogUtil.Logger log = new LogUtil.Logger();
-    private final static DigestRandomGenerator random = new DigestRandomGenerator(new SHA256Digest());
+    private final static DigestRandomGenerator random = new DigestRandomGenerator(new SHA384Digest());
     private final static int SEED_LENGTH_BYTES = 12;
     private final static long MAX = Integer.MAX_VALUE / 2; // number of random bytes before we force a re-seed
     private long current; // number of random bytes already generated using current seed
     private final Generator generator;
 
-    public BouncyCastleSecureRandomGeneratorSHA256DigestSpi() {
+    public BouncyCastleSecureRandomGeneratorSHA384DigestSpi() {
         super();
         SecureRandom nativePRNG = null;
         try {

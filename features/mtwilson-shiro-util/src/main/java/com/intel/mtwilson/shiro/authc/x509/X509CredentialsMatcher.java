@@ -49,7 +49,7 @@ public class X509CredentialsMatcher implements CredentialsMatcher {
         try {
             log.debug("Verifying signature");
             
-            // the credential.getDigest() value is the oid for "SHA1" or "SHA256" concatenated with the digest of the signed document 
+            // the credential.getDigest() value is the oid for "SHA1" or "SHA256" or "SHA384" concatenated with the digest of the signed document
             // the credential.getSignature() value is the RSA encryption of the digest
             // so to verify the signature, we just have to decrypt it using the known public key from our database
             // and if the result matches the input digest, then the known public key has verified the 

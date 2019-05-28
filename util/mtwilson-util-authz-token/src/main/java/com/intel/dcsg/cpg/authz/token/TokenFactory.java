@@ -32,7 +32,7 @@ public class TokenFactory {
     
     public TokenFactory() {
         protectionPolicy = ProtectionPolicyBuilder.factory().stream().aes128().sha2().build(); // we'll accept AES-128/192/256 and SHA-256/384/512 for incoming tokens
-        protection = ProtectionBuilder.factory().aes(128).mode("OFB8").padding("NoPadding").sha256().build(); // we'll output AES-128 and SHA-256 for new tokens
+        protection = ProtectionBuilder.factory().aes(128).mode("OFB8").padding("NoPadding").sha384().build(); // we'll output AES-128 and SHA-384 for new tokens
         repository = new HashMapMutableSecretKeyRepository(new HashMap<String,EncryptionKey>());
         encryptionKeySource = new EncryptionKeySource(repository);
         codec = new TokenCipherCodec(encryptionKeySource, protection);

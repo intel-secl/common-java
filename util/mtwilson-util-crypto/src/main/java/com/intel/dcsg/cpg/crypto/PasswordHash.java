@@ -28,13 +28,13 @@ import org.apache.commons.codec.binary.Base64;
  * a different salt and hash/transformation) or just define a transformation to
  * convert the password to a secret key without using this class.
  * 
- * Currently this class assumes 8-byte salt and 32-byte hash (SHA-256).
+ * Currently this class assumes 8-byte salt and 48-byte hash (SHA-384).
  * Other implementations are available, such as using the key generator to create
  * the password hash... should be in different classes.
  * 
  * To simplify usage, this class throws only CryptographyException.
  * The root causes can be:
- * NoSuchAlgorithmException is thrown if SHA-256 is not available
+ * NoSuchAlgorithmException is thrown if SHA-384 is not available
  * UnsupportedEncodingException is thrown if UTF-8 is not available
  * 
  * @since 0.1
@@ -66,7 +66,7 @@ public class PasswordHash {
     private byte[] hash(String password) throws CryptographyException {
         try {
             byte[] passwordBytes = password.getBytes("UTF-8"); // UnsupportedEncodingException
-            return sha256(ByteArray.concat(salt,passwordBytes));
+            return sha384(ByteArray.concat(salt,passwordBytes));
         }
         catch(NoSuchAlgorithmException e) {
             throw new CryptographyException(e);
@@ -76,9 +76,9 @@ public class PasswordHash {
         }
     }
     
-    private byte[] sha256(byte[] data) throws NoSuchAlgorithmException {
-        MessageDigest sha256 = MessageDigest.getInstance("SHA-256"); // NoSuchAlgorithmException
-        return sha256.digest(data);
+    private byte[] sha384(byte[] data) throws NoSuchAlgorithmException {
+        MessageDigest sha384 = MessageDigest.getInstance("SHA-384"); // NoSuchAlgorithmException
+        return sha384.digest(data);
     }
     
     public byte[] getHash() {
@@ -99,7 +99,7 @@ public class PasswordHash {
     
     /**
      * 
-     * @return the salted password in the format base64-encoded-salt ":" base64-encoded-sha256-of-salted-password
+     * @return the salted password in the format base64-encoded-salt ":" base64-encoded-sha384-of-salted-password
      */
     @Override
     public String toString() {
@@ -113,7 +113,7 @@ public class PasswordHash {
     
     /**
      * 
-     * @param hashedPassword in the format base64-encoded-salt ":" base64-encoded-sha256-of-salted-password
+     * @param hashedPassword in the format base64-encoded-salt ":" base64-encoded-sha384-of-salted-password
      * @return 
      */
     public static PasswordHash valueOf(String hashedPassword) {

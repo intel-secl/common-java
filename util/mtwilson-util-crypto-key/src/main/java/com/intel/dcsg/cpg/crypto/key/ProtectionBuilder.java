@@ -137,7 +137,7 @@ public class ProtectionBuilder {
     
     /**
      * 
-     * @param digestAlgorithm for example "SHA-256"
+     * @param digestAlgorithm for example "SHA-384"
      * @return 
      */
     public ProtectionBuilder digestAlgorithm(String digestAlgorithm) {
@@ -155,7 +155,7 @@ public class ProtectionBuilder {
         return this;
     }
 
-        /**
+    /**
      * 
      * @param blockSizeBytes for example 16 for AES-128
      * @return 
@@ -167,7 +167,7 @@ public class ProtectionBuilder {
 
         /**
      * 
-     * @param digestSizeBytes for example 20 for SHA-1, or 32 for SHA-256
+     * @param digestSizeBytes for example 20 for SHA-1, 32 for SHA-256, or 48 for SHA-384
      * @return 
      */
     public ProtectionBuilder digestSizeBytes(int digestSizeBytes) {

@@ -55,7 +55,7 @@ import java.security.cert.CertificateException;
  * Turn off confidentiality but require authentication and integrity - the TlsPolicy will attempt to use
  * https when possible but will also accept non-SSL http because encryption is not required. 
  * The policy will require a certificate repository & client certificate in order to sign all outgoing requests
- * and verify integrity of incoming requests.  It may be possible to specify the algorithm (HMAC-SHA256, RSA-SHA256, etc)
+ * and verify integrity of incoming requests.  It may be possible to specify the algorithm (HMAC-SHA256, RSA-SHA384, etc)
  * that is used to sign the messages - in the case an HMAC is used the repository will need to contain symmetric keys.
  * 
  * Most common usages are expected to be:
@@ -427,7 +427,7 @@ public class TlsPolicyBuilder {
         * Turn off confidentiality but require authentication and integrity - the TlsPolicy will attempt to use
         * https when possible but will also accept non-SSL http because encryption is not required. 
         * The policy will require a certificate repository & client certificate in order to sign all outgoing requests
-        * and verify integrity of incoming requests.  It may be possible to specify the algorithm (HMAC-SHA256, RSA-SHA256, etc)
+        * and verify integrity of incoming requests.  It may be possible to specify the algorithm (HMAC-SHA256, RSA-SHA384, etc)
         * that is used to sign the messages - in the case an HMAC is used the repository will need to contain symmetric keys.
          */
         // if we haven't identified a policy by now, the caller did something wrong

@@ -437,10 +437,12 @@ public class MyConfiguration {
 
         }
 
-        if (conf.containsKey("mtwilson.api.tls.policy.certificate.sha1")) {
-            properties.setProperty("mtwilson.api.tls.policy.certificate.sha1", conf.getString("mtwilson.api.tls.policy.certificate.sha1"));
+        if (conf.containsKey("mtwilson.api.tls.policy.certificate.sha384")) {
+            properties.setProperty("mtwilson.api.tls.policy.certificate.sha384", conf.getString("mtwilson.api.tls.policy.certificate.sha384"));
         } else if(conf.containsKey("mtwilson.api.tls.policy.certificate.sha256")) {
             properties.setProperty("mtwilson.api.tls.policy.certificate.sha256", conf.getString("mtwilson.api.tls.policy.certificate.sha256"));
+        } else if(conf.containsKey("mtwilson.api.tls.policy.certificate.sha1")) {
+            properties.setProperty("mtwilson.api.tls.policy.certificate.sha1", conf.getString("mtwilson.api.tls.policy.certificate.sha1"));
         } else if (conf.containsKey("mtwilson.api.tls.policy.insecure")) {
             properties.setProperty("mtwilson.api.tls.policy.insecure", conf.getString("mtwilson.api.tls.policy.insecure"));
         }

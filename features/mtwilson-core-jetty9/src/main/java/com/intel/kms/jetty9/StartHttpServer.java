@@ -256,10 +256,15 @@ public class StartHttpServer implements Runnable {
             }
             sslConnectionFactory.setExcludeProtocols("SSL", "SSLv2", "SSLv2Hello", "SSLv3", "TLSv1", "TLSv1.1");
             sslConnectionFactory.setIncludeCipherSuites(
+                    "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
                     "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+                    "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
                     "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+                    "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
                     "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
+                    "TLS_RSA_WITH_AES_256_GCM_SHA384",
                     "TLS_RSA_WITH_AES_128_GCM_SHA256",
+                    "TLS_RSA_WITH_AES_256_CCM",
                     "TLS_RSA_WITH_AES_128_CCM"
             );
             sslConnectionFactory.setRenegotiationAllowed(false);

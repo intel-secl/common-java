@@ -50,7 +50,7 @@ public class CipherKeyAttributes extends Attributes implements Copyable {
      * encoding or encryption. For certificates, this refers to the
      * length of the enclosed public key. 
      * Examples of key length for AES: 128, 256
-     * Examples of key length for RSA: 1024, 2048
+     * Examples of key length for RSA: 1024, 2048, 3072
      */
     public Integer getKeyLength() {
         return keyLength;

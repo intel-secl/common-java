@@ -36,7 +36,7 @@ public class RsaSignatureInput {
     public String url; // including query string if it is intended to be signed, such as "https://server.example.com/path/to/service?withQuery=yes"; it does not have to be absolute, but it does need to match the HTTP Request Line or an X-Original-Request or X-Original-URL header (that substitution should be done OUTSIDE of this class, so the url passed should be the one to be validated)
     public String realm; // the authentication realm (must be agreed upon between server and client)
     public String fingerprintBase64; // the base-64 encoded fingerprint that identifies the public key or X509 certificate that should be used to verify the signature
-    public String signatureAlgorithm; // the signature algorithm; currently must be "SHA256withRSA" or "RSA-SHA256" 
+    public String signatureAlgorithm; // the signature algorithm; currently must be "SHA384withRSA" or "RSA-SHA384"
     public String[] headerNames; // headers that should be included in the signature, in order
     public Map<String,String> headers; // a map that contains at least the headers referenced in headerNames; headers not referenced will be ignored
     public String body; // the request body or empty string if the request does not require a body; must not be null
@@ -53,7 +53,7 @@ public class RsaSignatureInput {
 Request: POST http://example.com/some/path
 Realm: Attestation
 From: fingerprint
-Signature-Algorithm: RSA-SHA256
+Signature-Algorithm: RSA-SHA384
 X-Date: 2012-02-14T08:15:00-08:00
 X-Nonce: FaaKLOOuyG7/kLVD5vQ7iw==
 

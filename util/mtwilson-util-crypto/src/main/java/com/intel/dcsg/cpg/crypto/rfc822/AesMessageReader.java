@@ -87,11 +87,11 @@ public class AesMessageReader {
         if (!encryptedMessage.getContentType().startsWith("encrypted/java")) {
             throw new UnsupportedOperationException("Content-Type must be encrypted/java");
         }
-        Map<String, String> contentTypeParameters = Rfc822Header.getHeaderParameters(encryptedMessage.getContentType()); // example:  application/java; alg="AES"; key="keyId"; digest-alg="SHA-256"
+        Map<String, String> contentTypeParameters = Rfc822Header.getHeaderParameters(encryptedMessage.getContentType()); // example:  application/java; alg="AES"; key="keyId"; digest-alg="SHA-384"
         // read required parameters
         String algorithmName = contentTypeParameters.get("alg");
         String keyId = contentTypeParameters.get("key");
-        String digestAlgorithmName = contentTypeParameters.get("digest-alg"); //"SHA256"; // XXX TODO ... let's pretend  the algorithm name was extracted from "digest-alg" parameter
+        String digestAlgorithmName = contentTypeParameters.get("digest-alg"); //"SHA384"; // XXX TODO ... let's pretend  the algorithm name was extracted from "digest-alg" parameter
         // obtain the key... XXX should the finder operate on key id only or key id + alg name? and if using alg name too then it should be just aes, rsa, ecc... w/o the cipher mode or padding mode
         SecretKey key = finder.find(keyId);
         if( key == null ) {

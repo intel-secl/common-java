@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * XXX TODO maybe create a separate class that is simply a container for (PrivateKey,X509Certificate) for situations
- * in which the pair is needed but the identity is customized (not a SHA-256 hash of the certificate) or situations
+ * in which the pair is needed but the identity is customized (not a SHA-384 hash of the certificate) or situations
  * where the signature is not needed. 
  * @since 0.1
  * @author jbuhacoff
@@ -19,8 +19,8 @@ public class RsaCredential implements Credential {
     private static Logger log = LoggerFactory.getLogger(RsaCredential.class);
     private final PrivateKey privateKey;
     private PublicKey publicKey;
-    private final String digestAlgorithm = "SHA-256";
-    private final String signatureAlgorithm = "SHA256withRSA";
+    private final String digestAlgorithm = "SHA-384";
+    private final String signatureAlgorithm = "SHA384withRSA";
     private final byte[] identity;
     
     public RsaCredential(PrivateKey privateKey, byte[] credential) throws CryptographyException {
@@ -76,7 +76,7 @@ public class RsaCredential implements Credential {
     
     /**
      * 
-     * @return SHA-256 fingerprint of the Certificate containing the RSA Public Key
+     * @return SHA-384 fingerprint of the Certificate containing the RSA Public Key
      */
     @Override
     public byte[] identity() {
@@ -93,7 +93,7 @@ public class RsaCredential implements Credential {
     
     /**
      * 
-     * @return the signature algorithm "SHA256withRSA"
+     * @return the signature algorithm "SHA384withRSA"
      */
     @Override
     public String algorithm() {

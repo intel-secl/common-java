@@ -7,7 +7,7 @@ package com.intel.dcsg.cpg.crypto.file;
 import com.intel.dcsg.cpg.crypto.CryptographyException;
 import com.intel.dcsg.cpg.crypto.DigestAlgorithm;
 import com.intel.dcsg.cpg.crypto.PasswordHash;
-import com.intel.dcsg.cpg.crypto.Sha256Digest;
+import com.intel.dcsg.cpg.crypto.Sha384Digest;
 import com.intel.dcsg.cpg.crypto.digest.DigestUtil;
 import com.intel.dcsg.cpg.crypto.key.password.CryptoCodec;
 import com.intel.dcsg.cpg.crypto.key.password.PasswordCryptoCodecFactory;
@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Convenience class to using PasswordCipher, PasswordHash, DataEnvelope, and Sha256Digest to 
+ * Convenience class to using PasswordCipher, PasswordHash, DataEnvelope, and Sha384Digest to
  * read/write an encrypted file with integrity checking.
  * 
  * For simplicity, this class does not support streaming. In the future, another class may provide
@@ -190,7 +190,13 @@ public class PasswordEncryptedFile {
             
             String integrityAlgorithm = envelope.getHeader(INTEGRITY_ALGORITHM);
             if( integrityAlgorithm == null ) { throw new IllegalArgumentException("Missing integrity algorithm name"); }
-            if( integrityAlgorithm.equals(DigestAlgorithm.SHA256.name())) { // SHA256, not SHA-256 ... maybe allow both?
+            if( integrityAlgorithm.equals(DigestAlgorithm.SHA384.name())) { // SHA384, not SHA-384 ... maybe allow both?
+                log.debug("Integrity algorithm: SHA384");
+                byte[] plaintextAfterIntegrity = getPlaintextWithIntegrity(plaintext, DigestAlgorithm.SHA384);
+                log.debug("Decrypted text length: {}", plaintextAfterIntegrity.length);
+                return plaintextAfterIntegrity;
+            }
+            else if( integrityAlgorithm.equals(DigestAlgorithm.SHA256.name())) { // SHA256, not SHA-256 ... maybe allow both?
                 log.debug("Integrity algorithm: SHA256");
                 byte[] plaintextAfterIntegrity = getPlaintextWithIntegrity(plaintext, DigestAlgorithm.SHA256);
                 log.debug("Decrypted text length: {}", plaintextAfterIntegrity.length);
@@ -224,16 +230,16 @@ public class PasswordEncryptedFile {
     
     public void encrypt(byte[] plaintext) throws IOException {
         
-        // XXX  for now we are hardcoding use of sha256 below so if the protection does not specify sha256 throw an exception
-        if( protection.getDigestAlgorithm() == null || !protection.getDigestAlgorithm().equals(DigestAlgorithm.SHA256.algorithm())) {
-            throw new IllegalArgumentException("Digest algorithm must be SHA-256");
+        // XXX  for now we are hardcoding use of sha384 below so if the protection does not specify sha384 throw an exception
+        if( protection.getDigestAlgorithm() == null || !protection.getDigestAlgorithm().equals(DigestAlgorithm.SHA384.algorithm())) {
+            throw new IllegalArgumentException("Digest algorithm must be SHA-384");
         }
         
         cipher = PasswordCryptoCodecFactory.createCodec(password, protection);
         
         try {
-            Sha256Digest sha256 = Sha256Digest.digestOf(plaintext);
-            byte[] plaintextWithIntegrity = ByteArray.concat(sha256.toByteArray(), plaintext);
+            Sha384Digest sha384 = Sha384Digest.digestOf(plaintext);
+            byte[] plaintextWithIntegrity = ByteArray.concat(sha384.toByteArray(), plaintext);
             
             byte[] ciphertext = cipher.encrypt(plaintextWithIntegrity);
             
@@ -247,9 +253,9 @@ public class PasswordEncryptedFile {
             envelope.setHeader(KEY_ALGORITHM, keyAlgInfo.formatKeyAlgorithm());
             envelope.setHeader(ENCRYPTION_ALGORITHM, protection.getCipher());  //   TODO  need a more accurate descriptive name for getCipher ... it sounds like it would be a Cipher object but it's not, it's just the java conventon with algorithm/mode/padding.  ...  protection.getAlgorithm()  is just "AES"  but protection.getCipher() is "AES/CBC/PKCS5Padding" or "AES/OFB8/NoPadding" etc
             PasswordHash passwordHash = new PasswordHash(password); // generates a random salt
-            envelope.setHeader(ENCRYPTION_KEY_ID, passwordHash.toString()); // produces salt-base64:sha256-base64 which helps to determine that the password is correct before trying to decrypt the entire file and interpret the results
+            envelope.setHeader(ENCRYPTION_KEY_ID, passwordHash.toString()); // produces salt-base64:sha384-base64 which helps to determine that the password is correct before trying to decrypt the entire file and interpret the results
             envelope.setHeader(CONTENT_ENCODING, "base64"); // XXX currently it's the only supported method, so it's ignored when reading in the file
-            envelope.setHeader(INTEGRITY_ALGORITHM, sha256.algorithm());
+            envelope.setHeader(INTEGRITY_ALGORITHM, sha384.algorithm());
             envelope.setContent(ciphertext);
             // XXX TODO:  need to allow caller to pass the plaintext content type so we can include it as "enclosed" atribute here
             OutputStream out = resource.getOutputStream();
