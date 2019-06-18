@@ -4,6 +4,7 @@
  */
 package com.intel.mtwilson.crypto.password;
 
+import com.intel.dcsg.cpg.crypto.Sha256Digest;
 import com.intel.dcsg.cpg.crypto.Sha384Digest;
 import com.intel.dcsg.cpg.io.ByteArray;
 
@@ -31,8 +32,15 @@ public class PasswordUtil {
                 digest = Sha384Digest.digestOf(digest.toByteArray());
             }
             return digest.toByteArray();
+        } else if( "SHA-256".equalsIgnoreCase(hashProtection.getAlgorithm()) ||  "SHA256".equalsIgnoreCase(hashProtection.getAlgorithm()) ) {
+            // first iteration is mandatory
+            Sha256Digest digest = Sha256Digest.digestOf(ByteArray.concat(hashProtection.getSalt(), inputPasswordBytes));
+            int max = hashProtection.getIterations() - 1; // -1 because we just completed the first iteration
+            for(int i=0; i<max; i++) {
+                digest = Sha256Digest.digestOf(digest.toByteArray());
+            }
+            return digest.toByteArray();
         }
         throw new UnsupportedOperationException("Algorithm not supported: "+hashProtection.getAlgorithm()); 
     }
-
 }
