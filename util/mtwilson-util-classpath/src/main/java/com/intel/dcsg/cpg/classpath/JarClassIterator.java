@@ -66,7 +66,7 @@ public class JarClassIterator implements Iterator<Class<?>> {
                         return true;
                     }
                 } catch (Throwable e) {
-                    log.debug("Failed to load class {} from archive {}", nextClass, jar.getAbsolutePath(), e);
+                    log.debug("Failed to load class {} from archive {}", nextClass, jar.getAbsolutePath());
                 }
             }
         }
