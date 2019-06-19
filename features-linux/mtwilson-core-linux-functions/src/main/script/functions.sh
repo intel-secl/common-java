@@ -4413,7 +4413,7 @@ define_grub_file() {
 
 ### FUNCTION LIBRARY: sUEFI
 is_suefi_enabled() {
-  mokutil --sb-state | grep enabled > /dev/null
+  bootctl status | grep 'Secure Boot: enabled' > /dev/null
   if [ $? -eq 0 ]; then
     return 0
   fi
