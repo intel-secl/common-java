@@ -228,7 +228,7 @@ public class StartHttpServer implements Runnable {
         httpConfiguration.setRequestHeaderSize(8192);
         httpConfiguration.setResponseHeaderSize(8192);
         httpConfiguration.setSendServerVersion(false);
-
+        httpConfiguration.setIdleTimeout(60000);
         // https-specific configuration
         HttpConfiguration httpsConfiguration = new HttpConfiguration(httpConfiguration);
         httpsConfiguration.addCustomizer(new SecureRequestCustomizer()); // adds ssl session id's and certificate information to request attributes
@@ -264,6 +264,7 @@ public class StartHttpServer implements Runnable {
             sslConnectionFactory.setRenegotiationAllowed(false);
             ServerConnector https = new ServerConnector(jetty, new ConnectionFactory[]{new SslConnectionFactory(sslConnectionFactory, "http/1.1"), new HttpConnectionFactory(httpsConfiguration)});
             https.setPort(getHttpsPort());
+            https.setIdleTimeout(60000); 
 			if (host != null) {
 				https.setHost(host);
 				log.debug("Setting host for jetty server (https) ={}", host);
