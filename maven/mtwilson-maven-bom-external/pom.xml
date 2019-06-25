@@ -124,7 +124,7 @@
             <dependency>
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
-                <version>3.2.1</version>
+                <version>3.2.2</version>
              </dependency>
              <dependency>
                 <groupId>commons-math</groupId>
@@ -411,7 +411,7 @@
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk15on</artifactId>
-                <version>1.60</version>
+                <version>1.62</version>
             </dependency>      
             <dependency>
                 <groupId>org.codehaus.woodstox</groupId>
@@ -559,12 +559,12 @@
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpkix-jdk15on</artifactId>
-                <version>1.60</version>
+                <version>1.62</version>
 	    </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcmail-jdk15on</artifactId>
-                <version>1.60</version>
+                <version>1.62</version>
             </dependency>
 
             <dependency>
@@ -582,12 +582,12 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
-                <version>5.0.1.RELEASE</version>
+                <version>5.1.8.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-jdbc</artifactId>
-                <version>5.0.1.RELEASE</version>
+                <version>5.1.8.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>com.googlecode.lanterna</groupId>
@@ -671,7 +671,7 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
-                <version>4.1.7.RELEASE</version>
+                <version>5.1.8.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>com.toastcoders</groupId>
