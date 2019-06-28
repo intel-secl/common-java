@@ -4,7 +4,10 @@
  */
 package com.intel.dcsg.cpg.util.jdbc;
 
+import com.intel.dcsg.cpg.crypto.RandomUtil;
 import com.intel.dcsg.cpg.objectpool.ObjectPool;
+
+import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -26,7 +29,8 @@ public class PooledConnection extends DelegatingConnection {
     
     public PooledConnection(Connection connection, ObjectPool<Connection> objectPool) {
         super(connection);
-        id = Math.round(Math.random()*Long.MAX_VALUE);
+        SecureRandom random = RandomUtil.getSecureRandom();
+        id = random.nextLong();
         pool = objectPool;
         log.debug("[{}] constructor wrapping {}", id, connection);
     }
