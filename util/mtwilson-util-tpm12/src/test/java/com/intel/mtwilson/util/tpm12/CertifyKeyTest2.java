@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2014 Intel Corporation
- * All rights reserved.
+ * Copyright (C) 2019 Intel Corporation
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 package com.intel.mtwilson.util.tpm12;
 
@@ -12,7 +12,6 @@ import java.security.cert.X509Certificate;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
-import static org.junit.Assert.*;
 import org.junit.Test;
 
 /**

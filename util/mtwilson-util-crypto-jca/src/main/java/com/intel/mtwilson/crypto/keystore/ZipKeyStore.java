@@ -1,5 +1,6 @@
 /*
- * Copyright 2016 Intel Corporation. All rights reserved.
+ * Copyright (C) 2019 Intel Corporation
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 package com.intel.mtwilson.crypto.keystore;
 
@@ -16,7 +17,6 @@ import java.io.OutputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.UnrecoverableKeyException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;

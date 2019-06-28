@@ -1,11 +1,10 @@
 /*
- * Copyright (C) 2014 Intel Corporation
- * All rights reserved.
+ * Copyright (C) 2019 Intel Corporation
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 package com.intel.mtwilson.util.tpm12.x509;
 
 import java.io.IOException;
-import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1Object;
 import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.asn1.DEROctetString;

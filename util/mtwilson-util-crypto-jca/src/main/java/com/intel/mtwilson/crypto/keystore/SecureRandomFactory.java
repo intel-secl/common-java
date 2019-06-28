@@ -1,9 +1,9 @@
 /*
- * Copyright 2016 Intel Corporation. All rights reserved.
+ * Copyright (C) 2019 Intel Corporation
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 package com.intel.mtwilson.crypto.keystore;
 
-//import com.intel.mtwilson.crypto.jca.LogUtil;
 import com.intel.mtwilson.crypto.jca.MtWilsonProvider;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;

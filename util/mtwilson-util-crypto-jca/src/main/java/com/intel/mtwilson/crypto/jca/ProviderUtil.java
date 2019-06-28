@@ -1,5 +1,6 @@
 /*
- * Copyright 2016 Intel Corporation. All rights reserved.
+ * Copyright (C) 2019 Intel Corporation
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 package com.intel.mtwilson.crypto.jca;
 
@@ -14,8 +15,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
 
 /**
  *

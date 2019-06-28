@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2014 Intel Corporation
- * All rights reserved.
+ * Copyright (C) 2019 Intel Corporation
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 package com.intel.mtwilson.util.tpm12;
 
@@ -22,11 +22,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
-import org.bouncycastle.asn1.ASN1Object;
-import org.bouncycastle.asn1.ASN1Sequence;
-import org.bouncycastle.asn1.DEROctetString;
-import org.bouncycastle.asn1.DERSequence;
-import org.bouncycastle.asn1.DERUTF8String;
 
 /**
  *

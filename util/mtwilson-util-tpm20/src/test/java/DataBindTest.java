@@ -1,9 +1,7 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2019 Intel Corporation
+ * SPDX-License-Identifier: BSD-3-Clause
  */
-
 import com.intel.dcsg.cpg.crypto.RsaUtil;
 import com.intel.dcsg.cpg.validation.Fault;
 import com.intel.dcsg.cpg.x509.X509Builder;
@@ -32,7 +30,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
