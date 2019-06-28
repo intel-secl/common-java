@@ -1,5 +1,6 @@
 /*
- * Copyright 2016 Intel Corporation. All rights reserved.
+ * Copyright (C) 2019 Intel Corporation
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 package com.intel.mtwilson.crypto.jca;
 
@@ -9,8 +10,6 @@ import java.security.SecureRandomSpi;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.prng.DigestRandomGenerator;
 import org.bouncycastle.crypto.prng.ThreadedSeedGenerator;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
 
 /**
  * Uses BouncyCastle's DigestRandomGenerator with SHA256, and either Java's

@@ -1,5 +1,6 @@
 /*
- * Copyright 2017 Intel Corporation. All rights reserved.
+ * Copyright (C) 2019 Intel Corporation
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 package com.intel.mtwilson.crypto.jca;
 
@@ -20,7 +21,6 @@ import java.security.KeyFactory;
 import java.security.KeyStoreException;
 import java.security.KeyStoreSpi;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.UnrecoverableKeyException;
@@ -46,9 +46,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-//import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 
 /**
  * A KeyStore implementation using PBKDF2, HMAC-SHA256, and AES-CBC with PKCS #7
