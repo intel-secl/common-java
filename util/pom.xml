@@ -40,7 +40,6 @@
         <module>mtwilson-util-jooq</module>
         <module>mtwilson-util-jpa</module>
         <module>mtwilson-util-junit</module>
-	<module>mtwilson-util-json-path</module>
         <module>mtwilson-util-locale</module>
         <module>mtwilson-util-module</module>
         <module>mtwilson-util-module-annotations</module>
@@ -54,7 +53,6 @@
         <module>mtwilson-util-shiro</module>
         <module>mtwilson-util-text-transform</module>
         <module>mtwilson-util-tls-policy</module>
-	<module>mtwilson-util-tpm12</module>
 	<module>mtwilson-util-tpm20</module>
         <module>mtwilson-util-tree</module>
         <module>mtwilson-util-validation</module>
