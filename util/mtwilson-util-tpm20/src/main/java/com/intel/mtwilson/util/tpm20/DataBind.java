@@ -126,10 +126,11 @@ public class DataBind {
         return new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, getPSource());
     }
     protected static Cipher getCipher(PublicKey publicKey) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
-        Provider bc = new BouncyCastleProvider();
-        Cipher cipher = Cipher.getInstance("RSA", bc); //
-        cipher.init(Cipher.ENCRYPT_MODE,publicKey, getOAEPParameterSpec()); // throws InvalidKeyException, InvalidAlgorithmParameterException
-        return cipher;
+//        Provider bc = new BouncyCastleProvider();
+            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding"); // commented out because when specifying OAEP it goes to a list of pre-defined ones, instead of using the parameter spec provided below, so because "OAEP" itself is not in the bouncycastle list it rhwos:   javax.crypto.NoSuchPaddingException: OAEP unavailable with RSA
+//            Cipher cipher = Cipher.getInstance("RSA", bc); // 
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey, getOAEPParameterSpec()); // throws InvalidKeyException, InvalidAlgorithmParameterException
+            return cipher;
     }
     
     public static byte[] bind(byte[] plaintext, TpmPublicKey tpmPublicKey) throws GeneralSecurityException {
