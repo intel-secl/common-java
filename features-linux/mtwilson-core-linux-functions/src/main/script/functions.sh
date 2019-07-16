@@ -4385,32 +4385,6 @@ setup_pgpass() {
   fi
 }
 
-function configure_cron() {
-   action=$1
-   interval=$2
-   command=$3
-
-   if [[ -z "$action" ]] ;then echo_failure " no action specified\n"; return 1 ;fi
-   if [[ -z "$interval" ]] ;then echo_failure " no interval specified\n"; return 1 ;fi
-   if [[ -z "$command" ]] ;then echo_failure " no command specified\n"; return 1 ;fi
-
-   case $action in
-   "add" )
-      if ! crontab -l | egrep -v '^(#|$)' | grep -Fq "$command"
-      then
-         ( crontab -l; echo "$interval $command" ) | crontab -
-      fi
-      ;;
-   "remove" )
-      ( crontab -l | grep -v -F -w "$command" ) | crontab -
-      ;;
-   * )
-      echo_failure "configure_cron <add|remove> '<interval>' '<command>'"
-      return 1
-      ;;
-   esac
-}
-
 ### FUNCTION LIBRARY: grub
 is_uefi_boot() {
   if [ -d /sys/firmware/efi ]; then
@@ -4444,4 +4418,30 @@ is_suefi_enabled() {
     return 0
   fi
   return 1
+}
+
+function configure_cron() {
+   action=$1
+   interval=$2
+   command=$3
+
+   if [[ -z "$action" ]] ;then echo_failure " no action specified\n"; return 1 ;fi
+   if [[ -z "$interval" ]] ;then echo_failure " no interval specified\n"; return 1 ;fi
+   if [[ -z "$command" ]] ;then echo_failure " no command specified\n"; return 1 ;fi
+
+   case $action in
+   "add" )
+      if ! crontab -l | egrep -v '^(#|$)' | grep -Fq "$command"
+      then
+         ( crontab -l; echo "$interval $command" ) | crontab -
+      fi
+      ;;
+   "remove" )
+      ( crontab -l | grep -v -F -w "$command" ) | crontab -
+      ;;
+   * )
+      echo_failure "configure_cron <add|remove> '<interval>' '<command>'"
+      return 1
+      ;;
+   esac
 }
