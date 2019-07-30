@@ -16,6 +16,10 @@
     <dependencies>
         <dependency>
             <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-archive</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
             <artifactId>mtwilson-util-authz-token</artifactId>
         </dependency>
         <dependency>
