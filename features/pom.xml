@@ -17,8 +17,10 @@
         <module>mtwilson-configuration</module>
         <module>mtwilson-configuration-settings-ws-v2</module>
         <module>mtwilson-connection-string</module>
+        <module>mtwilson-core-data-bundle</module>
         <module>mtwilson-core-feature-inventory</module>
         <module>mtwilson-core-html5-login-token</module>
+        <module>mtwilson-core-jca-setup</module>
         <module>mtwilson-core-jetty9</module>
         <module>mtwilson-core-login-token</module>
         <module>mtwilson-core-setup</module>

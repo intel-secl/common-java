@@ -40,6 +40,7 @@
         <module>mtwilson-util-jetty9</module>
         <module>mtwilson-util-jooq</module>
         <module>mtwilson-util-jpa</module>
+        <module>mtwilson-util-json-path</module>
         <module>mtwilson-util-junit</module>
         <module>mtwilson-util-locale</module>
         <module>mtwilson-util-module</module>
