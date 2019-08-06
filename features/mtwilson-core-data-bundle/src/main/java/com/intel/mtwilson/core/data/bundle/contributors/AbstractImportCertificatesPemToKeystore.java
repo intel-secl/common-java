@@ -41,11 +41,11 @@ public abstract class AbstractImportCertificatesPemToKeystore implements Contrib
     /**
      * 
      * @param certificate
-     * @return sha-256 digest of the certificate; override to choose an alias some other way
+     * @return sha-384 digest of the certificate; override to choose an alias some other way
      * @throws CertificateEncodingException 
      */
     protected String getAlias(X509Certificate certificate) throws CertificateEncodingException {
-        return Digest.sha256().digest(certificate.getEncoded()).toHex();
+        return Digest.sha384().digest(certificate.getEncoded()).toHex();
     }
     
     @Override
