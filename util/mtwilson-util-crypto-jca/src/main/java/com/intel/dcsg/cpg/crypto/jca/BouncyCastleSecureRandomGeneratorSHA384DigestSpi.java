@@ -10,8 +10,6 @@ import java.security.SecureRandomSpi;
 import org.bouncycastle.crypto.digests.SHA384Digest;
 import org.bouncycastle.crypto.prng.DigestRandomGenerator;
 import org.bouncycastle.crypto.prng.ThreadedSeedGenerator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Uses BouncyCastle's DigestRandomGenerator with SHA384, and either Java's

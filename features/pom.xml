@@ -3,22 +3,24 @@
     
     <groupId>com.intel.mtwilson</groupId>
     <artifactId>mtwilson-maven-build-coreutil-features</artifactId>
-    <version>4.5-SNAPSHOT</version>
+    <version>4.6-SNAPSHOT</version>
     
     <packaging>pom</packaging>
     
     <parent>
         <groupId>com.intel.mtwilson</groupId>
         <artifactId>mtwilson-maven-build-coreutil-root</artifactId>
-        <version>4.5-SNAPSHOT</version>
+        <version>4.6-SNAPSHOT</version>
     </parent>
     
     <modules>
         <module>mtwilson-configuration</module>
         <module>mtwilson-configuration-settings-ws-v2</module>
         <module>mtwilson-connection-string</module>
+        <module>mtwilson-core-data-bundle</module>
         <module>mtwilson-core-feature-inventory</module>
         <module>mtwilson-core-html5-login-token</module>
+        <module>mtwilson-core-jca-setup</module>
         <module>mtwilson-core-jetty9</module>
         <module>mtwilson-core-login-token</module>
         <module>mtwilson-core-setup</module>

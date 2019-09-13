@@ -94,8 +94,8 @@ public class RsaPublicKeyProtectedPemKeyEnvelopeFactory {
     public PemKeyEncryption seal(Key secretKey) throws CryptographyException {
         try {
             Cipher cipher = Cipher.getInstance(algorithm); // NoSuchAlgorithmException, NoSuchPaddingException
-            if (algorithm.matches("RSA/ECB/OAEPWithSHA-256AndMGF1Padding")) {
-                OAEPParameterSpec oaepParams = new OAEPParameterSpec("SHA-256", "MGF1", new MGF1ParameterSpec("SHA-256"), PSource.PSpecified.DEFAULT);
+            if (algorithm.matches("RSA/ECB/OAEPWithSHA-384AndMGF1Padding")) {
+                OAEPParameterSpec oaepParams = new OAEPParameterSpec("SHA-384", "MGF1", new MGF1ParameterSpec("SHA-384"), PSource.PSpecified.DEFAULT);
                 cipher.init(Cipher.WRAP_MODE, publicKey, oaepParams);
             } else {
                 cipher.init(Cipher.WRAP_MODE, publicKey);

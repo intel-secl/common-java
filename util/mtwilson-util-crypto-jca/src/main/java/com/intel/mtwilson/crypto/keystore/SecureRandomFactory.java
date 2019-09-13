@@ -26,7 +26,7 @@ public class SecureRandomFactory {
         if( provider == null ) {
             Security.addProvider(new MtWilsonProvider());
         }
-        return SecureRandom.getInstance("SHA256PRNG", "MtWilson");
+        return SecureRandom.getInstance("SHA384PRNG", "MtWilson");
     }
     
 }

@@ -18,11 +18,8 @@
 # 1. Add epel-release-latest-7.noarch repository
 # 2. Install redhat-lsb-core and other redhat-specific packages
 # 3. Install tboot
-# 4. Install trousers and trousers-devel packages (current is trousers-0.3.13-1.el7.x86_64)
-# 5. Install the patched tpm-tools
-# 6. Add grub menu item for tboot and select as default
-# 7. Ask for reboot (only if we are not already in trusted boot)
-# 8. Start tcsd (it already has an init script for next boot, but we need it now)
+# 4. Add grub menu item for tboot and select as default
+# 5. Ask for reboot (only if we are not already in trusted boot)
 
 # source functions file
 if [ -f functions ]; then . functions; fi
@@ -39,13 +36,16 @@ detect_tpm_version() {
   if [[ -f "/sys/class/misc/tpm0/device/caps" || -f "/sys/class/tpm/tpm0/device/caps" ]]; then
     TPM_VERSION=1.2
   else
-  #  if [[ -f "/sys/class/tpm/tpm0/device/description" && `cat /sys/class/tpm/tpm0/device/description` == "TPM 2.0 Device" ]]; then
     TPM_VERSION=2.0
   fi
 }
 
 if [ -z "$TPM_VERSION" ]; then
   detect_tpm_version
+fi
+
+if [ "$TPM_VERSION" == "1.2" ]; then
+  exit 95
 fi
 
 ################################################################################
@@ -61,57 +61,12 @@ if yum_detect; then
 #  
 fi
 
-# 3. Install tboot
-# 4. Install trousers and trousers-devel packages (current is trousers-0.3.13-1.el7.x86_64)
-# 5. Install the patched tpm-tools
-
-# tpm 1.2
-is_tboot_installed() {
-  is_package_installed tboot
-}
-
-# tpm 1.2
-install_tboot() {
-  TRUSTAGENT_TBOOT_YUM_PACKAGES="tboot"
-  TRUSTAGENT_TBOOT_APT_PACKAGES="tboot"
-  TRUSTAGENT_TBOOT_YAST_PACKAGES="tboot"
-  TRUSTAGENT_TBOOT_ZYPPER_PACKAGES="tboot"
-  auto_install "tboot" "TRUSTAGENT_TBOOT"
-}
-
 install_openssl() {
   TRUSTAGENT_OPENSSL_YUM_PACKAGES="openssl openssl-devel"
   TRUSTAGENT_OPENSSL_APT_PACKAGES="openssl libssl-dev"
   TRUSTAGENT_OPENSSL_YAST_PACKAGES="openssl libopenssl-devel"
   TRUSTAGENT_OPENSSL_ZYPPER_PACKAGES="openssl libopenssl-devel libopenssl1_0_0 openssl-certs"
   auto_install "openssl" "TRUSTAGENT_OPENSSL" > /dev/null 2>&1
-}
-
-# tpm 1.2
-install_trousers() {
-  TRUSTAGENT_TROUSERS_YUM_PACKAGES="trousers trousers-devel"
-  TRUSTAGENT_TROUSERS_APT_PACKAGES="trousers trousers-dbg libtspi-dev libtspi1"
-  TRUSTAGENT_TROUSERS_YAST_PACKAGES="trousers trousers-devel"
-  TRUSTAGENT_TROUSERS_ZYPPER_PACKAGES="trousers trousers-devel"
-  auto_install "trousers" "TRUSTAGENT_TROUSERS" > /dev/null 2>&1
-}
-
-# tpm 1.2
-install_tpm_tools() {
-  TRUSTAGENT_TPMTOOLS_YUM_PACKAGES="tpm-tools"
-  TRUSTAGENT_TPMTOOLS_APT_PACKAGES="tpm-tools"
-  TRUSTAGENT_TPMTOOLS_YAST_PACKAGES="tpm-tools"
-  TRUSTAGENT_TPMTOOLS_ZYPPER_PACKAGES="tpm-tools"
-  auto_install "tpm-tools" "TRUSTAGENT_TPMTOOLS" > /dev/null 2>&1
-}
-
-# tpm 1.2
-install_patched_tpm_tools() {
-  local PATCHED_TPMTOOLS_BIN=`ls -1 patched-*.bin | head -n 1`
-  if [ -n "$PATCHED_TPMTOOLS_BIN" ]; then
-    chmod +x $PATCHED_TPMTOOLS_BIN
-    ./$PATCHED_TPMTOOLS_BIN
-  fi
 }
 
 # tpm 2.0
@@ -168,11 +123,7 @@ else
   install_tboot_tpm2
 fi
 
-if [ "$TPM_VERSION" == "1.2" ]; then
-  install_trousers
-  install_tpm_tools
-  #install_patched_tpm_tools
-elif [ "$TPM_VERSION" == "2.0" ]; then
+if [ "$TPM_VERSION" == "2.0" ]; then
   install_tss2_tpmtools2
 elif [ -z "$TPM_VERSION" ]; then
   echo "Cannot detect TPM version"
@@ -190,7 +141,7 @@ fi
 #       * Run "grub2-mkconfig -o /boot/grub2/grub.cfg" command
 #       ? Reboot the host server and make sure TXT is enabled and tboot boots correctly
 
-# 6. Add grub menu item for tboot and select as default
+# 4. Add grub menu item for tboot and select as default
 
 is_uefi_boot() {
   if [ -d /sys/firmware/efi ]; then
@@ -308,14 +259,6 @@ is_tpm_driver_loaded() {
   return 0
 }
 
-install_rsync() {
-  TRUSTAGENT_RSYNC_YUM_PACKAGES="rsync"
-  TRUSTAGENT_RSYNC_APT_PACKAGES="rsync"
-  TRUSTAGENT_RSYNC_YAST_PACKAGES="rsync"
-  TRUSTAGENT_RSYNC_ZYPPER_PACKAGES="rsync"
-  auto_install "rsync" "TRUSTAGENT_RSYNC" > /dev/null 2>&1
-}
-
 is_reboot_required() {
   local should_reboot=no
   
@@ -349,27 +292,6 @@ if is_reboot_required; then
     exit 255
 fi
 
-# 8. Start tcsd (it already has an init script for next boot, but we need it now)
-
-# tpm 1.2
-is_tcsd_running() {
-  local tcsd_pid=$(ps aux | grep tcsd | grep -v grep)
-  if [ -n "$tcsd_pid" ]; then
-    return 0
-  else
-    return 1
-  fi
-}
-
-# tpm 1.2
-start_tcsd() {
-  local tcsd_cmd=$(which tcsd 2>/dev/null)
-  if [ -n "$tcsd_cmd" ]; then
-    echo "starting tcsd"
-    tcsd
-  fi
-}
-
 # tpm 2.0
 is_tcsd2_running() {
   systemctl status tcsd2 >/dev/null 2>&1
@@ -379,13 +301,7 @@ start_tcsd2() {
   systemctl start tcsd2 >/dev/null 2>&1
 }
 
-if [ "$TPM_VERSION" == "1.2" ]; then
-  if is_tcsd_running; then
-    echo "tcsd already running"
-  else
-    start_tcsd
-  fi
-elif [ "$TPM_VERSION" == "2.0" ]; then
+if [ "$TPM_VERSION" == "2.0" ]; then
   if is_tcsd2_running; then
     echo "tcsd2 already running"
   else

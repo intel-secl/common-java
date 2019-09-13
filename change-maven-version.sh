@@ -45,6 +45,8 @@ if [ $? -ne 0 ]; then echo "Failed to change maven version at top level" >&2; ex
 if [ $? -ne 0 ]; then echo "Failed to change maven version on \"features\" folder" >&2; exit 3; fi
 sed -i 's/\(<version>\).*\(<\/version>\)/\1'${version}'\2/g' features/mtwilson-configuration-settings-ws-v2/feature.xml
 if [ $? -ne 0 ]; then echo "Failed to change version in \"features/mtwilson-configuration-settings-ws-v2/feature.xml\"" >&2; exit 3; fi
+sed -i 's/\(<version>\).*\(<\/version>\)/\1'${version}'\2/g' features/mtwilson-core-data-bundle/feature.xml
+if [ $? -ne 0 ]; then echo "Failed to change version in \"features/mtwilson-core-data-bundle/feature.xml\"" >&2; exit 3; fi
 sed -i 's/\(<version>\).*\(<\/version>\)/\1'${version}'\2/g' features/mtwilson-core-feature-inventory/feature.xml
 if [ $? -ne 0 ]; then echo "Failed to change version in \"features/mtwilson-core-feature-inventory/feature.xml\"" >&2; exit 3; fi
 sed -i 's/\(<version>\).*\(<\/version>\)/\1'${version}'\2/g' features/mtwilson-core-html5-login-token/feature.xml

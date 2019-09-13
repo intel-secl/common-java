@@ -35,6 +35,8 @@ public class CertifyKey20 {
     // We are using this OID as we could not find any specific OID for the certifyKey structure.
     public static final String TCG_STRUCTURE_CERTIFY_INFO_OID = "2.5.4.133.3.2.41";
     public static final String TCG_STRUCTURE_CERTIFY_INFO_SIGNATURE_OID = "2.5.4.133.3.2.41.1";
+    public static final String TCG_STRUCTURE_CERTIFY_INFO_ENC_SCHEME_OID = "2.5.4.133.3.2.41.2";
+
 
     public static boolean verifyTpmBindingKeyCertificate(X509Certificate keyCertificate, PublicKey aikPublicKey) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, TpmUtils.TpmBytestreamResouceException, TpmUtils.TpmUnsignedConversionException {
         /*
@@ -178,6 +180,50 @@ public class CertifyKey20 {
         }
 
     }
+
+    /**
+     * If you have an X.509 key certificate signed by Mt Wilson for a TPM binding key
+     * or signing key, use the {@code verifyTpmKeyCertificate()} function instead.
+     *
+     * This function validates the certify key against the specified signature using the AIK certificate that was used during the key certification.
+     * @param certifyKeyDataBlob
+     * @param certifyKeySignatureBlob
+     * @param aikPublicKey
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws NoSuchPaddingException
+     * @throws InvalidKeyException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     */
+    public static boolean isCertifiedKeySignatureValidWin(byte[] certifyKeyDataBlob, byte[] certifyKeySignatureBlob, PublicKey aikPublicKey)
+        throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, DecoderException {
+        byte[] oidPadding = Hex.decodeHex("3021300906052B0E03021A05000414".toCharArray()); //TpmUtils.hexStringToByteArray("3021300906052B0E03021A05000414");
+        try {
+
+            log.debug("Verifying the certify key signature against the AIK cert which signed it.");
+            Cipher cipher = Cipher.getInstance("RSA");
+            cipher.init(Cipher.DECRYPT_MODE, aikPublicKey);
+            byte[] signedDigest = cipher.doFinal(certifyKeySignatureBlob);
+            byte[] signedDigestWithoutOidPadding = Arrays.copyOfRange(signedDigest, oidPadding.length, signedDigest.length);
+            byte[] computedDigest = Sha1Digest.digestOf(certifyKeyDataBlob).toByteArray();
+
+            log.debug("Verifying the signed digest {} against the computed digest {}",
+                Hex.encodeHexString(signedDigestWithoutOidPadding),
+                Hex.encodeHexString(computedDigest));
+
+            boolean result = Arrays.equals( signedDigestWithoutOidPadding, computedDigest );
+
+            log.debug("Result of signature verification is {}", result);
+
+            return result;
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException ex) {
+            log.error("Error during signature verification. {}", ex.getMessage());
+            throw ex;
+        }
+
+    }
+
 
     public static boolean isBindingKey(TpmCertifyKey20 certifiedKey) {
         byte[] TPM_GENERATED = {(byte) 0xff, (byte) 0x54, (byte) 0x43, (byte) 0x47};
