@@ -26,6 +26,7 @@ public class CryptoMediaType {
     public static final String APPLICATION_SAML = "application/samlassertion+xml";
 
     // certificate and key exchange formats
+    public static final String APPLICATION_JWT = "application/jwt";
     public static final String APPLICATION_X_PEM_FILE = "application/x-pem-file";   // .pem 
     public static final String APPLICATION_PKCS12 = "application/x-pkcs12"; // .p12   .pfx
     public static final String APPLICATION_PKIX_CERT = "application/pkix-cert"; // http://tools.ietf.org/search/rfc2585  mime type for X509 certificate .cer or .crt DER-encoded
