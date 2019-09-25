@@ -158,7 +158,6 @@ public class CMSClient extends MtWilsonClient {
                 .path("/certificates")
                 .queryParam("certType", certificateType)
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + super.getConfiguration().get("bearer.token"))
                 .accept(CryptoMediaType.APPLICATION_X_PEM_FILE)
                 .post(Entity.entity(csr, CryptoMediaType.APPLICATION_X_PEM_FILE), X509Certificate.class);
         return certificate;
