@@ -27,11 +27,23 @@
         </dependency>
         <dependency>
             <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-jaxrs2-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
             <artifactId>mtwilson-util-console</artifactId>
         </dependency>
         <dependency>
             <groupId>com.intel.mtwilson.util</groupId>
             <artifactId>mtwilson-util-extensions</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-tls-policy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.services</groupId>
+            <artifactId>mtwilson-shiro-util</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

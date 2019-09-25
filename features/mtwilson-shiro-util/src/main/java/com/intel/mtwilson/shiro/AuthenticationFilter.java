@@ -103,10 +103,12 @@ public abstract class AuthenticationFilter extends PathMatchingFilter {
         try {
             if( isAuthenticationRequest(request) ) {
                 log.debug("Detected authentication request for {}", getClass().getName());
-                if( authenticate(request, response, mappedValue) ) {
-                    log.debug("Authentication ok");
-                    return true;
-                }
+            } else {
+                log.debug("Invalid authentication request detected for {}", getClass().getName());
+            }
+            if( authenticate(request, response, mappedValue) ) {
+                log.debug("Authentication ok");
+                return true;
             }
             if( isPermissive() ) {
                 // in permissive mode we let the request continue (default true) - a "user" filter later on or an authorization check will stop the request if it cannot continue without being authenticated

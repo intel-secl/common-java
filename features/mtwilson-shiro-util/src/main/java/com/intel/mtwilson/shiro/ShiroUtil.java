@@ -82,11 +82,11 @@ public class ShiroUtil {
         File[] jwtCertFilesList = new File(trustedJwtCertDirName).listFiles();
         Certificate jwtSigningCertX509;
         String certHash;
-        if (jwtCertFilesList == null) {
+        if (jwtCertFilesList == null || jwtCertFilesList.length == 0) {
             fetchJWTSigningCertificate(propertiesFile);
             jwtCertFilesList = new File(trustedJwtCertDirName).listFiles();
         }
-        if (jwtCertFilesList != null && kidPubKeyMap.isEmpty()) {
+        if (jwtCertFilesList != null && jwtCertFilesList.length > 0 && kidPubKeyMap.isEmpty()) {
             for (final File jwtCertFile : jwtCertFilesList) {
                 jwtSigningCertX509 = readCertificateFromFile(jwtCertFile.toString());
                 try {
@@ -107,9 +107,10 @@ public class ShiroUtil {
         if (caCertX509 == null) {
             log.debug("Could not find CA certificate. Downloading from CMS...");
             caCertX509 = fetchCMSCACertificate(propertiesFile);
-            if (caCertX509 == null)
+            if (caCertX509 == null) {
                 log.error("Error fetching CA Certificate from CMS");
                 return false;
+            }
         }
         Jws<Claims> claims = null;
         int noOfRetries = 0;
@@ -163,12 +164,12 @@ public class ShiroUtil {
 
             certHash = DatatypeConverter.printHexBinary(MessageDigest.getInstance("SHA-1").digest(
                     jwtSigningCertificate.getEncoded())).toLowerCase();
-
             kidPubKeyMap.put(certHash, jwtSigningCertificate);
 
             PemWriter writer = new PemWriter(new FileWriter(trustedJwtCertDirName + "/jwt-" + certHash.substring(0, 10) + ".pem"));
             writer.writeObject(new PemObject("CERTIFICATE", jwtSigningCertificate.getEncoded()));
             writer.close();
+            log.debug("JWT signing certificate downloaded");
         } catch (CertificateEncodingException | NoSuchAlgorithmException exc) {
             log.error("Error getting encoded certificate from AAS: {}", exc.getMessage());
             throw new AuthenticationException("Error getting encoded certificate");
@@ -192,6 +193,7 @@ public class ShiroUtil {
             PemWriter writer = new PemWriter(new FileWriter(trustedCAFile));
             writer.writeObject(new PemObject("CERTIFICATE", cmsCACertificate.getEncoded()));
             writer.close();
+            log.debug("CMS CA certificate downloaded");
             return cmsCACertificate;
         } catch (IOException exc) {
             log.error("Error loading configuration from properties file: {}", exc.getMessage());
@@ -209,10 +211,10 @@ public class ShiroUtil {
         return parser.parse(tokenWithoutSignature);
     }
 
-    public Certificate readCertificateFromFile(String jwtCertDir) {
+    public Certificate readCertificateFromFile(String certFile) {
         Certificate certX509 = null;
         try {
-            String cert = new String(Files.readAllBytes(Paths.get(jwtCertDir)));
+            String cert = new String(Files.readAllBytes(Paths.get(certFile)));
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
             certX509 = cf.generateCertificate(new ByteArrayInputStream(cert.getBytes()));
         } catch (IOException exc) {

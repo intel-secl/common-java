@@ -45,8 +45,6 @@ public class JWTSignatureMatcher implements CredentialsMatcher {
 
     @Override
     public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) {
-        log.debug("doCredentialsMatch with token {}", token.getCredentials());
-        log.debug("PropertiesFile: {}", getPropertiesFile());
         return new ShiroUtil().verifyJWTToken(token.getCredentials().toString(), getPropertiesFile());
     }
 }
