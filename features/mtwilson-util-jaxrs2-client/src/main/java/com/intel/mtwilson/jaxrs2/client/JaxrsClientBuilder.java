@@ -28,6 +28,7 @@ import javax.ws.rs.client.WebTarget;
 import org.glassfish.jersey.filter.LoggingFilter;
 import com.intel.mtwilson.MyConfiguration;
 import com.intel.mtwilson.jaxrs2.feature.JacksonFeature;
+import com.intel.mtwilson.security.http.jaxrs.JwtAuthorizationFilter;
 import com.intel.mtwilson.security.http.jaxrs.TokenAuthorizationFilter;
 import com.intel.mtwilson.util.crypto.keystore.PasswordKeyStore;
 import java.io.FileNotFoundException;
@@ -218,6 +219,13 @@ public class JaxrsClientBuilder {
         if (tokenValue != null) {
             log.debug("Registering TOKEN value {}", tokenValue);
             clientConfig.register(new TokenAuthorizationFilter(tokenValue));
+        }
+
+        // JWT authorization will only be registered if configuration is present but also the feature itself will only add an Authorization header if there isn't already one present
+        Password bearerToken = getPassword("bearer.token");
+        if (bearerToken != null) {
+            log.debug("Registering JWT value {}", bearerToken);
+            clientConfig.register(new JwtAuthorizationFilter(bearerToken));
         }
     }
 
