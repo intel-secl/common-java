@@ -402,6 +402,14 @@ public class MyConfiguration {
         return conf.getString("mtwilson.tag.api.password");
     }
 
+    public String getMtwilsonAdminUsername() {
+        return conf.getString("mc.first.username");
+    }
+
+    public String getMtwilsonAdminPassword() {
+        return conf.getString("mc.first.password");
+    }
+
     public URL getMtWilsonURL() throws MalformedURLException {
         return new URL(conf.getString("mtwilson.api.url", conf.getString("mtwilson.api.baseurl", "https://127.0.0.1:8181")));
     }
