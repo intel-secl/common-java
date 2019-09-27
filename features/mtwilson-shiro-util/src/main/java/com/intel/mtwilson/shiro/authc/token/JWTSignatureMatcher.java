@@ -35,16 +35,8 @@ public class JWTSignatureMatcher implements CredentialsMatcher {
         this.trustedCACertDir = trustedCACertDir;
     }
 
-    public String getPropertiesFile() {
-        return propertiesFile;
-    }
-
-    public void setPropertiesFile(String propertiesFile) {
-        this.propertiesFile = propertiesFile;
-    }
-
     @Override
     public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) {
-        return new ShiroUtil().verifyJWTToken(token.getCredentials().toString(), getPropertiesFile());
+        return new ShiroUtil().verifyJWTToken(token.getCredentials().toString());
     }
 }
