@@ -84,6 +84,7 @@ public class JettyTlsKeystore extends AbstractSetupTask {
     public static final String JAVAX_NET_SSL_KEYSTORE = "javax.net.ssl.keyStore";
     public static final String JAVAX_NET_SSL_KEYSTORETYPE = "javax.net.ssl.keyStoreType";
     public static final String JAVAX_NET_SSL_KEYSTOREPASSWORD = "javax.net.ssl.keyStorePassword";
+    public static final String KEYSTORE_PASSWORD = "keystore.password";
     public static final String ENDPOINT_URL = "endpoint.url";
     public static final String CSR_ALGORITHM = "SHA384WithRSA";
 
@@ -99,7 +100,7 @@ public class JettyTlsKeystore extends AbstractSetupTask {
     private int keyLength;
     public String username;
     public String password;
-    private String aasApiUrl;
+    public String aasApiUrl;
     private String cmsBaseUrl;
 
     @Override
@@ -337,7 +338,7 @@ public class JettyTlsKeystore extends AbstractSetupTask {
         }
 
         // save the settings in configuration
-        //getConfiguration().set(JAVAX_NET_SSL_KEYSTORE, keystoreFile.getAbsolutePath());
+        getConfiguration().set(KEYSTORE_PASSWORD, new String(keystorePassword.toCharArray()));
         config.set(JETTY_TLS_CERT_DN, dn);
         if( ip != null ) {
             config.set(JETTY_TLS_CERT_IP, StringUtils.join(ip, ","));
