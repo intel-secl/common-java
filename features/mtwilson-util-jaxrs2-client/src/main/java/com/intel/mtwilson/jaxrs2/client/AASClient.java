@@ -57,7 +57,7 @@ public class AASClient extends MtWilsonClient{
      * </xmp></pre></div>
      */
     public String getToken(UserCredential credential) {
-        log.info("target: {}", getTarget().getUri().toString());
+        log.debug("target: {}", getTarget().getUri().toString());
         String token = getTarget()
                 .path("/token")
                 .request()
@@ -113,7 +113,7 @@ public class AASClient extends MtWilsonClient{
      * </xmp></pre></div>
      */
     public X509Certificate getJwtSigningCertificate() {
-        log.info("target: {}", getTarget().getUri().toString());
+        log.debug("target: {}", getTarget().getUri().toString());
         X509Certificate certificate = getTarget()
                 .path("/noauth/jwt-certificates")
                 .request()

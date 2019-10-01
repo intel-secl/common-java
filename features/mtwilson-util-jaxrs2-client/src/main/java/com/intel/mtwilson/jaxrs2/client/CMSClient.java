@@ -70,7 +70,7 @@ public class CMSClient extends MtWilsonClient {
      * </xmp></pre></div>
      */
     public X509Certificate getCACertificate() {
-        log.info("target: {}", getTarget().getUri().toString());
+        log.debug("target: {}", getTarget().getUri().toString());
         X509Certificate cmsCertificate = getTarget()
                 .path("/ca-certificates")
                 .request()
@@ -153,7 +153,7 @@ public class CMSClient extends MtWilsonClient {
      */
 
     public X509Certificate getCertificate(String csr, String certificateType) {
-        log.info("target: {}", getTarget().getUri().toString());
+        log.debug("target: {}", getTarget().getUri().toString());
         X509Certificate certificate = getTarget()
                 .path("/certificates")
                 .queryParam("certType", certificateType)

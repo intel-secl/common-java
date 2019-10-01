@@ -607,6 +607,10 @@ public class MyConfiguration {
         return findConfigurationFile(conf.getString("mtwilson.privacyca.aik.cacerts.file", "PrivacyCA.pem")); // list of all approved aik signing certificates from this server and other servers
     }
 
+    public File getTruststoreFile() {
+        return findConfigurationFile(conf.getString("truststore.file", "truststore.p12"));
+    }
+
     public File getPrivacyCaIdentityP12() {
         return findConfigurationFile(conf.getString("mtwilson.privacyca.aik.p12.file", "PrivacyCA.p12")); // ek signing certificate
     }
