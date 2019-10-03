@@ -243,8 +243,8 @@ public class JettyTlsKeystore extends AbstractSetupTask {
         JCApemWriter1.writeObject(tlscertrequest);
         JCApemWriter1.close();
         String csrString = stringWriter1.toString();
-        X509Certificate certificate = null;
-
+        X509Certificate[] certificate = null;
+        X509Certificate tlsCertificate = null;
         try {
             /**
              * add the cms ca certificate to truststore. password(changeit) need to be
@@ -283,11 +283,18 @@ public class JettyTlsKeystore extends AbstractSetupTask {
             File tlsCertFile = new File(tlsCertPath);
             FileWriter fileWriter = new FileWriter(tlsCertFile);
             JcaPEMWriter pemWriter = new JcaPEMWriter(fileWriter);
-            pemWriter.writeObject(certificate);
+            for(X509Certificate cert : certificate) {
+                pemWriter.writeObject(cert);
+            }
             pemWriter.close();
 
             FileOutputStream fout1 = new FileOutputStream(trustStoreFile, false);
-            keystore.setCertificateEntry("tls", certificate);
+            tlsCertificate = certificate[0];
+            keystore.setCertificateEntry("tls", tlsCertificate);
+            for(int i=1; i < certificate.length; i++) {
+                keystore.setCertificateEntry("tls-ca-" + i, certificate[i]);
+            }
+
             keystore.store(fout1, password);
         } catch (IOException ex) {
             log.debug("exception while updating tls.cert/truststore {}", ex.getMessage());
@@ -307,10 +314,11 @@ public class JettyTlsKeystore extends AbstractSetupTask {
         if( propertiesFile.exists() ) {
             properties.load(new StringReader(FileUtils.readFileToString(propertiesFile, Charset.forName("UTF-8"))));
         }
-        properties.setProperty("tls.cert.md5", Md5Digest.digestOf(certificate.getEncoded()).toString());
-        properties.setProperty("tls.cert.sha1", Sha1Digest.digestOf(certificate.getEncoded()).toString());
-        properties.setProperty("tls.cert.sha256", Sha256Digest.digestOf(certificate.getEncoded()).toString());
-        properties.setProperty("tls.cert.sha384", Sha384Digest.digestOf(certificate.getEncoded()).toString());
+
+        properties.setProperty("tls.cert.md5", Md5Digest.digestOf(tlsCertificate.getEncoded()).toString());
+        properties.setProperty("tls.cert.sha1", Sha1Digest.digestOf(tlsCertificate.getEncoded()).toString());
+        properties.setProperty("tls.cert.sha256", Sha256Digest.digestOf(tlsCertificate.getEncoded()).toString());
+        properties.setProperty("tls.cert.sha384", Sha384Digest.digestOf(tlsCertificate.getEncoded()).toString());
         StringWriter writer = new StringWriter();
         properties.store(writer, String.format("updated on %s", Iso8601Date.format(new Date())));
         FileUtils.write(propertiesFile, writer.toString(), Charset.forName("UTF-8"));
@@ -330,8 +338,7 @@ public class JettyTlsKeystore extends AbstractSetupTask {
                 keystore.remove(alias);
             }
             // store it in the keystore
-            keystore.set(TLS_ALIAS, keypair.getPrivate(), new Certificate[] { cmsCACert});
-            keystore.set(TLS_ALIAS, keypair.getPrivate(), new Certificate[] {certificate});
+            keystore.set(TLS_ALIAS, keypair.getPrivate(), certificate);
         }
         catch(KeyStoreException e) {
             log.debug("Cannot remove existing tls keypair", e);
@@ -435,7 +442,7 @@ public class JettyTlsKeystore extends AbstractSetupTask {
         return new String[]{"localhost"};
     }
 
-    private X509Certificate getCMSSignedCertificate(String csrString, String keystore, char[] password) throws Exception {
+    private X509Certificate[] getCMSSignedCertificate(String csrString, String keystore, char[] password) throws Exception {
         try {
             String str = new String(password);
             TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(keystore, str).build();

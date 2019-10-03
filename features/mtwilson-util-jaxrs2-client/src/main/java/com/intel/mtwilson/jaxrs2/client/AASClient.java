@@ -112,13 +112,13 @@ public class AASClient extends MtWilsonClient{
      *   X509Certificate jwtSigningCert = aasClient.getJwtSigningCertificate();
      * </xmp></pre></div>
      */
-    public X509Certificate getJwtSigningCertificate() {
+    public X509Certificate[] getJwtSigningCertificate() {
         log.debug("target: {}", getTarget().getUri().toString());
-        X509Certificate certificate = getTarget()
+        X509Certificate[] certificate = getTarget()
                 .path("/noauth/jwt-certificates")
                 .request()
                 .accept(CryptoMediaType.APPLICATION_X_PEM_FILE)
-                .get(X509Certificate.class);
+                .get(X509Certificate[].class);
         return certificate;
     }
 

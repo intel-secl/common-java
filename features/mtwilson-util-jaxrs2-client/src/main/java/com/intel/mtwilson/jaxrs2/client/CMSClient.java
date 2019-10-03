@@ -5,11 +5,14 @@
 package com.intel.mtwilson.jaxrs2.client;
 
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
+import com.intel.dcsg.cpg.x509.X509Util;
 import com.intel.mtwilson.jaxrs2.mediatype.CryptoMediaType;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.HttpHeaders;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -152,14 +155,14 @@ public class CMSClient extends MtWilsonClient {
      * </xmp></pre></div>
      */
 
-    public X509Certificate getCertificate(String csr, String certificateType) {
+    public X509Certificate[] getCertificate(String csr, String certificateType) throws CertificateException {
         log.debug("target: {}", getTarget().getUri().toString());
-        X509Certificate certificate = getTarget()
+        X509Certificate[] certificates = getTarget()
                 .path("/certificates")
                 .queryParam("certType", certificateType)
                 .request()
                 .accept(CryptoMediaType.APPLICATION_X_PEM_FILE)
-                .post(Entity.entity(csr, CryptoMediaType.APPLICATION_X_PEM_FILE), X509Certificate.class);
-        return certificate;
+                .post(Entity.entity(csr, CryptoMediaType.APPLICATION_X_PEM_FILE), X509Certificate[].class);
+        return certificates;
     }
 }

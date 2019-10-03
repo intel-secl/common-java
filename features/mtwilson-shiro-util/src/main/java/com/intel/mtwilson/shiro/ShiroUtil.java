@@ -6,11 +6,9 @@ package com.intel.mtwilson.shiro;
 
 import java.io.*;
 import java.net.URL;
-import java.security.KeyStore;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
+import java.security.*;
 import java.security.cert.*;
+import java.security.cert.Certificate;
 import java.util.*;
 
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
@@ -41,6 +39,7 @@ public class ShiroUtil {
     private static final String CMS_BASE_URL_ENV = "cms.base.url";
     private static Map<String, Certificate> kidPubKeyMap = new HashMap<>();
     private static ArrayList<Certificate> caCertList = new ArrayList<>();
+    private static ArrayList<Certificate> intermediateCaCertList = new ArrayList<>();
     private static ArrayList<Certificate> jwtSigningCertificateList = new ArrayList<>();
     private final String trustStoreFileName = Folders.configuration() + "/truststore";
 
@@ -117,12 +116,14 @@ public class ShiroUtil {
                     if (jwtSigningCert != null) {
                         log.debug("JWT token kid: {}", jwtKid);
                         claims = Jwts.parser().setSigningKey(jwtSigningCert.getPublicKey()).parseClaimsJws(jwtToken);
-                        jwtSigningCert.verify(caCertList.iterator().next().getPublicKey());
+                        if (intermediateCaCertList.isEmpty())
+                            intermediateCaCertList = loadCertificatesFromTrustStore("intermediate-ca-cert");
+                        PKIXCertPathBuilderResult certPath =  verifyCertificateChain(jwtSigningCert, caCertList, intermediateCaCertList);
                         break;
                     } else {
                         throw new CertificateException("Certificate not found");
                     }
-                } catch (SignatureException | CertificateException exc) {
+                } catch (CertificateException exc) {
                     noOfRetries++;
                     if (noOfRetries == 2)
                         throw new AuthenticationException("JWT token/JWT Signing Certificate is invalid: ", exc);
@@ -142,20 +143,28 @@ public class ShiroUtil {
     private void fetchJWTSigningCertificate() {
         log.debug("Downloading JWT Signing certificate from AAS..");
         String certHash;
-        X509Certificate jwtSigningCertificate;
+        X509Certificate[] jwtSigningCertificateChain;
         try {
             String aasApiUrl = ConfigurationFactory.getConfiguration().get(AAS_API_URL_ENV);
             AASClient client = new AASClient(new Properties(),
                     new TlsConnection(new URL(aasApiUrl), TlsPolicyBuilder.factory().insecure().build()));
 
-            jwtSigningCertificate = client.getJwtSigningCertificate();
+            jwtSigningCertificateChain = client.getJwtSigningCertificate();
 
-            certHash = DatatypeConverter.printHexBinary(MessageDigest.getInstance("SHA-1").digest(
-                    jwtSigningCertificate.getEncoded())).toLowerCase();
-            kidPubKeyMap.put(certHash, jwtSigningCertificate);
-            jwtSigningCertificateList.add(jwtSigningCertificate);
-            storeCertificate(jwtSigningCertificate, "jwt-signing-cert-" + getCertificateHash(jwtSigningCertificate));
-            log.debug("JWT signing certificate downloaded");
+            if(jwtSigningCertificateChain != null && jwtSigningCertificateChain.length > 0) {
+                X509Certificate jwtSigningCertificate = jwtSigningCertificateChain[0];
+                certHash = DatatypeConverter.printHexBinary(MessageDigest.getInstance("SHA-1").digest(
+                        jwtSigningCertificate.getEncoded())).toLowerCase();
+                kidPubKeyMap.put(certHash, jwtSigningCertificate);
+                jwtSigningCertificateList.add(jwtSigningCertificate);
+                storeCertificate(jwtSigningCertificate, "jwt-signing-cert-" +
+                        getCertificateHash(jwtSigningCertificate));
+                for (int certIndex = 1; certIndex < jwtSigningCertificateChain.length; certIndex++ )
+                    storeCertificate(jwtSigningCertificateChain[certIndex], "intermediate-ca-cert" + getCertificateHash(jwtSigningCertificateChain[certIndex]));
+                log.debug("JWT signing certificate downloaded");
+            } else {
+                throw new AuthenticationException("Could not fetch JWT signing certificates");
+            }
         } catch (CertificateEncodingException | NoSuchAlgorithmException exc) {
             log.error("Error getting encoded certificate from AAS: {}", exc.getMessage());
             throw new AuthenticationException("Error getting encoded certificate");
@@ -172,10 +181,11 @@ public class ShiroUtil {
         log.debug("Downloading CA certificate from CMS...");
         try {
             CMSClient cmsClient = new CMSClient(new Properties(),
-                    new TlsConnection(new URL(ConfigurationFactory.getConfiguration().get(CMS_BASE_URL_ENV)), TlsPolicyBuilder.factory().insecure().build()));
+                    new TlsConnection(new URL(ConfigurationFactory.getConfiguration().get(CMS_BASE_URL_ENV)),
+                            TlsPolicyBuilder.factory().insecure().build()));
             X509Certificate cmsCACertificate = cmsClient.getCACertificate();
             log.debug("CMS CA certificate downloaded");
-            storeCertificate(cmsCACertificate, "cmsca");;
+            storeCertificate(cmsCACertificate, "cmsca");
         } catch (IOException exc) {
             log.error("Error loading configuration from properties file: {}", exc.getMessage());
             throw new AuthenticationException("Error loading configuration from properties file");
@@ -247,6 +257,35 @@ public class ShiroUtil {
             keystoreFIS.close();
         }
         return keyStore;
+    }
+
+    private static PKIXCertPathBuilderResult verifyCertificateChain(
+            Certificate cert, ArrayList<Certificate> trustedRootCerts,
+            ArrayList<Certificate> intermediateCerts) throws GeneralSecurityException, InvalidParameterException {
+
+        X509CertSelector selector = new X509CertSelector();
+        selector.setCertificate((X509Certificate) cert);
+
+        // Create the trust anchors (set of root CA certificates)
+        Set<TrustAnchor> trustAnchors = new HashSet<>();
+        for (Certificate trustedRootCert : trustedRootCerts) {
+            trustAnchors.add(new TrustAnchor((X509Certificate)trustedRootCert, null));
+        }
+
+        PKIXBuilderParameters pkixParams = new PKIXBuilderParameters(trustAnchors, selector);
+
+        // Disable CRL checks (this is done manually as additional step)
+        //TODO can be removed when CRL feature is used
+        pkixParams.setRevocationEnabled(false);
+
+        // Specify a list of intermediate certificates
+        CertStore intermediateCertStore = CertStore.getInstance("Collection",
+                new CollectionCertStoreParameters(intermediateCerts));
+        pkixParams.addCertStore(intermediateCertStore);
+
+        // Build and verify the certification chain
+        CertPathBuilder builder = CertPathBuilder.getInstance("PKIX");
+        return (PKIXCertPathBuilderResult) builder.build(pkixParams);
     }
 
 }
