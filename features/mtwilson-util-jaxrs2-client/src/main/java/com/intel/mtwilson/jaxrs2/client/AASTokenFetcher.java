@@ -5,23 +5,17 @@
 package com.intel.mtwilson.jaxrs2.client;
 
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
-import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
 import com.intel.mtwilson.jaxrs2.UserCredential;
 
-import java.net.URL;
 import java.util.Properties;
 
 /**
  * @author rawatar
  */
 public class AASTokenFetcher {
-    private final static org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AASTokenFetcher.class);
 
-    public String getAASToken(String aasApiUrl, String username, String password) throws Exception {
-        log.debug("Using AAS API URL to fetch token - {}", aasApiUrl);
-        TlsConnection tlsConnection = new TlsConnection(new URL(aasApiUrl), new InsecureTlsPolicy());
-        Properties clientConfiguration = new Properties();
-        AASClient aasClient = new AASClient(clientConfiguration, tlsConnection);
+    public String getAASToken(String username, String password, TlsConnection tlsConnection) throws Exception {
+        AASClient aasClient = new AASClient(new Properties(), tlsConnection);
         UserCredential credential = new UserCredential();
         credential.setUsername(username);
         credential.setPassword(password);
