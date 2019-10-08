@@ -181,7 +181,6 @@ public class JettyTlsKeystore extends AbstractSetupTask {
         KeyPair keypair = RsaUtil.generateRsaKeyPair(keyLength);
         TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().insecure().build();
         properties.setProperty("cms.base.url", cmsBaseUrl);
-        properties.setProperty("bearer.token", new AASTokenFetcher().getAASToken(aasApiUrl, username, password));
         PKCS10CertificationRequestBuilder p10Builder = new JcaPKCS10CertificationRequestBuilder(
                 new X500Principal(dn), keypair.getPublic());
         final List<ASN1Encodable> subjectAlternativeNames = new ArrayList<ASN1Encodable>();
@@ -272,6 +271,9 @@ public class JettyTlsKeystore extends AbstractSetupTask {
 
             ///Now use this truststore to get TLS Certificate
             ///Retrieve the certificate from CMS.
+            tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustStorePath, "changeit").build();
+            properties.setProperty("bearer.token", new AASTokenFetcher().getAASToken(username, this.password,
+                    new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
             certificate = getCMSSignedCertificate(csrString, trustStorePath, password);
             if( certificate == null ) {
                 throw new IOException("Cannot create TLS certificate");
