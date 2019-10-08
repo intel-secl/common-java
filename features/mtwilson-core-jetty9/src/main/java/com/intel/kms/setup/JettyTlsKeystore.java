@@ -272,6 +272,11 @@ public class JettyTlsKeystore extends AbstractSetupTask {
             ///Now use this truststore to get TLS Certificate
             ///Retrieve the certificate from CMS.
             tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustStorePath, "changeit").build();
+            try {
+                new AASTokenFetcher().getAASToken(username, this.password, new TlsConnection(new URL(aasApiUrl), tlsPolicy));
+            } catch (Exception e) {
+                // First API call fails, hence ignore
+            }
             properties.setProperty("bearer.token", new AASTokenFetcher().getAASToken(username, this.password,
                     new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
             certificate = getCMSSignedCertificate(csrString, trustStorePath, password);
