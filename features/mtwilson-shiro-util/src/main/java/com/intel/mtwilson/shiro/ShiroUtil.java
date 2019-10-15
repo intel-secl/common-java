@@ -259,7 +259,7 @@ public class ShiroUtil {
         return keyStore;
     }
 
-    private static PKIXCertPathBuilderResult verifyCertificateChain(
+    public static PKIXCertPathBuilderResult verifyCertificateChain(
             Certificate cert, ArrayList<Certificate> trustedRootCerts,
             ArrayList<Certificate> intermediateCerts) throws GeneralSecurityException, InvalidParameterException {
 
