@@ -52,7 +52,7 @@ fi
 
 if yum_detect; then
   # 1. Add epel-release-latest-7.noarch repository
-  add_package_repository https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+  add_package_repository https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
   # 2. Install redhat-lsb-core and other redhat-specific packages
   yum -y install redhat-lsb libvirt net-tools > /dev/null 2>&1
   yum -y install grub2-efi-modules > /dev/null 2>&1
@@ -109,19 +109,15 @@ install_tss2_tpmtools2() {
   #install tpm2-tss, tpm2-tools for tpm2
   # (do not install trousers and its dev packages for tpm 2.0)
 #  ./mtwilson-trustagent-tpm2-packages-*.bin
-    yum -y install tpm2-tools-3.0.*
-    if [ $? -ne 0 ]; then echo_failure "Failed to install tpm2-tools version 3.0.* through package installer"; exit 1; fi
+    yum -y install tpm2-tools-3.*
+    if [ $? -ne 0 ]; then echo_failure "Failed to install tpm2-tools version 3.* through package installer"; exit 1; fi
     service tcsd2 stop >/dev/null 2>&1
     service tpm2-abrmd start >/dev/null 2>&1
 }
 
 install_openssl
 
-if is_tboot_installed; then
-  echo "tboot already installed"
-else
-  install_tboot_tpm2
-fi
+install_tboot_tpm2
 
 if [ "$TPM_VERSION" == "2.0" ]; then
   install_tss2_tpmtools2
@@ -286,9 +282,6 @@ is_reboot_required() {
 }
 
 if is_reboot_required; then
-    echo
-    echo "Trust Agent: A reboot is required. Please reboot and run installer again."
-    echo
     exit 255
 fi
 
