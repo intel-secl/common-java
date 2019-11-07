@@ -15,6 +15,7 @@ import com.intel.mtwilson.shiro.file.model.UserPassword;
 import com.intel.mtwilson.shiro.file.model.UserPermission;
 import com.intel.mtwilson.crypto.password.PasswordUtil;
 import com.intel.mtwilson.shiro.file.UserEventHook;
+import com.intel.mtwilson.shiro.file.UserEventHook2;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -93,6 +94,7 @@ public class Password implements Command {
         File userFile = new File(Folders.configuration()+File.separator+"users.txt");
         File permissionFile = new File(Folders.configuration()+File.separator+"permissions.txt");
         List<UserEventHook> hooks = Extensions.findAll(UserEventHook.class);
+        List<UserEventHook2> hooks2 = Extensions.findAll(UserEventHook2.class);
         
         // store or replace the user record
         log.debug("Loading users and permissions");
@@ -126,6 +128,16 @@ public class Password implements Command {
         String username = args[0];
         
         if( options.getBoolean("remove",false) ) {
+
+            for (UserEventHook2 hook : hooks2) {
+                try {
+                    hook.beforeDeleteUser(username);
+                } catch (Throwable e) {
+                    log.error("A plugin failed on event beforeDeleteUser: {}", hook.getClass().getName());
+                    log.debug("caught error on beforeDeleteUser from UserEventHook2 class {}", hook.getClass().getName(), e);
+                }
+            }
+
             removeUser(username);
             removePermissions(username);
             log.info("Removed username {}", username);
@@ -138,13 +150,22 @@ public class Password implements Command {
             return;
         }
         
-        String password = getPassword(args); // never returns null but password may be empty 
+        String password = getPassword(args); // never returns null but password may be empty
+
+        for (UserEventHook2 hook : hooks2) {
+            try {
+                hook.beforeCreateUser(username, password.toCharArray());
+            } catch (Throwable e) {
+                log.error("A plugin failed on event beforeCreateUser: {}", hook.getClass().getName());
+                log.debug("caught error on beforeCreateUser from UserEventHook2 class {}", hook.getClass().getName(), e);
+            }
+        }
         
         // create the new user record
         UserPassword userPassword = new UserPassword();
         userPassword.setAlgorithm("SHA384");
-        userPassword.setIterations(1);
-        userPassword.setSalt(RandomUtil.randomByteArray(8));
+        userPassword.setIterations(100000); // OWASP 2015 and NIST 2016 guidelines recommend minimum 10,000 ; our user operations that require password are low-frequency so we use 100,000
+        userPassword.setSalt(RandomUtil.randomByteArray(8)); // specification suggests 64-bit salt for 50% collision chance at 2^32, we have doubled it to 128 bits
         byte[] hashedPassword = PasswordUtil.hash(password.getBytes(Charset.forName("UTF-8")), userPassword);
         userPassword.setUsername(username);
         userPassword.setPasswordHash(hashedPassword);  
@@ -152,8 +173,21 @@ public class Password implements Command {
         dao.createUser(userPassword);
         
         //Hook for creating KMS User Profile  
-        for(UserEventHook hook: hooks){
-            hook.afterCreateUser(username); 
+        for (UserEventHook hook : hooks) {
+            try {
+                hook.afterCreateUser(username);
+            } catch (Throwable e) {
+                log.error("A plugin failed on event afterCreateUser: {}", hook.getClass().getName());
+                log.debug("caught error on afterCreateUser from UserEventHook class {}", hook.getClass().getName(), e);
+            }
+        }
+        for (UserEventHook2 hook : hooks2) {
+            try {
+                hook.afterCreateUser(username, password.toCharArray());
+            } catch (Throwable e) {
+                log.error("A plugin failed on event afterCreateUser: {}", hook.getClass().getName());
+                log.debug("caught error on afterCreateUser from UserEventHook2 class {}", hook.getClass().getName(), e);
+            }
         }
             
         log.info("Created user {}", username);

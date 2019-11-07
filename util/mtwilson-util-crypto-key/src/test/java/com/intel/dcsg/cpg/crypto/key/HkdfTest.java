@@ -198,6 +198,34 @@ public class HkdfTest {
      *
      */
     @Test
+    public void testCase3bTrunc() throws DecoderException, NoSuchAlgorithmException, InvalidKeyException {
+        byte[] ikm = Hex.decodeHex("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b".toCharArray());
+        assertEquals(22, ikm.length);
+        byte[] salt = new byte[0];
+        byte[] info = new byte[0];
+        int length = 16;
+        HKDF hkdf = new HKDF("HmacSHA256");
+        byte[] okm = hkdf.deriveKey(salt, ikm, length, info);
+        log.debug("Generated key: {}", Hex.encodeHexString(okm));
+        assertEquals("8da4e775a563c18f715f802a063c5a31", Hex.encodeHexString(okm));
+    }
+        
+    /**
+     * <pre>
+     * Hash = SHA-1
+     * IKM  = 0x0b0b0b0b0b0b0b0b0b0b0b (11 octets)
+     * salt = 0x000102030405060708090a0b0c (13 octets)
+     * info = 0xf0f1f2f3f4f5f6f7f8f9 (10 octets)
+     * L    = 42
+     *
+     * PRK  = 0x9b6c18c432a7bf8f0e71c8eb88f4b30baa2ba243 (20 octets)
+     * OKM  = 0x085a01ea1b10f36933068b56efa5ad81
+     * a4f14b822f5b091568a9cdd4f155fda2
+     * c22e422478d305f3f896 (42 octets)
+     * </pre>
+     *
+     */
+//    @Test  // commenting out this test because SHA-1 is no longer allowed by policy
     public void testCase4() throws DecoderException, NoSuchAlgorithmException, InvalidKeyException {
         byte[] ikm = Hex.decodeHex("0b0b0b0b0b0b0b0b0b0b0b".toCharArray());
         assertEquals(11, ikm.length);
@@ -321,7 +349,7 @@ public class HkdfTest {
      * </pre>
      *
      */
-    @Test
+//    @Test  // commenting out this test because SHA-1 is no longer allowed by policy
     public void testCase7a() throws DecoderException, NoSuchAlgorithmException, InvalidKeyException {
         byte[] ikm = Hex.decodeHex("0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c".toCharArray());
         assertEquals(22, ikm.length);

@@ -13,7 +13,7 @@
         <artifactId>mtwilson-maven-build-coreutil-features</artifactId>
         <version>4.6-SNAPSHOT</version>
     </parent>
-    
+
     <dependencies>
         <dependency>
             <groupId>com.intel.mtwilson.util</groupId>
@@ -30,6 +30,10 @@
         </dependency>
         <dependency>
             <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-retry</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
             <artifactId>mtwilson-util-tls-policy</artifactId>
         </dependency>
         <dependency>
@@ -39,6 +43,12 @@
         <dependency>
             <groupId>com.intel.mtwilson.services</groupId>
             <artifactId>mtwilson-rpc-model</artifactId>
+        </dependency>
+        <!-- only needed for the HttpClient command -->
+        <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-console</artifactId>
+            <optional>true</optional>
         </dependency>
         <!--
         <dependency>
@@ -54,7 +64,7 @@
             <groupId>com.intel.mtwilson.services</groupId>
             <artifactId>mtwilson-repository-api</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -68,6 +78,11 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <scope>test</scope>
+        </dependency>
+        <!-- redirects java.util.logging used by jersey to slf4j for controlling log levels via logback -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jul-to-slf4j</artifactId>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>

@@ -7,11 +7,9 @@ package com.intel.mtwilson.jaxrs2.client;
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
 import java.net.URL;
 import org.glassfish.jersey.client.ClientConfig;
-import com.intel.mtwilson.security.http.jaxrs.HmacAuthorizationFilter;
 import com.intel.mtwilson.security.http.jaxrs.X509AuthorizationFilter;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature; //jersey 2.10.1
 import com.intel.dcsg.cpg.crypto.RsaCredentialX509;
-import com.intel.dcsg.cpg.crypto.SimpleKeystore;
 import com.intel.dcsg.cpg.io.FileResource;
 import java.io.File;
 import java.util.Properties;
@@ -21,6 +19,8 @@ import com.intel.dcsg.cpg.configuration.PropertiesConfiguration;
 import com.intel.dcsg.cpg.crypto.CryptographyException;
 import com.intel.dcsg.cpg.crypto.key.password.Password;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
+import com.intel.keplerlake.authz.hmac.client.JaxrsHmacAuthorizationFilter;
+import com.intel.mtwilson.jaxrs2.client.retry.RetryProxy;
 import java.util.logging.Logger;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -28,17 +28,30 @@ import javax.ws.rs.client.WebTarget;
 import org.glassfish.jersey.filter.LoggingFilter;
 import com.intel.mtwilson.MyConfiguration;
 import com.intel.mtwilson.jaxrs2.feature.JacksonFeature;
+import com.intel.mtwilson.retry.Backoff;
+import com.intel.mtwilson.retry.ConstantBackoff;
+import com.intel.mtwilson.retry.ExponentialBackoff;
+import com.intel.mtwilson.retry.RandomBackoff;
 import com.intel.mtwilson.security.http.jaxrs.JwtAuthorizationFilter;
 import com.intel.mtwilson.security.http.jaxrs.TokenAuthorizationFilter;
 import com.intel.mtwilson.util.crypto.keystore.PasswordKeyStore;
+import com.intel.mtwilson.util.crypto.keystore.PrivateKeyStore;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.UnrecoverableEntryException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import javax.ws.rs.client.ClientRequestFilter;
+import org.apache.commons.codec.binary.Base64;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider; // jersey 2.4.1
 
@@ -65,15 +78,18 @@ public class JaxrsClientBuilder {
     public static JaxrsClientBuilder factory() {
         return new JaxrsClientBuilder();
     }
-    private ClientConfig clientConfig;
+    final private ClientConfig clientConfig;
     private Configuration configuration;
     private PasswordKeyStore passwords = null;
+    private List<ClientRequestFilter> clientRequestFilters = null;
     private TlsPolicy tlsPolicy;
     private URL url;
     private TlsConnection tlsConnection;
-    private HashSet<Class> classRegistrations;
+    private HashSet<Class> classRegistrations = null;
     private String proxyHost;
     private Integer proxyPort;
+    private Backoff retryBackoff = null;
+    private Integer retryMax = null;
     
     public JaxrsClientBuilder() {
         clientConfig = new ClientConfig();
@@ -182,29 +198,66 @@ public class JaxrsClientBuilder {
         }
         log.debug("Configuring client authentication");
         // X509 authorization 
-        SimpleKeystore keystore = null;
         String keystorePath = configuration.get("login.x509.keystore.file", configuration.get("mtwilson.api.keystore"));
+        String keystoreType = configuration.get("login.x509.keystore.type", configuration.get("mtwilson.api.keystore.type")); // MTWKS or JKS or PKCS12
         Password keystorePassword = getPassword("login.x509.keystore.password", "mtwilson.api.keystore.password");
-        if (keystorePath != null && keystorePassword != null) {
+        /*if (keystorePath != null && keystorePassword != null) {
             log.debug("Loading keystore from path {}", keystorePath);
             FileResource resource = new FileResource(new File(keystorePath));
             keystore = new SimpleKeystore(resource, keystorePassword);
-        }
+        }*/
         String keyAlias = configuration.get("login.x509.key.alias", configuration.get("mtwilson.api.key.alias"));
         Password keyPassword = getPassword("login.x509.key.password", "mtwilson.api.key.password");
-        if (keystore != null && keyAlias != null && keyPassword != null) {
+        /*if (keystore != null && keyAlias != null && keyPassword != null) {
             log.debug("Registering X509 credentials for {}", keyAlias);
             log.debug("Loading key {} from keystore {}", keyAlias, keystorePath);
             RsaCredentialX509 credential = keystore.getRsaCredentialX509(keyAlias, keyPassword);
             log.debug(credential.getPublicKey().toString());
             clientConfig.register(new X509AuthorizationFilter(credential));
+        }*/
+        if( keystorePath != null && keyAlias != null ) {
+            try {
+                log.debug("Loading keystore from path {}", keystorePath);
+                PrivateKeyStore keystore = new PrivateKeyStore(keystoreType, new FileResource(new File(keystorePath)), keystorePassword);
+                log.debug("Registering X509 credentials for {}", keyAlias);
+                if( keyPassword != null ) {
+                    log.debug("Loading key {} from keystore {} with key password", keyAlias, keystorePath);
+                    PrivateKey privateKey = keystore.getPrivateKey(keyAlias, keyPassword);
+                    Certificate[] certificates = keystore.getCertificates(keyAlias);
+                    RsaCredentialX509 credential = new RsaCredentialX509(privateKey, (X509Certificate)certificates[0]);
+                    log.debug(credential.getPublicKey().toString());
+                    clientConfig.register(new X509AuthorizationFilter(credential));
+                }
+                else {
+                    log.debug("Loading key {} from keystore {} with keystore password", keyAlias, keystorePath);
+                    PrivateKey privateKey = keystore.getPrivateKey(keyAlias);
+                    Certificate[] certificates = keystore.getCertificates(keyAlias);
+                    RsaCredentialX509 credential = new RsaCredentialX509(privateKey, (X509Certificate)certificates[0]);
+                    log.debug(credential.getPublicKey().toString());
+                    clientConfig.register(new X509AuthorizationFilter(credential));
+                }
+            }
+            catch(IOException e) {
+                throw new KeyStoreException("Cannot open keystore", e);
+            }
         }
         // HMAC authorization (note this is NOT the same as HTTP DIGEST from RFC 2617, that would be login.digest.username and login.digest.password which are not currently implemented)
         String clientId = configuration.get("login.hmac.username", configuration.get("mtwilson.api.clientId"));
-        Password secretKey = getPassword("login.hmac.password", "mtwilson.api.secretKey");
+        /*Password secretKey = getPassword("login.hmac.password", "mtwilson.api.secretKey");
         if (clientId != null && secretKey != null) {
             log.debug("Registering HMAC credentials for {}", clientId);
             clientConfig.register(new HmacAuthorizationFilter(clientId, secretKey));
+        }*/
+        Password hmacPassword = getPassword("login.hmac.password", "mtwilson.api.secretKey"); // useful for using hmac authentication based on a password
+        String hmacSecretKeyBase64 = configuration.get("login.hmac.key"); // useful for configuring binary keys; must be base64-decoded before use
+        String digestAlgorithm = configuration.get("login.hmac.digestAlgorithm", "SHA256");
+        if( clientId != null && hmacSecretKeyBase64 != null ) {
+            log.debug("Registering HMAC username/key credentials for {}", clientId);
+            clientConfig.register(new JaxrsHmacAuthorizationFilter(clientId, Base64.decodeBase64(hmacSecretKeyBase64), digestAlgorithm));
+        }
+        else if (clientId != null && hmacPassword != null) {
+            log.debug("Registering HMAC username/password credentials for {}", clientId);
+            clientConfig.register(new JaxrsHmacAuthorizationFilter(clientId, hmacPassword, digestAlgorithm));
         }
         // BASIC authorization will only be registered if configuration is present but also the feature itself will only add an Authorization header if there isn't already one present
         String username = configuration.get("login.basic.username", configuration.get("mtwilson.api.username"));
@@ -215,10 +268,34 @@ public class JaxrsClientBuilder {
         }
 
         // TOKEN authorization is used as part of CSRF protection for the portal
-        Password tokenValue = getPassword("login.token.value");
-        if (tokenValue != null) {
-            log.debug("Registering TOKEN value {}", tokenValue);
-            clientConfig.register(new TokenAuthorizationFilter(tokenValue));
+        String loginTokenValue = configuration.get("login.token.value");
+        if (loginTokenValue != null) {
+            log.debug("Registering TOKEN value {}", loginTokenValue);
+            clientConfig.register(new TokenAuthorizationFilter(loginTokenValue));
+        }
+        String bearerTokenValue = configuration.get("login.bearer.token");
+        if (bearerTokenValue != null) {
+            log.debug("Registering BEARER value {}", bearerTokenValue);
+            clientConfig.register(new TokenAuthorizationFilter("Bearer", bearerTokenValue));
+        }
+
+        // JWT authorization will only be registered if configuration is present but also the feature itself will only add an Authorization header if there isn't already one present
+        Password bearerToken = getPassword("bearer.token");
+        if (bearerToken != null) {
+            log.debug("Registering JWT value {}", bearerToken);
+            clientConfig.register(new JwtAuthorizationFilter(bearerToken));
+        }
+    }
+
+    /**
+     * authorization or other filters may be given directly
+     * (instead of parameters to construct them in authenticate method)
+     */
+    private void filters() {
+        if( clientRequestFilters != null ) {
+            for(ClientRequestFilter filter : clientRequestFilters) {
+                clientConfig.register(filter);
+            }
         }
 
         // JWT authorization will only be registered if configuration is present but also the feature itself will only add an Authorization header if there isn't already one present
@@ -265,7 +342,7 @@ public class JaxrsClientBuilder {
             proxyPort = Integer.valueOf(configuration.get("proxy.port", "8080"));
         }
         if (proxyHost != null) {
-            clientConfig.connectorProvider(new HttpUrlConnectorProvider().connectionFactory(new TlsPolicyAwareConnectionFactory(tlsConnection.getTlsPolicy())));
+            clientConfig.connectorProvider(new HttpUrlConnectorProvider().connectionFactory(new ProxyConnectionFactory(proxyHost, proxyPort)));
         }
 
     }
@@ -298,10 +375,62 @@ public class JaxrsClientBuilder {
         return this;
     }
 
+    public JaxrsClientBuilder filter(ClientRequestFilter filter) {
+        if( clientRequestFilters == null ) {
+            clientRequestFilters = new ArrayList<>();
+        }
+        clientRequestFilters.add(filter);
+        return this;
+    }
+
+    public JaxrsClientBuilder filter(List<ClientRequestFilter> filterList) {
+        if( clientRequestFilters == null ) {
+            clientRequestFilters = new ArrayList<>();
+        }
+        clientRequestFilters.addAll(filterList);
+        return this;
+    }
+
     public JaxrsClientBuilder proxy(String proxyHost, int proxyPort) {
         this.proxyHost = proxyHost;
         this.proxyPort = proxyPort;
         return this;
+    }
+
+    public JaxrsClientBuilder retry(Backoff backoff) {
+        this.retryBackoff = backoff;
+        this.retryMax = null;
+        return this;
+    }
+    public JaxrsClientBuilder retry(Backoff backoff, Integer max) {
+        this.retryBackoff = backoff;
+        this.retryMax = max;
+        return this;
+    }
+
+    private void retry() {
+        if( retryBackoff == null && retryMax == null && configuration != null ) {
+            String retryConstantBackoffMillis = configuration.get("retry.backoff.constant");
+            String retryExponentialMaxBackoffMillis = configuration.get("retry.backoff.exponential.max");
+            String retryRandomMinBackoffMillis = configuration.get("retry.backoff.random.min");
+            String retryRandomMaxBackoffMillis = configuration.get("retry.backoff.random.max");
+            String retryMaxAttempts = configuration.get("retry.max");
+            if( retryConstantBackoffMillis != null ) {
+                retryBackoff = new ConstantBackoff(Integer.valueOf(retryConstantBackoffMillis));
+            }
+            else if( retryExponentialMaxBackoffMillis != null ) {
+                retryBackoff = new ExponentialBackoff(Integer.valueOf(retryExponentialMaxBackoffMillis));
+            }
+            else if( retryRandomMinBackoffMillis != null && retryRandomMaxBackoffMillis != null ) {
+                retryBackoff = new RandomBackoff(Integer.valueOf(retryRandomMinBackoffMillis), Integer.valueOf(retryRandomMaxBackoffMillis));
+            }
+            else if( retryRandomMinBackoffMillis != null || retryRandomMaxBackoffMillis != null ) {
+                log.error("Random retry backoff requires both 'min' and 'max' milliseconds");
+            }
+            if( retryMaxAttempts != null ) {
+                retryMax = Integer.valueOf(retryMaxAttempts);
+            }
+        }
     }
 
     public JaxrsClient build() {
@@ -317,6 +446,8 @@ public class JaxrsClientBuilder {
             tls(); // sets tls connection
             proxy(); // optional http proxy -- may override tls settings
             authentication(); // adds to clientConfig
+            retry(); // for retry settings in configuration properties
+            filters(); // adds to clientConfig
 
             ClientBuilder builder = ClientBuilder.newBuilder().withConfig(clientConfig);
 
@@ -330,14 +461,21 @@ public class JaxrsClientBuilder {
                 }
             }
             Client client = builder.build();
-            if (configuration != null && Boolean.valueOf(configuration.get("org.glassfish.jersey.filter.LoggingFilter.printEntity", "true"))) {
+            if (org.slf4j.LoggerFactory.getLogger(JaxrsClient.class).isDebugEnabled() ||
+                    (configuration != null && Boolean.valueOf(configuration.get("org.glassfish.jersey.filter.LoggingFilter.printEntity", "true")))
+                    ) {
                 client.register(new LoggingFilter(Logger.getLogger("org.glassfish.jersey.filter.LoggingFilter"), true));
             } else {
                 client.register(new LoggingFilter());
             }
+
+            if( retryBackoff != null || retryMax != null ) {
+                client = (Client)RetryProxy.newClientInstance(client, retryBackoff, retryMax);
+            }
+
             WebTarget target = client.target(url.toExternalForm());
 
-            return new JaxrsClient(client, target);
+            return new JaxrsClient(client, target, retryBackoff);
         } catch (MalformedURLException | KeyManagementException | FileNotFoundException | KeyStoreException | NoSuchAlgorithmException | UnrecoverableEntryException | CertificateEncodingException | CryptographyException e) {
             throw new IllegalArgumentException("Cannot construct client", e);
         }

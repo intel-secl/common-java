@@ -6,6 +6,7 @@ package com.intel.mtwilson.jaxrs2;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.net.URL;
 
 /**
  * 
@@ -60,16 +61,29 @@ public class Link {
     public Link() {
     }
 
+    public Link(String href) {
+        this.href = href;
+    }
+
+    public Link(URL href) {
+        this.href = href.toExternalForm();
+    }
+
+    public Link(String rel, String href) {
+        this.rel = rel;
+        this.href = href;
+    }
+
+    public Link(String rel, URL href) {
+        this.rel = rel;
+        this.href = href.toExternalForm();
+    }
+
     public Link(String rel, String href, String acceptPost, String etag) {
         this.rel = rel;
         this.href = href;
         this.acceptPost = acceptPost;
         this.etag = etag;
-    }
-    
-    public Link(String rel, String href) {
-        this.rel = rel;
-        this.href = href;
     }
 
     public String getRel() {

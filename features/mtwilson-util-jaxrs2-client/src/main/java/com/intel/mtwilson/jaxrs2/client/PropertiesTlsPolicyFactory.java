@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import org.apache.commons.codec.binary.Base64;
 
@@ -50,6 +51,22 @@ public class PropertiesTlsPolicyFactory {
         }
     }
 
+    /**
+     *
+     * @param csv comma-separated values; empty values are ignored so multiple commas at the beginning, middle, or end are ok
+     * @return
+     */
+    private static List<String> fromCSV(String csv) {
+        String[] items = csv.split("\\s*,\\s*");
+        ArrayList<String> filtered = new ArrayList<>();
+        for(String item : items) {
+            if( !item.trim().isEmpty() ) {
+                filtered.add(item);
+            }
+        }
+        return filtered;
+    }
+
     public static TlsPolicy createTlsPolicy(Configuration configuration) {
         String certificateKeystoreFile = configuration.get("tls.policy.certificate.keystore.file", configuration.get("mtwilson.api.tls.policy.certificate.keystore.file", null));
         String certificateKeystorePassword = configuration.get("tls.policy.certificate.keystore.password", configuration.get("mtwilson.api.tls.policy.certificate.keystore.password", null));
@@ -75,32 +92,56 @@ public class PropertiesTlsPolicyFactory {
             tlsPolicyDescriptor.setPolicyType("certificate-digest");
             tlsPolicyDescriptor.getMeta().put("digestAlgorithm", "SHA-384");
             tlsPolicyDescriptor.getMeta().put("digestEncoding", "hex");
-            tlsPolicyDescriptor.getData().add(certificateDigestSha384);
+            //tlsPolicyDescriptor.getData().add(certificateDigestSha384);
+            List<String> items = fromCSV(certificateDigestSha384);
+            for(String item : items) {
+                tlsPolicyDescriptor.getData().add(item);
+            }
         } else if (certificateDigestSha256 != null) {
             tlsPolicyDescriptor.setPolicyType("certificate-digest");
             tlsPolicyDescriptor.getMeta().put("digestAlgorithm", "SHA-256");
             tlsPolicyDescriptor.getMeta().put("digestEncoding", "hex");
-            tlsPolicyDescriptor.getData().add(certificateDigestSha256);
+            //tlsPolicyDescriptor.getData().add(certificateDigestSha256);
+            List<String> items = fromCSV(certificateDigestSha256);
+            for(String item : items) {
+                tlsPolicyDescriptor.getData().add(item);
+            }
         } else if (certificateDigestSha1 != null) {
             tlsPolicyDescriptor.setPolicyType("certificate-digest");
             tlsPolicyDescriptor.getMeta().put("digestAlgorithm", "SHA-1");
             tlsPolicyDescriptor.getMeta().put("digestEncoding", "hex");
-            tlsPolicyDescriptor.getData().add(certificateDigestSha1);
+            //tlsPolicyDescriptor.getData().add(certificateDigestSha1);
+            List<String> items = fromCSV(certificateDigestSha1);
+            for(String item : items) {
+                tlsPolicyDescriptor.getData().add(item);
+            }
         } else if (publicKeyDigestSha384 != null) {
             tlsPolicyDescriptor.setPolicyType("public-key-digest");
             tlsPolicyDescriptor.getMeta().put("digestAlgorithm", "SHA-384");
             tlsPolicyDescriptor.getMeta().put("digestEncoding", "hex");
-            tlsPolicyDescriptor.getData().add(publicKeyDigestSha384);
+            //tlsPolicyDescriptor.getData().add(publicKeyDigestSha384);
+            List<String> items = fromCSV(publicKeyDigestSha384);
+            for(String item : items) {
+                tlsPolicyDescriptor.getData().add(item);
+            }
         } else if (publicKeyDigestSha256 != null) {
             tlsPolicyDescriptor.setPolicyType("public-key-digest");
             tlsPolicyDescriptor.getMeta().put("digestAlgorithm", "SHA-256");
             tlsPolicyDescriptor.getMeta().put("digestEncoding", "hex");
-            tlsPolicyDescriptor.getData().add(publicKeyDigestSha256);
+            //tlsPolicyDescriptor.getData().add(publicKeyDigestSha256);
+            List<String> items = fromCSV(publicKeyDigestSha256);
+            for(String item : items) {
+                tlsPolicyDescriptor.getData().add(item);
+            }
         } else if (publicKeyDigestSha1 != null) {
             tlsPolicyDescriptor.setPolicyType("public-key-digest");
             tlsPolicyDescriptor.getMeta().put("digestAlgorithm", "SHA-1");
             tlsPolicyDescriptor.getMeta().put("digestEncoding", "hex");
-            tlsPolicyDescriptor.getData().add(publicKeyDigestSha1);
+            //tlsPolicyDescriptor.getData().add(publicKeyDigestSha1);
+            List<String> items = fromCSV(publicKeyDigestSha1);
+            for(String item : items) {
+                tlsPolicyDescriptor.getData().add(item);
+            }
         } else if (insecure != null && insecure.equalsIgnoreCase("true")) {
             tlsPolicyDescriptor.setPolicyType("INSECURE");
         }

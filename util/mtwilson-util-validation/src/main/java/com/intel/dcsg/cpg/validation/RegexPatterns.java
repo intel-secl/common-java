@@ -22,5 +22,12 @@ public class RegexPatterns {
     public static final String PASSWORD = "(?:([a-zA-Z0-9_\\.\\, @!#$%^&+=()\\[\\]\"'*-]+))"; 
     public static final String PORT = "(?:([0-9]{1,5}))";
     public static final String UUID = "(?:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})";
+    public static final String SPLIT_LINK="<([^>]+?)>(?:\\s*;\\s*(.*))?";
+    public static final String SPLIT_REALM="\\s*([^=\"\\s]+)\\s*=\\s*([^;]+);?\\s*";
+
+    // TODO: Should be replaced with a RegEx for a URL
+    // CONNECTION_STRING_PREFIX = "(?:[a-zA-Z0-9]+)", 
+    // ADDON_CONNECTION_STRING = "(?:" + CONNECTION_STRING_PREFIX + ":" + URL + ")|(?:" + URL +")"
+//    public static final String ADDON_CONNECTION_STRING = "ADDON_CONNECTION_STRING"; 
     public static final String ANY_VALUE = "((?s).*)"; //"(?:.*)";
 }

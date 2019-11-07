@@ -4,6 +4,7 @@
  */
 package com.intel.mtwilson.jaxrs2.client;
 
+import com.intel.mtwilson.retry.Backoff;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import javax.ws.rs.client.Client;
@@ -16,6 +17,7 @@ import javax.ws.rs.client.WebTarget;
 public class JaxrsClient {
     private Client client;
     private WebTarget target;
+    private final Backoff backoff;
     
     /**
      * Creates a client using an existing configured JAX-RS client and a
@@ -27,6 +29,13 @@ public class JaxrsClient {
     public JaxrsClient(Client client, WebTarget target) {
         this.client = client;
         this.target = target;
+        this.backoff = null;
+    }
+
+    public JaxrsClient(Client client, WebTarget target, Backoff backoff) {
+        this.client = client;
+        this.target = target;
+        this.backoff = backoff;
     }
     
     /**
@@ -38,6 +47,7 @@ public class JaxrsClient {
     public JaxrsClient(JaxrsClient jaxrsClient) {
         this.client = jaxrsClient.getClient();
         this.target = jaxrsClient.getTarget();
+        this.backoff = jaxrsClient.getBackoff();
     }
     
     public Client getClient() {
@@ -47,6 +57,10 @@ public class JaxrsClient {
 
     public WebTarget getTarget() {
         return target;
+    }
+
+    public Backoff getBackoff() {
+        return backoff;
     }
 
     public WebTarget getTargetPath(String path) {
@@ -68,7 +82,20 @@ public class JaxrsClient {
                 if (queryParam.getValue() == null) {
                     continue;
                 }
-                target = target.queryParam(queryParam.getKey(), queryParam.getValue());
+                Object value = queryParam.getValue();
+                if( value instanceof Map ) {
+                    // copy each key-value of the map to the target as a query param
+                    // we use the param name as the prefix, so "" is a valid param name for
+                    // a map because it means there isn't a prefix
+                    String prefix = queryParam.getKey();
+                    Map<String,Object> valueMap = (Map)value;
+                    for( Map.Entry<String, Object> mapQueryParam : valueMap.entrySet() ) {
+                        target = target.queryParam(prefix + mapQueryParam.getKey(), mapQueryParam.getValue());
+                    }
+                }
+                else {
+                    target = target.queryParam(queryParam.getKey(), queryParam.getValue());
+                }
             }
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException("Cannot generate query parameters", e);

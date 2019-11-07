@@ -10,16 +10,15 @@ import java.security.*;
 import java.security.cert.*;
 import java.security.cert.Certificate;
 import java.util.*;
+import javax.xml.bind.DatatypeConverter;
 
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
 import com.intel.mtwilson.Folders;
 import com.intel.mtwilson.configuration.ConfigurationFactory;
 import com.intel.mtwilson.jaxrs2.client.AASClient;
-
-import javax.xml.bind.DatatypeConverter;
-
 import com.intel.mtwilson.jaxrs2.client.CMSClient;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwt;
@@ -85,7 +84,7 @@ public class ShiroUtil {
             for (Certificate jwtSigningCert : jwtSigningCertificateList) {
                 try {
                     certHash = DatatypeConverter.printHexBinary(MessageDigest.getInstance("SHA-1").digest(
-                                jwtSigningCert.getEncoded())).toLowerCase();
+                            jwtSigningCert.getEncoded())).toLowerCase();
                     log.debug("JWT Certificate hash: {}", certHash);
                     kidPubKeyMap.put(certHash, jwtSigningCert);
                 } catch (CertificateEncodingException | NoSuchAlgorithmException exc) {
@@ -116,8 +115,9 @@ public class ShiroUtil {
                     if (jwtSigningCert != null) {
                         log.debug("JWT token kid: {}", jwtKid);
                         claims = Jwts.parser().setSigningKey(jwtSigningCert.getPublicKey()).parseClaimsJws(jwtToken);
-                        if (intermediateCaCertList.isEmpty())
+                        if (intermediateCaCertList.isEmpty()) {
                             intermediateCaCertList = loadCertificatesFromTrustStore("intermediate-ca-cert");
+                        }
                         PKIXCertPathBuilderResult certPath =  verifyCertificateChain(jwtSigningCert, caCertList, intermediateCaCertList);
                         break;
                     } else {
@@ -157,10 +157,10 @@ public class ShiroUtil {
                         jwtSigningCertificate.getEncoded())).toLowerCase();
                 kidPubKeyMap.put(certHash, jwtSigningCertificate);
                 jwtSigningCertificateList.add(jwtSigningCertificate);
-                storeCertificate(jwtSigningCertificate, "jwt-signing-cert-" +
-                        getCertificateHash(jwtSigningCertificate));
-                for (int certIndex = 1; certIndex < jwtSigningCertificateChain.length; certIndex++ )
-                    storeCertificate(jwtSigningCertificateChain[certIndex], "intermediate-ca-cert" + getCertificateHash(jwtSigningCertificateChain[certIndex]));
+                storeCertificate(jwtSigningCertificate, "jwt-signing-cert-" + getCertificateHash(jwtSigningCertificate));
+                for (int i = 1; i < jwtSigningCertificateChain.length; i++ ) {
+                    storeCertificate(jwtSigningCertificateChain[i], "intermediate-ca-cert" + getCertificateHash(jwtSigningCertificateChain[i]));
+                }
                 log.debug("JWT signing certificate downloaded");
             } else {
                 throw new AuthenticationException("Could not fetch JWT signing certificates");

@@ -11,7 +11,6 @@ import com.intel.mtwilson.jaxrs2.UserCredential;
 import org.apache.commons.io.FileUtils;
 
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.File;
@@ -114,82 +113,24 @@ public class AASClient extends MtWilsonClient{
      */
     public X509Certificate[] getJwtSigningCertificate() {
         log.debug("target: {}", getTarget().getUri().toString());
-        X509Certificate[] certificate = getTarget()
+        X509Certificate[] certificates = getTarget()
                 .path("/noauth/jwt-certificates")
                 .request()
                 .accept(CryptoMediaType.APPLICATION_X_PEM_FILE)
                 .get(X509Certificate[].class);
-        return certificate;
-    }
-
-    public boolean updateToken() {
-        ///Read the latest KMS TOKEN and save it in kms.bearer.token configuration.
-        String kms_credentials = "";
-        String kms_token = "";
-        boolean retValue = false;
-        try {
-            String kmsPath = Folders.configuration()+ File.separator+"kms_credentials.pwd";
-            File kmsFILE = new File(kmsPath);
-            kms_credentials = FileUtils.readFileToString(kmsFILE, Charset.forName("UTF-8"));
-        }catch (IOException ex) {
-            log.debug("exception while reading kms_credentials.pwd {}", ex.getMessage());
-            return retValue;
-        }
-
-        Response response = getTarget()
-                .path("/token")
-                .request()
-                .accept(MediaType.APPLICATION_JSON)
-                .post(Entity.entity(kms_credentials, MediaType.APPLICATION_JSON), Response.class);
-
-        if ((response.getStatus() == 200) && (response.hasEntity())) {
-            kms_token = response.readEntity(String.class);
-            getConfiguration().set("kms.bearer.token", kms_token); ///Setting it foe future use.
-            retValue = true;
-        }
-        return retValue;
+        return certificates;
     }
 
     public Response getUserID(String username) {
-
-        Response response = getTarget().path("/users").queryParam("name", username).request()
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + super.getConfiguration().get("kms.bearer.token"))
+	    Response response = getTarget().path("/users").queryParam("name", username).request()
                 .get(Response.class);
         log.info("response status: {}", response.getStatus());
-        if (response.getStatus() == 401) {
-            if (!updateToken()) {
-                log.error("couldn't get updated token from AAS");
-                return response;
-            } else {
-                response = getTarget().path("/users").queryParam("name", username).request()
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " +
-                                super.getConfiguration().get("kms.bearer.token"))
-                        .get(Response.class);
-            }
-        }
-
         return response;
     }
 
     public Response getRoles(String userID) {
-        log.info("getRoles target: {}", getTarget().getUri().toString());
-        log.info("token: {}", super.getConfiguration().get("kms.bearer.token"));
-
         Response response = getTarget().path("/users/"+userID+"/roles").request()
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + super.getConfiguration().get("kms.bearer.token"))
                 .get(Response.class);
-
-        if (response.getStatus() == 401) {
-            if (!updateToken()) {
-                log.error("couldn't get updated token from AAS");
-                return response;
-            } else {
-                response = getTarget().path("/users/"+userID+"/roles").request()
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " +
-                                super.getConfiguration().get("kms.bearer.token"))
-                        .get(Response.class);
-            }
-        }
         log.debug("response status: {}", response.getStatus());
         return response;
     }

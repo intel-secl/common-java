@@ -1,0 +1,266 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "meta": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "version": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "version"
+      ]
+    },
+    "label": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "validity": {
+      "type": "object",
+      "properties": {
+        "notBefore": {
+          "type": "string"
+        },
+        "notAfter": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "notBefore"
+      ]
+    },
+    "permission": {
+      "type": "object",
+      "properties": {
+        "key_transfer": {
+          "type": "object",
+          "properties": {
+            "flavor": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "label"
+                ]
+              }
+            },
+            "user": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "email"
+                ]
+              }
+            }
+          },
+          "required": [
+            "flavor",
+            "user"
+          ]
+        },
+        "data_import": {
+          "type": "object",
+          "properties": {
+            "user": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "email"
+                ]
+              }
+            }
+          },
+          "required": [
+            "user"
+          ]
+        },
+        "data_export": {
+          "type": "object",
+          "properties": {
+            "user": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "email"
+                ]
+              }
+            },
+            "target": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "realm": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "realm"
+                ]
+              }
+            }
+          },
+          "required": [
+            "user",
+            "target"
+          ]
+        },
+        "data_delete": {
+          "type": "object",
+          "properties": {
+            "user": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "match": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "match",
+                  "email"
+                ]
+              }
+            }
+          },
+          "required": [
+            "user"
+          ]
+        },
+        "data_access": {
+          "type": "object",
+          "properties": {
+            "image": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "sha256"
+                ]
+              }
+            }
+          },
+          "required": [
+            "image"
+          ]
+        },
+        "network_connect": {
+          "type": "object",
+          "properties": {
+            "user": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "email"
+                ]
+              }
+            },
+            "image": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "sha256": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "sha256",
+                  "name"
+                ]
+              }
+            }
+          },
+          "required": [
+            "user",
+            "image"
+          ]
+        }
+      },
+      "required": [
+        "key_transfer",
+        "data_import",
+        "data_export",
+        "data_delete",
+        "data_access",
+        "network_connect"
+      ]
+    }
+  },
+  "required": [
+    "meta",
+    "label",
+    "description",
+    "validity",
+    "permission"
+  ]
+}

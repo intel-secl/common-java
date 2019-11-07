@@ -23,8 +23,9 @@ import com.intel.dcsg.cpg.io.UUID;
  * 
  * @author jbuhacoff
  */
-public abstract class AbstractDocument {
+public abstract class AbstractDocument extends AbstractObjectWithMeta implements Extensions {
     private UUID id;
+    private String createdDate;
     
     @JsonUnwrapped
     private final Attributes extensions = new Attributes();
@@ -42,7 +43,15 @@ public abstract class AbstractDocument {
         this.id = id;
     }
 
-    @JsonIgnore
+    public String getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(String createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    @Override
     public Attributes getExtensions() {
         return extensions;
     }

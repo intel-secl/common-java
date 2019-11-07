@@ -6,7 +6,6 @@ package com.intel.kms.setup;
 
 import com.intel.dcsg.cpg.configuration.Configuration;
 import com.intel.dcsg.cpg.crypto.Md5Digest;
-import java.security.MessageDigest;
 import com.intel.dcsg.cpg.crypto.RandomUtil;
 import com.intel.dcsg.cpg.crypto.RsaUtil;
 import com.intel.dcsg.cpg.crypto.Sha1Digest;
@@ -19,7 +18,6 @@ import com.intel.dcsg.cpg.net.NetUtils;
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
-import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
 import com.intel.mtwilson.Folders;
 import com.intel.mtwilson.core.PasswordVaultFactory;
 import com.intel.mtwilson.jaxrs2.client.AASTokenFetcher;
@@ -39,16 +37,13 @@ import java.nio.charset.Charset;
 import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
-import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.ArrayList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import java.nio.charset.StandardCharsets;
 
 import javax.security.auth.x500.X500Principal;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
@@ -98,11 +93,11 @@ public class JettyTlsKeystore extends AbstractSetupTask {
     private String[] ip;
     private String[] dns;
     private int keyLength;
-    public String username;
-    public String password;
-    public String aasApiUrl;
+    private String username;
+    private String password;
+    private String aasApiUrl;
     private String cmsBaseUrl;
-
+    
     @Override
     protected void configure() throws Exception {
         config = getConfiguration();
@@ -134,6 +129,17 @@ public class JettyTlsKeystore extends AbstractSetupTask {
         // we'll generate one in execute()
         if( keystoreFile.exists() ) {
             if( keystorePassword == null || keystorePassword.toCharArray().length == 0 ) { configuration("Keystore password has not been generated"); }
+        }
+
+        String prefix = System.getProperty("mtwilson.application.id");
+        username = config.get(prefix + ".admin.username");
+        if (username == null || username.isEmpty()) {
+            configuration("service username is not provided");
+        }
+
+        password = config.get(prefix + ".admin.password");
+        if (password == null || password.isEmpty()) {
+            configuration("Admin password is not provided");
         }
 
         cmsBaseUrl = config.get("cms.base.url");
@@ -179,7 +185,7 @@ public class JettyTlsKeystore extends AbstractSetupTask {
     protected void execute() throws Exception {
         // create the keypair
         KeyPair keypair = RsaUtil.generateRsaKeyPair(keyLength);
-        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().insecure().build();
+	TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().insecure().build();
         properties.setProperty("cms.base.url", cmsBaseUrl);
         PKCS10CertificationRequestBuilder p10Builder = new JcaPKCS10CertificationRequestBuilder(
                 new X500Principal(dn), keypair.getPublic());
@@ -216,33 +222,12 @@ public class JettyTlsKeystore extends AbstractSetupTask {
         CMSClient cmsClient = new CMSClient(properties, new TlsConnection(new URL(cmsBaseUrl), tlsPolicy));
         X509Certificate cmsCACert = cmsClient.getCACertificate();
 
-        ///COMPARE this CA with the one stored in configuration while installation.
-        StringWriter stringWriter = new StringWriter();
-        JcaPEMWriter JCApemWriter = new JcaPEMWriter(stringWriter);
-        JCApemWriter.writeObject(cmsCACert);
-        JCApemWriter.close();
-        String  cmsCAString = stringWriter.toString();
-        byte[] cmsCADigest = MessageDigest.getInstance("SHA-384").digest(cmsCAString.getBytes(StandardCharsets.UTF_8));
-        ///Get CMS cerificate from configuration.
-        String cmsCAStringStored = "";
-        String cmsCaPath = Folders.configuration()+File.separator+"cms-ca.cert";
-        File cmsCAPEMFile = new File(cmsCaPath);
-        cmsCAStringStored = FileUtils.readFileToString(cmsCAPEMFile, Charset.forName("UTF-8"));
-        byte[] cmsCADigestStored = MessageDigest.getInstance("SHA-384").digest(cmsCAStringStored.getBytes(StandardCharsets.UTF_8));
-
-        if (!Arrays.equals(cmsCADigest, cmsCADigestStored))
-        {
-            log.error("CMS CA doesn't match");
-            validation("CMS CA doesn't match");
-            return;
-        }
-
         StringWriter stringWriter1 = new StringWriter();
         JcaPEMWriter JCApemWriter1 = new JcaPEMWriter(stringWriter1);
         JCApemWriter1.writeObject(tlscertrequest);
         JCApemWriter1.close();
         String csrString = stringWriter1.toString();
-        X509Certificate[] certificate = null;
+        X509Certificate[] certificates = null;
         X509Certificate tlsCertificate = null;
         try {
             /**
@@ -250,11 +235,12 @@ public class JettyTlsKeystore extends AbstractSetupTask {
              * provided to facilitate adding other CAs later to the truststore
              */
             // Creating an empty keystore
-            KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+            String truststoreType = KeyStore.getDefaultType();
+            KeyStore keystore = KeyStore.getInstance(truststoreType);
             keystore.load(null, null);
 
             String extension = "p12";
-            if (keystoreType.equalsIgnoreCase("JKS")) {
+            if (truststoreType.equalsIgnoreCase("JKS")) {
                 extension = "jks";
             }
             String trustStorePath = Folders.configuration()+File.separator+"truststore."+extension;
@@ -279,8 +265,8 @@ public class JettyTlsKeystore extends AbstractSetupTask {
             }
             properties.setProperty("bearer.token", new AASTokenFetcher().getAASToken(username, this.password,
                     new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
-            certificate = getCMSSignedCertificate(csrString, trustStorePath, password);
-            if( certificate == null ) {
+            certificates = getCMSSignedCertificate(csrString, trustStorePath, password);
+            if( certificates == null ) {
                 throw new IOException("Cannot create TLS certificate");
             }
             /**
@@ -290,16 +276,16 @@ public class JettyTlsKeystore extends AbstractSetupTask {
             File tlsCertFile = new File(tlsCertPath);
             FileWriter fileWriter = new FileWriter(tlsCertFile);
             JcaPEMWriter pemWriter = new JcaPEMWriter(fileWriter);
-            for(X509Certificate cert : certificate) {
+            for(X509Certificate cert : certificates) {
                 pemWriter.writeObject(cert);
             }
             pemWriter.close();
 
             FileOutputStream fout1 = new FileOutputStream(trustStoreFile, false);
-            tlsCertificate = certificate[0];
+            tlsCertificate = certificates[0];
             keystore.setCertificateEntry("tls", tlsCertificate);
-            for(int i=1; i < certificate.length; i++) {
-                keystore.setCertificateEntry("tls-ca-" + i, certificate[i]);
+            for(int i=1; i < certificates.length; i++) {
+                keystore.setCertificateEntry("tls-ca-" + i, certificates[i]);
             }
 
             keystore.store(fout1, password);
@@ -321,7 +307,6 @@ public class JettyTlsKeystore extends AbstractSetupTask {
         if( propertiesFile.exists() ) {
             properties.load(new StringReader(FileUtils.readFileToString(propertiesFile, Charset.forName("UTF-8"))));
         }
-
         properties.setProperty("tls.cert.md5", Md5Digest.digestOf(tlsCertificate.getEncoded()).toString());
         properties.setProperty("tls.cert.sha1", Sha1Digest.digestOf(tlsCertificate.getEncoded()).toString());
         properties.setProperty("tls.cert.sha256", Sha256Digest.digestOf(tlsCertificate.getEncoded()).toString());
@@ -336,7 +321,6 @@ public class JettyTlsKeystore extends AbstractSetupTask {
             keystorePassword = new Password(RandomUtil.randomBase64String(8).replace("=","_").toCharArray());
             log.info("Generated random keystore password");
         }
-
         // look for an existing tls keypair and delete it
         try(PrivateKeyStore keystore = new PrivateKeyStore(keystoreType, new FileResource(keystoreFile), keystorePassword)) {
             String alias = TLS_ALIAS;
@@ -345,14 +329,14 @@ public class JettyTlsKeystore extends AbstractSetupTask {
                 keystore.remove(alias);
             }
             // store it in the keystore
-            keystore.set(TLS_ALIAS, keypair.getPrivate(), certificate);
+            keystore.set(TLS_ALIAS, keypair.getPrivate(), certificates);
         }
         catch(KeyStoreException e) {
             log.debug("Cannot remove existing tls keypair", e);
         }
 
         // save the settings in configuration
-        getConfiguration().set(KEYSTORE_PASSWORD, new String(keystorePassword.toCharArray()));
+        config.set(KEYSTORE_PASSWORD, new String(keystorePassword.toCharArray()));
         config.set(JETTY_TLS_CERT_DN, dn);
         if( ip != null ) {
             config.set(JETTY_TLS_CERT_IP, StringUtils.join(ip, ","));
@@ -396,7 +380,7 @@ public class JettyTlsKeystore extends AbstractSetupTask {
             endpointHost = "localhost";
         }
         // do we have a custom port or default port?
-        String port = getConfiguration().get("jetty.port", "80");
+        String port = config.get("jetty.port", "80");
         if( port.equals("80") ) {
             return String.format("http://%s", endpointHost); //  http://localhost
         }
@@ -410,11 +394,11 @@ public class JettyTlsKeystore extends AbstractSetupTask {
 
     // note: duplicated from TrustagentConfiguration
     public String getTrustagentTlsCertIp() {
-        return getConfiguration().get(JETTY_TLS_CERT_IP, "");
+        return config.get(JETTY_TLS_CERT_IP, "");
     }
     // note: duplicated from TrustagentConfiguration
     private String[] getTrustagentTlsCertIpArray() throws SocketException {
-        String[] TlsCertIPs = getConfiguration().get(JETTY_TLS_CERT_IP, "").split(",");
+        String[] TlsCertIPs = config.get(JETTY_TLS_CERT_IP, "").split(",");
         if (TlsCertIPs != null && !TlsCertIPs[0].isEmpty()) {
             log.debug("Retrieved IPs from configuration: {}", (Object[])TlsCertIPs);
             return TlsCertIPs;
@@ -430,11 +414,11 @@ public class JettyTlsKeystore extends AbstractSetupTask {
     }
     // note: duplicated from TrustagentConfiguration
     public String getTrustagentTlsCertDns() {
-        return getConfiguration().get(JETTY_TLS_CERT_DNS, "");
+        return config.get(JETTY_TLS_CERT_DNS, "");
     }
     // note: duplicated from TrustagentConfiguration
     private String[] getTrustagentTlsCertDnsArray() throws SocketException {
-        String[] TlsCertDNs = getConfiguration().get(JETTY_TLS_CERT_DNS, "").split(",");
+        String[] TlsCertDNs = config.get(JETTY_TLS_CERT_DNS, "").split(",");
         if (TlsCertDNs != null && !TlsCertDNs[0].isEmpty()) {
             log.debug("Retrieved Domain Names from configuration: {}", (Object[])TlsCertDNs);
             return TlsCertDNs;
@@ -460,5 +444,4 @@ public class JettyTlsKeystore extends AbstractSetupTask {
             return null;
         }
     }
-
 }

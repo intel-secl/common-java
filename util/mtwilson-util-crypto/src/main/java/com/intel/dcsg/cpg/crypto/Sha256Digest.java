@@ -101,14 +101,21 @@ public class Sha256Digest extends AbstractDigest {
         return ALGORITHM.isValidHex(hexValue);
     }
 
+    public static boolean isValidHexWithPrefix(String hexValue) {
+        return ALGORITHM.isValidHexWithPrefix(hexValue);
+    }
+    
     /**
-     * @param base64 value without any punctuation or spaces; can be null
+     * @param base64Value value without any punctuation or spaces; can be null
      * @return true if the value is a valid base64 representation of an SHA256 digest
      */
     public static boolean isValidBase64(String base64Value) {
         return ALGORITHM.isValidBase64(base64Value);
     }
     
+    public static boolean isValidBase64WithPrefix(String base64Value) {
+        return ALGORITHM.isValidBase64WithPrefix(base64Value);
+    }
     /**
      * Assumes the input represents an SHA256 digest and creates a new instance of Sha256Digest to wrap it.
      * This method does NOT compute a digest. If the input is not a valid SHA256 representation, a null
@@ -143,12 +150,25 @@ public class Sha256Digest extends AbstractDigest {
     //@org.codehaus.jackson.annotate.JsonCreator // jackson 1.x
     @com.fasterxml.jackson.annotation.JsonCreator // jackson 2.x
     public static Sha256Digest valueOf(String text) {
-        if( isValidHex(text) ) {
+        if( text == null || text.isEmpty() ) {
+            return null;
+        }
+        if( ALGORITHM.isValidHexWithPrefix(text) ) {
+            Sha256Digest digest = new Sha256Digest();
+            digest.value = HexUtil.toByteArray(text.substring(ALGORITHM.prefix().length())); // throws HexFormatException if invalid, but shouldn't happen since we check isValid() first
+            return digest;
+        }
+        if( ALGORITHM.isValidHex(text) ) {
             Sha256Digest digest = new Sha256Digest();
             digest.value = HexUtil.toByteArray(text); // throws HexFormatException if invalid, but shouldn't happen since we check isValid() first
             return digest;
         }
-        if( isValidBase64(text) ) {
+        if( ALGORITHM.isValidBase64WithPrefix(text) ) {
+            Sha256Digest digest = new Sha256Digest();
+            digest.value = Base64Util.toByteArray(text.substring(ALGORITHM.prefix().length())); 
+            return digest;
+        }
+        if( ALGORITHM.isValidBase64(text) ) {
             Sha256Digest digest = new Sha256Digest();
             digest.value = Base64Util.toByteArray(text); 
             return digest;

@@ -110,14 +110,28 @@ public class Md5Digest extends AbstractDigest {
      * @param text may be either hex or base64 representation of an MD5 digest
      * @return 
      */
+    //@org.codehaus.jackson.annotate.JsonCreator // jackson 1.x
     @com.fasterxml.jackson.annotation.JsonCreator // jackson 2.x
     public static Md5Digest valueOf(String text) {
-        if( isValidHex(text) ) {
+        if( text == null || text.isEmpty() ) {
+            return null;
+        }
+        if( ALGORITHM.isValidHexWithPrefix(text) ) {
+            Md5Digest digest = new Md5Digest();
+            digest.value = HexUtil.toByteArray(text.substring(ALGORITHM.prefix().length())); // throws HexFormatException if invalid, but shouldn't happen since we check isValid() first
+            return digest;
+        }
+        if( ALGORITHM.isValidHex(text) ) {
             Md5Digest digest = new Md5Digest();
             digest.value = HexUtil.toByteArray(text); // throws HexFormatException if invalid, but shouldn't happen since we check isValid() first
             return digest;
         }
-        if( isValidBase64(text) ) {
+        if( ALGORITHM.isValidBase64WithPrefix(text) ) {
+            Md5Digest digest = new Md5Digest();
+            digest.value = Base64Util.toByteArray(text.substring(ALGORITHM.prefix().length())); 
+            return digest;
+        }
+        if( ALGORITHM.isValidBase64(text) ) {
             Md5Digest digest = new Md5Digest();
             digest.value = Base64Util.toByteArray(text); 
             return digest;

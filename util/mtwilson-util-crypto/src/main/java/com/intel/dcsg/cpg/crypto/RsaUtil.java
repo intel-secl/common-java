@@ -14,6 +14,8 @@ import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.security.spec.RSAPublicKeySpec;
+import java.security.interfaces.RSAPrivateCrtKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -265,7 +267,18 @@ public class RsaUtil {
         }
         return new RsaCredentialX509(keyPair.getPrivate(), newTlsCert); // CryptographyException
     }
-    
-    
-    
+
+    public static PublicKey extractPublicKey(PrivateKey privateKey) throws CryptographyException {
+    log.debug("generatePublicKey");
+    try {
+        RSAPrivateCrtKey privk = (RSAPrivateCrtKey)privateKey;
+        RSAPublicKeySpec publicKeySpec = new java.security.spec.RSAPublicKeySpec(privk.getModulus(), privk.getPublicExponent());
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PublicKey publicKey = keyFactory.generatePublic(publicKeySpec);
+	return publicKey;
+        } catch(NoSuchAlgorithmException | InvalidKeySpecException e) {
+	    throw new CryptographyException(e);
+        }
+    }
+
 }

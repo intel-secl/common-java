@@ -1,0 +1,90 @@
+{
+	"labels": "Key Escrow on ClearLinux 8830",
+	"description": {
+		"comment": "Automatically generated from 198.151.100.23",
+		"bios_name": "Intel",
+		"bios_version": "1.2.3",
+		"oem": "PCSD",
+		"os_name": "ClearLinux",
+		"os_version": "8830"
+	},
+	"validity": {
+		"notBefore": "2016-07-18T09:23:34+00:00",
+		"notAfter": ""
+	},
+	"meta": {
+		"realm": "example.com",
+		"id": "e4746425-f56b-4b99-83d9-93262f1581fa",
+		"author": {
+			"email": "administrator@example.com"
+		},
+		"schema": {
+			"uri": "urn:intel:keplerlake:schema:flavor-basic.json:0.1"
+		}
+	},
+	"hardware": {
+		"vendor": "GenuineIntel",
+		"feature": {
+			"AES-NI": {
+				"enabled": true
+			},
+			"TXT": {
+				"enabled": true
+			},
+			"TPM": {
+				"version": "2",
+				"enabled": true,
+				"pcr": {
+					"0": {
+						"value": "2aae6c35c94fcfb415dbe95f408b9ce91ee846ed"
+					},
+					"1": {
+						"event": {
+							"initrd": {
+								"digest": "99b3b7a100fded7c7eb1c59f4d75d84137822596"
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"software": {
+		"digestAlg": "sha-256",
+		"measurement": {
+			"/etc/hosts": {
+				"type": "file",
+				"digest": "2cab4cce4d11a47acdd4625b63f207974824d1d7f1804f4d4825f7a4472d39f9"
+			},
+			"/opt/mtwilson/java/mtwilson-util-crypto-3.1.jar": {
+				"type": "file",
+				"digest": "98f2b01890b947c4789d2907ca3111c50fedfcb1dba028d06e16bb04852e975a"
+			},
+			"/opt/mtwilson/configuration": {
+				"type": "symlink",
+				"digest": "a5f0ac4ae1a8c721a37c26017f14f8c1a0b62e3a98a1da484d3504cbe3088ff7"
+			}
+		}
+	},
+	"external": {
+		"geotag": {
+			"certificate": {
+				"attribute": {
+					"2.5.4.789.1": {
+						"country": "US",
+						"state": "CA",
+						"city": "Folsom"
+					},
+					"2.5.4.789.2": {
+						"country": ["US", "IND"],
+						"state": ["CA", "KA"],
+						"city": ["Folsom", "BLR"]
+					}
+				},
+				"issuer": {
+					"publicKey": ["...base64 of DER-encoded...", ""]
+				}
+			}
+		}
+	}
+}

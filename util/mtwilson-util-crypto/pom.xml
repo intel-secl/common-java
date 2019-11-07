@@ -23,7 +23,6 @@
 		<dependency>
             <groupId>com.intel.mtwilson.util</groupId>
             <artifactId>mtwilson-util-crypto-jca</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.intel.mtwilson.util</groupId>
@@ -123,10 +122,16 @@
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
         </dependency>
+        <!-- bouncycastle cms and s/mime -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcmail-jdk15on</artifactId>
         </dependency>
+        <!-- bouncycastle openpgp api -->
+        <!--dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpg-jdk15on</artifactId>
+        </dependency-->
     </dependencies>
     
 </project>

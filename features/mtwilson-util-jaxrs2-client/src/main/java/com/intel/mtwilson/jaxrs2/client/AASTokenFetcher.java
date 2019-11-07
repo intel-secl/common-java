@@ -13,6 +13,7 @@ import java.util.Properties;
  * @author rawatar
  */
 public class AASTokenFetcher {
+    private final static org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AASTokenFetcher.class);
 
     public String getAASToken(String username, String password, TlsConnection tlsConnection) throws Exception {
         AASClient aasClient = new AASClient(new Properties(), tlsConnection);

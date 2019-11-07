@@ -387,6 +387,11 @@
             </dependency>
             <dependency>
                 <groupId>com.intel.mtwilson.util</groupId>
+                <artifactId>mtwilson-util-retry</artifactId>
+                <version>4.6-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.intel.mtwilson.util</groupId>
                 <artifactId>mtwilson-util-rfc822</artifactId>
                 <version>4.6-SNAPSHOT</version>
             </dependency>

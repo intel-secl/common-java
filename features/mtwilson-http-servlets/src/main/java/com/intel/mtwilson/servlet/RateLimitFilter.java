@@ -62,7 +62,7 @@ public class RateLimitFilter implements Filter {
         }
         // check if client is already locked
         if (client != null && client.locked) {
-            // any attemps while locked just extend the lock period by 5 seconds
+            // any attempts while locked just extend the lock period by 5 seconds
             if (client.lockExpires == null) {
                 client.lockExpires = now;
             }

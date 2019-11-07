@@ -18,6 +18,10 @@
             <artifactId>mtwilson-setup-ext</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.intel.mtwilson.services</groupId>
+            <artifactId>mtwilson-shiro-util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.intel.mtwilson.integration</groupId>
             <artifactId>mtwilson-configuration</artifactId>
         </dependency>

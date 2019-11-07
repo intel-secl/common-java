@@ -4,9 +4,17 @@
  */
 package com.intel.dcg.io;
 
+import com.intel.dcsg.cpg.io.ByteArrayResource;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.math.BigInteger;
 import com.intel.dcsg.cpg.io.UUID;
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.slf4j.Logger;
@@ -123,4 +131,18 @@ public class TestUUID {
         }
     }
     
+    @Test
+    public void testURI() throws URISyntaxException {
+        String urnUuidUriText = "urn:uuid:a137a43e-03af-486a-ba05-3e0b4c159582";
+        
+        // parse uri to discover it is a  urn
+        URI urnUuidUri = new URI(urnUuidUriText); // throws URISyntaxException
+        log.debug("scheme: {}", urnUuidUri.getScheme()); // "urn"
+        log.debug("scheme-specific-part: {}", urnUuidUri.getSchemeSpecificPart()); // "uuid:a137a43e-03af-486a-ba05-3e0b4c159582"
+        
+        // parse next level to discover it is a uuid urn
+        URI uuidUri = new URI(urnUuidUri.getSchemeSpecificPart()); // throws URISyntaxException        
+        log.debug("scheme: {}", uuidUri.getScheme()); // "uuid"
+        log.debug("scheme-specific-part: {}", uuidUri.getSchemeSpecificPart()); // "a137a43e-03af-486a-ba05-3e0b4c159582"
+    }
 }

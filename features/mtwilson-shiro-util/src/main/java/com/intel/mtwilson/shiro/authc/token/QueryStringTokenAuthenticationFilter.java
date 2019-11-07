@@ -74,7 +74,7 @@ public class QueryStringTokenAuthenticationFilter extends HttpQueryAuthenticatio
         try {
             Map<String, List<String>> queryParameters = Query.parse(queryString);
             return queryParameters;
-        } catch (UnsupportedEncodingException e) {
+        } catch (Exception e) {
             log.error("Cannot parse query string", e);
             return null;
         }

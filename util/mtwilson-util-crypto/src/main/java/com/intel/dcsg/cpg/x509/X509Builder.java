@@ -40,6 +40,7 @@ import sun.security.x509.CertificateValidity;
 import sun.security.x509.CertificateVersion;
 import sun.security.x509.CertificateX509Key;
 import sun.security.x509.DNSName;
+import sun.security.x509.URIName;
 import sun.security.x509.ExtendedKeyUsageExtension;
 import sun.security.x509.GeneralName;
 import sun.security.x509.GeneralNames;
@@ -202,7 +203,7 @@ public class X509Builder extends BuilderModel {
             info.set(X509CertInfo.ISSUER, certificateIssuerName); // CertificateException, IOException
         }
         catch(CertificateException | IOException e) {
-            fault(e, "issuerName(%s)", certificateIssuerName==null?"null":certificateIssuerName.toString());
+            fault(e, "issuerName(%s): %s: %s", certificateIssuerName==null?"null":certificateIssuerName.toString(), e.getClass().getName(), e.getMessage());
         }
         return this;
     }
@@ -337,7 +338,7 @@ public class X509Builder extends BuilderModel {
             v3();
             if( certificateExtensions == null ) { certificateExtensions = new CertificateExtensions(); }
             DEROctetString octetString = new DEROctetString(value);
-            certificateExtensions.set(oid, new sun.security.x509.Extension(new ObjectIdentifier(oid), false, octetString.getEncoded()));
+            certificateExtensions.set(oid, new sun.security.x509.Extension(new ObjectIdentifier(oid), false, octetString.toASN1Primitive().getEncoded()));
             info.set(X509CertInfo.EXTENSIONS, certificateExtensions);
         }
         catch(IOException | CertificateException e) {
@@ -351,7 +352,8 @@ public class X509Builder extends BuilderModel {
             v3();
             if( certificateExtensions == null ) { certificateExtensions = new CertificateExtensions(); }
             DEROctetString octetString = new DEROctetString(value);
-            certificateExtensions.set(oid, new sun.security.x509.Extension(new ObjectIdentifier(oid), true, octetString.getEncoded()));
+            certificateExtensions.set(oid, new sun.security.x509.Extension(new ObjectIdentifier(oid), true, octetString.toASN1Primitive().getEncoded()));
+//            certificateExtensions.set(extension.getId(), extension);
             info.set(X509CertInfo.EXTENSIONS, certificateExtensions);
         }
         catch(IOException | CertificateException e) {
@@ -361,6 +363,19 @@ public class X509Builder extends BuilderModel {
     }
     
     public X509Builder ipAlternativeName(String ip) {
+        return ipAlternativeNameWithOptionalFault(ip, true);
+    }
+    
+    /**
+     * Same as ipAlternativeName but will silently fail if there is an issue
+     * with the IP address given. This may be a useful workaround on systems
+     * that list an IP address but then throw something like 
+     * `java.net.UnknownHostException: no such interface veth0b9b506`
+     * 
+     * @param ip
+     * @return 
+     */
+    public X509Builder ipAlternativeNameWithOptionalFault(String ip, boolean withOptionalFault) {
         try {
             v3();
             String alternativeName = ip;
@@ -377,7 +392,10 @@ public class X509Builder extends BuilderModel {
 
         }
         catch(IOException | CertificateException e) {
-            fault(e, "ipAlternativeName(%s): %s: %s", ip, e.getClass().getName(), e.getMessage());
+            if( withOptionalFault ) {
+                fault(e, "ipAlternativeName(%s): %s: %s", ip, e.getClass().getName(), e.getMessage());
+            }
+            //else { log.debug("ipAlternativeNameIfExists: skipping {}: {}", ip, e); }
         }
         return this;
     }
@@ -399,6 +417,27 @@ public class X509Builder extends BuilderModel {
         }        
         catch(IOException | CertificateException e) {
             fault(e, "dnsAlternativeName(%s): %s: %s", dns, e.getClass().getName(), e.getMessage());
+        }
+        return this;
+    }
+
+    public X509Builder uriAlternativeName(String uri) {
+        try {
+            v3();
+            String alternativeName = uri;
+            if (uri.startsWith("dns:")) {
+                alternativeName = uri.substring(4);
+            }
+            URIName uriName = new URIName(alternativeName);
+            if( alternativeNames == null ) { alternativeNames = new GeneralNames(); }
+            alternativeNames.add(new GeneralName(uriName));
+            SubjectAlternativeNameExtension san = new SubjectAlternativeNameExtension(alternativeNames);
+            if( certificateExtensions == null ) { certificateExtensions = new CertificateExtensions(); }
+            certificateExtensions.set(san.getExtensionId().toString(), san);
+            info.set(X509CertInfo.EXTENSIONS, certificateExtensions);
+        }        
+        catch(IOException | CertificateException e) {
+            fault(e, "uriAlternativeName(%s): %s: %s", uri, e.getClass().getName(), e.getMessage());
         }
         return this;
     }

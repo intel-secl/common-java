@@ -4,6 +4,7 @@
  */
 package com.intel.mtwilson.tls.policy.creator.impl;
 
+import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
 import com.intel.mtwilson.codec.ByteArrayCodec;
 import com.intel.dcsg.cpg.tls.policy.impl.CertificateTlsPolicy;
 import com.intel.dcsg.cpg.x509.X509Util;
@@ -15,6 +16,7 @@ import com.intel.mtwilson.tls.policy.factory.TlsPolicyFactoryUtil;
 import java.security.KeyManagementException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Collection;
 
 /**
  *
@@ -95,4 +97,10 @@ public class CertificateTlsPolicyCreator implements TlsPolicyCreator {
         return metadata;
     }
     
+    
+    public static CertificateTlsPolicy withCertificates(Collection<X509Certificate> certificates) {
+        HashSetMutableCertificateRepository repository = new HashSetMutableCertificateRepository(certificates);
+        CertificateTlsPolicy certificateTlsPolicy = new CertificateTlsPolicy(repository);
+        return certificateTlsPolicy;
+    }
 }

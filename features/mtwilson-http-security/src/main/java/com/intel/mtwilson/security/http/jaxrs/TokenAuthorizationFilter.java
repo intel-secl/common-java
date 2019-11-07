@@ -30,12 +30,27 @@ import javax.ws.rs.Priorities;
 public class TokenAuthorizationFilter implements ClientRequestFilter {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(TokenAuthorizationFilter.class);
 
-    private final Password tokenValue;
+    private final String headerName;
+    private final String tokenType;
+    private final String tokenValue;
     
     public TokenAuthorizationFilter(String tokenValue) {
-        this.tokenValue = new Password(tokenValue);
+        this("Token", tokenValue);
     }
     public TokenAuthorizationFilter(Password tokenValue) {
+        this("Token", tokenValue);
+    }
+    public TokenAuthorizationFilter(String tokenType, String tokenValue) {
+        this.headerName = "Authorization";
+        this.tokenType = tokenType;
+        this.tokenValue = tokenValue;
+    }
+    public TokenAuthorizationFilter(String tokenType, Password tokenValue) {
+        this(tokenType, new String(tokenValue.toCharArray()));
+    }
+    public TokenAuthorizationFilter(String headerName, String tokenType, String tokenValue) {
+        this.headerName = headerName;
+        this.tokenType = tokenType;
         this.tokenValue = tokenValue;
     }
 
@@ -44,18 +59,17 @@ public class TokenAuthorizationFilter implements ClientRequestFilter {
      * This method assumes that the entity body of the request is either null or a String or
      * has a toString() method that returns the String that should be signed.
      * 
-     * @param cr
-     * @return
-     * @throws ClientHandlerException 
+     * @param requestContext
+     * @throws IOException
      */
     @Override
     public void filter(ClientRequestContext requestContext)
                         throws IOException { 
         // Modify the request
         try {
-            String header = String.format("Token %s", new String(tokenValue.toCharArray()));
-            log.debug("Authorization: {}", header);
-            requestContext.getHeaders().add("Authorization", header);
+            String header = String.format("%s %s", tokenType, tokenValue);
+            log.debug("header name '{}' value: {}", headerName, header);
+            requestContext.getHeaders().add(headerName, header);
             
         }
         catch(Exception e) {

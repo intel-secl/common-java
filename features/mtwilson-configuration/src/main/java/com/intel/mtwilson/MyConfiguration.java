@@ -386,6 +386,10 @@ public class MyConfiguration {
         return new File(getDirectoryPath() + File.separator + username + ".p12");
     }
 
+    public File getTruststoreFile() {
+        return new File(getDirectoryPath() + File.separator + "truststore.p12");
+    }
+
     public String getKeystoreUsername() {
         return conf.getString("mtwilson.api.username", System.getProperty("user.name", "anonymous"));
     }
@@ -403,11 +407,11 @@ public class MyConfiguration {
     }
 
     public String getMtwilsonAdminUsername() {
-        return conf.getString("mc.first.username");
+        return conf.getString("mtwilson.admin.username");
     }
 
     public String getMtwilsonAdminPassword() {
-        return conf.getString("mc.first.password");
+        return conf.getString("mtwilson.admin.password");
     }
 
     public URL getMtWilsonURL() throws MalformedURLException {
@@ -605,10 +609,6 @@ public class MyConfiguration {
     /////////////////////////             pca key              //////////////////////////////////
     public File getPrivacyCaIdentityCacertsFile() {
         return findConfigurationFile(conf.getString("mtwilson.privacyca.aik.cacerts.file", "PrivacyCA.pem")); // list of all approved aik signing certificates from this server and other servers
-    }
-
-    public File getTruststoreFile() {
-        return findConfigurationFile(conf.getString("truststore.file", "truststore.p12"));
     }
 
     public File getPrivacyCaIdentityP12() {

@@ -18,6 +18,7 @@
         <module>mtwilson-maven-package-bin-zip</module>
         <module>mtwilson-maven-package-makeself-distro</module>
         <module>mtwilson-core-feature-zip</module>
+        <module>mtwilson-dist-java-zip</module>
         <module>mtwilson-feature-zip</module>
         <module>mtwilson-maven-bom-coreutil</module>
         <module>mtwilson-maven-bom-external</module>

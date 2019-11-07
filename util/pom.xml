@@ -29,6 +29,7 @@
         <module>mtwilson-util-crypto-jca</module>
         <module>mtwilson-util-crypto-key</module>
         <module>mtwilson-util-crypto-password</module>
+        <module>mtwilson-util-dbcp</module>
         <module>mtwilson-util-exec</module>
         <module>mtwilson-util-extensions</module>
         <module>mtwilson-util-http</module>
@@ -43,6 +44,7 @@
         <module>mtwilson-util-json-path</module>
         <module>mtwilson-util-junit</module>
         <module>mtwilson-util-locale</module>
+        <module>mtwilson-util-logback</module>	
         <module>mtwilson-util-module</module>
         <module>mtwilson-util-module-annotations</module>
         <module>mtwilson-util-net</module>
@@ -51,8 +53,10 @@
         <module>mtwilson-util-pem</module>
         <module>mtwilson-util-performance</module>
         <module>mtwilson-util-pipe</module>
+        <module>mtwilson-util-retry</module>
         <module>mtwilson-util-rfc822</module>
         <module>mtwilson-util-shiro</module>
+        <module>mtwilson-util-ssh</module>
         <module>mtwilson-util-text-transform</module>
         <module>mtwilson-util-tls-policy</module>
 	<module>mtwilson-util-tpm20</module>
