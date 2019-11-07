@@ -7,6 +7,7 @@ package com.intel.mtwilson.shiro.authc.token;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intel.mtwilson.shiro.ShiroUtil;
 import com.intel.mtwilson.shiro.authc.model.JwtBody;
+import com.intel.mtwilson.shiro.authc.model.Permissions;
 import com.intel.mtwilson.shiro.authc.model.Role;
 import io.jsonwebtoken.Jwt;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -44,82 +45,20 @@ public class JWTAuthenticationToken implements AuthenticationToken {
         this.token = token;
     }
 
-    public Set<String> getPermissionsFromToken(String applicationName) {
+    public String[] getPermissionsFromToken(String applicationName) {
         JwtBody jwtBody = this.getJwtBodyFromToken();
-        Set<String> permissions = new HashSet<>();
-        if(jwtBody != null) {
-            for (Role role : jwtBody.getRoles()) {
-                if (role.getService().equals(applicationName)) {
-                    Set<String> permissionsFromContext = getPermissionsFromContexts(getAllContexts(role.getContext()));
-                    if (permissionsFromContext.size() > 0) {
-                        permissions.addAll(getFormattedPermissions(applicationName, permissionsFromContext));
-                    } else {
+        String[] permissionsFromRole = {};
+        if(jwtBody != null && jwtBody.getPermissions() != null) {
+            for (Permissions permissions : jwtBody.getPermissions()) {
+                if (permissions.getService().equals(applicationName) && permissions.getRules() != null) {
+                    permissionsFromRole = permissions.getRules();
+                    if (permissionsFromRole.length == 0) {
                         log.warn("No permission provided in JWT for service {}", applicationName);
                     }
                 }
             }
         }
-        return permissions;
-    }
-
-    /*
-     * Splits contexts from full context string
-     * Input : "context1=value;context2=value"
-     * Output: [context1=value,context2=value]
-     * */
-    private Set<String> getAllContexts(String fullContext) {
-        Set<String> contexts = new HashSet<>();
-        if (fullContext != null && !fullContext.isEmpty()) {
-            if (fullContext.contains(";")) {
-                contexts.addAll(Arrays.asList(fullContext.split(";")));
-            } else {
-                contexts.add(fullContext);
-            }
-        }
-        return contexts;
-    }
-
-    /*
-    * Retrieves permissions from context
-    * Input : Permissions=domain:action:selection,domain:action:selection
-    * Output: [domain:action:selection,domain:action:selection]
-    * */
-    private Set<String> getPermissionsFromContexts(Set<String> contexts) {
-        Set<String> permissions = new HashSet<>();
-        for(String context: contexts) {
-            if (context.contains("=")) {
-                String[] contextMap = context.split("=");
-                // contextName  = contextMap[0]
-                if (contextMap.length == 2 && contextMap[0].toUpperCase().equals("PERMISSIONS")) {
-                    String contextValue = contextMap[1];
-                    if (contextValue.contains(",")) {
-                        permissions.addAll(Arrays.asList(contextValue.split(",")));
-                    } else {
-                        permissions.add(contextValue);
-                    }
-                }
-            }
-        }
-        return permissions;
-    }
-
-    /*
-     * Formats permission
-     * Input : Permissions=domain:action:selection,domain:action
-     * Output: [domain:action:selection,domain:action:*]
-     * */
-    private Set<String> getFormattedPermissions(String applicationName, Set<String> permissionsFromContext) {
-        Set<String> formattedPermissions = new HashSet<>();
-        for (String permission : permissionsFromContext) {
-            if (permission.split(":").length < 2 || permission.split(":").length > 3) {
-                log.warn("Invalid permission provided in JWT for service {}", applicationName);
-            } else if (permission.split(":").length == 3 && !permission.split(":")[2].isEmpty()) {
-                formattedPermissions.add(permission);
-            } else {
-                formattedPermissions.add(permission + ":*");
-            }
-        }
-        return formattedPermissions;
+        return permissionsFromRole;
     }
 
     private String getKidFromToken() {

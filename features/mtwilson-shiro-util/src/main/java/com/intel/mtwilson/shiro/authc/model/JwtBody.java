@@ -9,6 +9,7 @@ package com.intel.mtwilson.shiro.authc.model;
  */
 public class JwtBody {
     private Role[] roles;
+    private Permissions[] permissions;
     private String exp;
     private String iat;
     private String iss;
@@ -20,6 +21,14 @@ public class JwtBody {
 
     public void setRoles(Role[] roles) {
         this.roles = roles;
+    }
+
+    public Permissions[] getPermissions() {
+        return this.permissions;
+    }
+
+    public void setPermissions(Permissions[] permissions) {
+        this.permissions = permissions;
     }
 
     public String getExp() {

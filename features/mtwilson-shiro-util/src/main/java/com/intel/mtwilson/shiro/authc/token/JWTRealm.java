@@ -36,7 +36,7 @@ public class JWTRealm extends AuthorizingRealm {
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection pc) {
         SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
-        Set<String> permissions = new JWTAuthenticationToken(tokenString).getPermissionsFromToken(applicationName);
+        String[] permissions = new JWTAuthenticationToken(tokenString).getPermissionsFromToken(applicationName);
         for (String permission : permissions) {
             authorizationInfo.addObjectPermission(new WildcardPermission(permission));
         }
