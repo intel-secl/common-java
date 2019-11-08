@@ -259,7 +259,7 @@ public class StartHttpServer implements Runnable {
 		
         // https connector
         try {
-            SslContextFactory sslConnectionFactory = new SslContextFactory();
+            SslContextFactory sslConnectionFactory = new SslContextFactory.Server();
             String keystoreType = getKeystoreType();
             sslConnectionFactory.setKeyStorePath(getKeystoreFile().getAbsolutePath());
             sslConnectionFactory.setKeyStoreType(keystoreType);
