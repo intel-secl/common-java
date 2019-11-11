@@ -19,6 +19,11 @@ import java.util.Properties;
 public class CMSClient extends MtWilsonClient {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CMSClient.class);
 
+
+    public CMSClient(Properties properties) throws Exception {
+        super(properties);
+    }
+
     public CMSClient(Properties properties, TlsConnection tlsConnection) throws Exception {
         super(properties, tlsConnection);
     }

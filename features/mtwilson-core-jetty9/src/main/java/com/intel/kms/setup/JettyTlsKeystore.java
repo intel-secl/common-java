@@ -5,14 +5,10 @@
 package com.intel.kms.setup;
 
 import com.intel.dcsg.cpg.configuration.Configuration;
-import com.intel.dcsg.cpg.crypto.Md5Digest;
-import com.intel.dcsg.cpg.crypto.RandomUtil;
-import com.intel.dcsg.cpg.crypto.RsaUtil;
-import com.intel.dcsg.cpg.crypto.Sha1Digest;
-import com.intel.dcsg.cpg.crypto.Sha256Digest;
-import com.intel.dcsg.cpg.crypto.Sha384Digest;
+import com.intel.dcsg.cpg.crypto.*;
 import com.intel.dcsg.cpg.crypto.key.password.Password;
 import com.intel.dcsg.cpg.io.FileResource;
+import com.intel.dcsg.cpg.io.pem.Pem;
 import com.intel.dcsg.cpg.iso8601.Iso8601Date;
 import com.intel.dcsg.cpg.net.NetUtils;
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
@@ -21,6 +17,7 @@ import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
 import com.intel.mtwilson.Folders;
 import com.intel.mtwilson.core.PasswordVaultFactory;
 import com.intel.mtwilson.jaxrs2.client.AASTokenFetcher;
+import com.intel.mtwilson.jaxrs2.client.CMSRootCaDownloader;
 import com.intel.mtwilson.setup.AbstractSetupTask;
 import com.intel.mtwilson.util.crypto.keystore.PasswordKeyStore;
 import com.intel.mtwilson.util.crypto.keystore.PrivateKeyStore;
@@ -34,18 +31,18 @@ import java.io.FileOutputStream;
 import java.net.SocketException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.security.KeyPair;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
+import java.security.*;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.ArrayList;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.security.auth.x500.X500Principal;
+
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
@@ -70,6 +67,7 @@ public class JettyTlsKeystore extends AbstractSetupTask {
 
     // constants
     private static final String TLS_ALIAS = "jetty";
+    private final String cmsCaFileName = Folders.configuration() + "/cms-ca.cert";
 
     // configuration keys
     private static final String JETTY_TLS_CERT_DN = "jetty.tls.cert.dn";
@@ -114,6 +112,11 @@ public class JettyTlsKeystore extends AbstractSetupTask {
             if( passwordVault.contains(JAVAX_NET_SSL_KEYSTOREPASSWORD)) {
                 keystorePassword = passwordVault.get(JAVAX_NET_SSL_KEYSTOREPASSWORD);
             }
+        }
+        // make sure we have a keystore password, generate if necessary
+        if( keystorePassword == null || keystorePassword.toCharArray().length == 0 ) {
+            keystorePassword = new Password(RandomUtil.randomBase64String(8).replace("=","_").toCharArray());
+            log.info("Generated random keystore password");
         }
 
         /**
@@ -219,8 +222,6 @@ public class JettyTlsKeystore extends AbstractSetupTask {
         JcaContentSignerBuilder csBuilder = new JcaContentSignerBuilder(CSR_ALGORITHM);
         ContentSigner signer = csBuilder.build(keypair.getPrivate());
         PKCS10CertificationRequest tlscertrequest  = p10Builder.build(signer);
-        CMSClient cmsClient = new CMSClient(properties, new TlsConnection(new URL(cmsBaseUrl), tlsPolicy));
-        X509Certificate cmsCACert = cmsClient.getCACertificate();
 
         StringWriter stringWriter1 = new StringWriter();
         JcaPEMWriter JCApemWriter1 = new JcaPEMWriter(stringWriter1);
@@ -250,6 +251,9 @@ public class JettyTlsKeystore extends AbstractSetupTask {
             FileOutputStream fout = new FileOutputStream(trustStoreFile, false);
             // set alias as "cmsCA" for the CMS CA certificate. every cert added to
             // truststore needs to be associated with an alias
+            X509Certificate cmsCACert = CMSRootCaDownloader.downloadCmsCaCert(cmsBaseUrl);
+            IOUtils.write(new Pem("CERTIFICATE", cmsCACert.getEncoded()).toString(), new FileOutputStream(new File(cmsCaFileName)));
+
             keystore.setCertificateEntry("cmsCA", cmsCACert);
             char[] password = "changeit".toCharArray();
             keystore.store(fout, password);
@@ -316,11 +320,6 @@ public class JettyTlsKeystore extends AbstractSetupTask {
         FileUtils.write(propertiesFile, writer.toString(), Charset.forName("UTF-8"));
         log.debug("Wrote https.properties: {}", writer.toString().replaceAll("[\\r\\n]", "|"));
 
-        // make sure we have a keystore password, generate if necessary
-        if( keystorePassword == null || keystorePassword.toCharArray().length == 0 ) {
-            keystorePassword = new Password(RandomUtil.randomBase64String(8).replace("=","_").toCharArray());
-            log.info("Generated random keystore password");
-        }
         // look for an existing tls keypair and delete it
         try(PrivateKeyStore keystore = new PrivateKeyStore(keystoreType, new FileResource(keystoreFile), keystorePassword)) {
             String alias = TLS_ALIAS;

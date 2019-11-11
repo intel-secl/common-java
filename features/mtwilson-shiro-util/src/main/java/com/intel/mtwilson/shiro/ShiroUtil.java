@@ -17,8 +17,8 @@ import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
 import com.intel.mtwilson.Folders;
 import com.intel.mtwilson.configuration.ConfigurationFactory;
 import com.intel.mtwilson.jaxrs2.client.AASClient;
-import com.intel.mtwilson.jaxrs2.client.CMSClient;
 
+import com.intel.mtwilson.jaxrs2.client.CMSRootCaDownloader;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwt;
@@ -180,10 +180,7 @@ public class ShiroUtil {
     private void fetchCMSCACertificate() {
         log.debug("Downloading CA certificate from CMS...");
         try {
-            CMSClient cmsClient = new CMSClient(new Properties(),
-                    new TlsConnection(new URL(ConfigurationFactory.getConfiguration().get(CMS_BASE_URL_ENV)),
-                            TlsPolicyBuilder.factory().insecure().build()));
-            X509Certificate cmsCACertificate = cmsClient.getCACertificate();
+            X509Certificate cmsCACertificate = CMSRootCaDownloader.downloadCmsCaCert(ConfigurationFactory.getConfiguration().get(CMS_BASE_URL_ENV));
             log.debug("CMS CA certificate downloaded");
             storeCertificate(cmsCACertificate, "cmsca");
         } catch (IOException exc) {
