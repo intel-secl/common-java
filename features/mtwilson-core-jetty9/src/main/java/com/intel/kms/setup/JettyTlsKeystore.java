@@ -78,6 +78,7 @@ public class JettyTlsKeystore extends AbstractSetupTask {
     public static final String JAVAX_NET_SSL_KEYSTORETYPE = "javax.net.ssl.keyStoreType";
     public static final String JAVAX_NET_SSL_KEYSTOREPASSWORD = "javax.net.ssl.keyStorePassword";
     public static final String KEYSTORE_PASSWORD = "keystore.password";
+    private static final String BEARER_TOKEN = "BEARER_TOKEN";
     public static final String ENDPOINT_URL = "endpoint.url";
     public static final String CSR_ALGORITHM = "SHA384WithRSA";
 
@@ -91,10 +92,8 @@ public class JettyTlsKeystore extends AbstractSetupTask {
     private String[] ip;
     private String[] dns;
     private int keyLength;
-    private String username;
-    private String password;
-    private String aasApiUrl;
     private String cmsBaseUrl;
+    private String bearerToken;
     
     @Override
     protected void configure() throws Exception {
@@ -134,25 +133,14 @@ public class JettyTlsKeystore extends AbstractSetupTask {
             if( keystorePassword == null || keystorePassword.toCharArray().length == 0 ) { configuration("Keystore password has not been generated"); }
         }
 
-        String prefix = System.getProperty("mtwilson.application.id");
-        username = config.get(prefix + ".admin.username");
-        if (username == null || username.isEmpty()) {
-            configuration("service username is not provided");
-        }
-
-        password = config.get(prefix + ".admin.password");
-        if (password == null || password.isEmpty()) {
-            configuration("Admin password is not provided");
+        bearerToken = System.getenv(BEARER_TOKEN);
+        if (bearerToken == null || bearerToken.isEmpty()){
+            configuration("BEARER_TOKEN cannot be empty");
         }
 
         cmsBaseUrl = config.get("cms.base.url");
         if (cmsBaseUrl == null || cmsBaseUrl.isEmpty()) {
             configuration("CMS Base Url is not provided");
-        }
-
-        aasApiUrl = config.get("aas.api.url");
-        if (aasApiUrl == null || aasApiUrl.isEmpty()) {
-            configuration("AAS Api Url is not provided");
         }
 
         // mtwilson-core-launcher sets these system properties: mtwilson.application.id (mtwilson) and mtwilson.application.name (Mt Wilson)
@@ -188,7 +176,7 @@ public class JettyTlsKeystore extends AbstractSetupTask {
     protected void execute() throws Exception {
         // create the keypair
         KeyPair keypair = RsaUtil.generateRsaKeyPair(keyLength);
-	TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().insecure().build();
+    	TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().insecure().build();
         properties.setProperty("cms.base.url", cmsBaseUrl);
         PKCS10CertificationRequestBuilder p10Builder = new JcaPKCS10CertificationRequestBuilder(
                 new X500Principal(dn), keypair.getPublic());
@@ -261,14 +249,8 @@ public class JettyTlsKeystore extends AbstractSetupTask {
 
             ///Now use this truststore to get TLS Certificate
             ///Retrieve the certificate from CMS.
-            tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustStorePath, "changeit").build();
-            try {
-                new AASTokenFetcher().getAASToken(username, this.password, new TlsConnection(new URL(aasApiUrl), tlsPolicy));
-            } catch (Exception e) {
-                // First API call fails, hence ignore
-            }
-            properties.setProperty("bearer.token", new AASTokenFetcher().getAASToken(username, this.password,
-                    new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
+
+            properties.setProperty("bearer.token", bearerToken);
             certificates = getCMSSignedCertificate(csrString, trustStorePath, password);
             if( certificates == null ) {
                 throw new IOException("Cannot create TLS certificate");
