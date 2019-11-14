@@ -7,6 +7,7 @@ package com.intel.mtwilson.shiro.authc.model;
 
 public class Permissions {
     private String service;
+    private String context;
     private String[] rules;
 
     public String getService() {
@@ -15,6 +16,14 @@ public class Permissions {
 
     public void setService(String service) {
         this.service = service;
+    }
+
+    public String getContext() {
+        return context;
+    }
+
+    public void setContext(String context) {
+        this.context = context;
     }
 
     public String[] getRules() {
