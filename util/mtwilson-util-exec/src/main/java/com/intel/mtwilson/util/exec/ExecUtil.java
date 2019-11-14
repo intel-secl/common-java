@@ -78,7 +78,6 @@ public class ExecUtil {
             exitCode = executor.execute(command);
             return new Result(exitCode, stdout.toByteArray(), stderr.toByteArray());
         } catch (ExecuteException ee) {
-            log.error("Error while executing command: {}", command.toString(), ee);
             return new Result(exitCode, stdout.toByteArray(), stderr.toByteArray());
         }
     }
@@ -102,7 +101,6 @@ public class ExecUtil {
             }
             return new Result(exitCode, stdout.toByteArray(), stderr.toByteArray());
         } catch (ExecuteException ee) {
-            log.error("Error while executing command: {}", command.toString(), ee);
             return new Result(exitCode, stdout.toByteArray(), stderr.toByteArray());
         }
     }
@@ -121,7 +119,6 @@ public class ExecUtil {
             exitCode = executor.execute(command, environment);
             return new Result(exitCode, stdout.toByteArray(), stderr.toByteArray());
         } catch (ExecuteException ee) {
-            log.error("Error while executing command: {}", command.toString(), ee);
             return new Result(exitCode, stdout.toByteArray(), stderr.toByteArray());
         }
     }
@@ -141,7 +138,6 @@ public class ExecUtil {
             return result;
         }
         catch(ExecuteException e) {
-            log.error("Error while executing command: {}", command.getExecutable(), e);
             Result result = new Result(e.getExitValue(), stdout.toByteArray(), stderr.toByteArray());
             return result;
         }
