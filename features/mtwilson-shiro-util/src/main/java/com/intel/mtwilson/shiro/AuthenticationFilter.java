@@ -12,6 +12,8 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.PathMatchingFilter;
 
+import java.util.Arrays;
+
 /**
  * This AuthenticationFilter class is a replacement for Apache Shiro's
  * AccessControlFilter, AuthenticationFilter, and AuthenticatingFilter 
@@ -49,7 +51,8 @@ import org.apache.shiro.web.filter.PathMatchingFilter;
  */
 public abstract class AuthenticationFilter extends PathMatchingFilter {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AuthenticationFilter.class);
-    
+
+    private static final String PERMISSIVE = "permissive";
     private boolean skipAuthenticated = true;
     private boolean permissive = true;
     
@@ -101,6 +104,10 @@ public abstract class AuthenticationFilter extends PathMatchingFilter {
             return true;
         }
         try {
+            if(mappedValue != null) {
+                String[] values = (String[]) mappedValue;
+                permissive = Arrays.binarySearch(values, PERMISSIVE) >= 0;
+            }
             if( isAuthenticationRequest(request) ) {
                 log.debug("Detected authentication request for {}", getClass().getName());
             } else {
@@ -112,6 +119,7 @@ public abstract class AuthenticationFilter extends PathMatchingFilter {
             }
             if( isPermissive() ) {
                 // in permissive mode we let the request continue (default true) - a "user" filter later on or an authorization check will stop the request if it cannot continue without being authenticated
+                log.debug("Continuing the request as permissive flag is set");
                 return true;
             }
             return false;
