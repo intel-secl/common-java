@@ -67,7 +67,7 @@ public class JettyTlsKeystore extends AbstractSetupTask {
 
     // constants
     private static final String TLS_ALIAS = "jetty";
-    private final String cmsCaFileName = Folders.configuration() + "/cms-ca.cert";
+    private final String cmsCaFileName = Folders.configuration() + "/cms-ca-cert.pem";
 
     // configuration keys
     private static final String JETTY_TLS_CERT_DN = "jetty.tls.cert.dn";
@@ -256,9 +256,9 @@ public class JettyTlsKeystore extends AbstractSetupTask {
                 throw new IOException("Cannot create TLS certificate");
             }
             /**
-             * save the TLS certificate  signed by CMS to configuration/tls.cert
+             * save the TLS certificate  signed by CMS to configuration/tls-cert.pem
              */
-            String tlsCertPath = Folders.configuration()+File.separator+"tls.cert";
+            String tlsCertPath = Folders.configuration()+File.separator+"tls-cert.pem";
             File tlsCertFile = new File(tlsCertPath);
             FileWriter fileWriter = new FileWriter(tlsCertFile);
             JcaPEMWriter pemWriter = new JcaPEMWriter(fileWriter);
