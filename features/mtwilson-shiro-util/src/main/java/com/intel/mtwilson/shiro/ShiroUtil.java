@@ -110,7 +110,11 @@ public class ShiroUtil {
         if (jwtToken != null) {
             while (noOfRetries <= 2) {
                 try {
-                    String jwtKid = decodeTokenClaims(jwtToken).getHeader().get("kid").toString();
+                    Object kid = decodeTokenClaims(jwtToken).getHeader().get("kid");
+                    if (kid == null) {
+                        throw new CertificateException("JWT token kid not found");
+                    }
+                    String jwtKid = kid.toString();
                     Certificate jwtSigningCert = kidPubKeyMap.get(jwtKid);
                     if (jwtSigningCert != null) {
                         log.debug("JWT token kid: {}", jwtKid);

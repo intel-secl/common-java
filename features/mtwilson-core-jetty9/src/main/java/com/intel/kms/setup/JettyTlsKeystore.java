@@ -32,6 +32,8 @@ import java.net.SocketException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.security.*;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.List;
@@ -216,40 +218,44 @@ public class JettyTlsKeystore extends AbstractSetupTask {
         JCApemWriter1.writeObject(tlscertrequest);
         JCApemWriter1.close();
         String csrString = stringWriter1.toString();
+
+        String truststoreType = KeyStore.getDefaultType();
+        String extension = "p12";
+        if (truststoreType.equalsIgnoreCase("JKS")) {
+            extension = "jks";
+        }
+        String trustStorePath = Folders.configuration()+File.separator+"truststore."+extension;
+        File trustStoreFile = new File(trustStorePath);
+        // create truststore if not already present
+        trustStoreFile.createNewFile();
+
+        String tlsCertPath = Folders.configuration()+File.separator+"tls.cert";
+        File tlsCertFile = new File(tlsCertPath);
+
         X509Certificate[] certificates = null;
         X509Certificate tlsCertificate = null;
-        try {
+        try(FileWriter fileWriter = new FileWriter(tlsCertFile);
+            FileOutputStream fout = new FileOutputStream(trustStoreFile, false);
+            FileOutputStream fos = new FileOutputStream(new File(cmsCaFileName))) {
             /**
              * add the cms ca certificate to truststore. password(changeit) need to be
              * provided to facilitate adding other CAs later to the truststore
              */
             // Creating an empty keystore
-            String truststoreType = KeyStore.getDefaultType();
             KeyStore keystore = KeyStore.getInstance(truststoreType);
             keystore.load(null, null);
 
-            String extension = "p12";
-            if (truststoreType.equalsIgnoreCase("JKS")) {
-                extension = "jks";
-            }
-            String trustStorePath = Folders.configuration()+File.separator+"truststore."+extension;
-            File trustStoreFile = new File(trustStorePath);
-            // create truststore if not already present
-            trustStoreFile.createNewFile();
-            FileOutputStream fout = new FileOutputStream(trustStoreFile, false);
             // set alias as "cmsCA" for the CMS CA certificate. every cert added to
             // truststore needs to be associated with an alias
             X509Certificate cmsCACert = CMSRootCaDownloader.downloadCmsCaCert(cmsBaseUrl);
-            IOUtils.write(new Pem("CERTIFICATE", cmsCACert.getEncoded()).toString(), new FileOutputStream(new File(cmsCaFileName)));
-
             keystore.setCertificateEntry("cmsCA", cmsCACert);
             char[] password = "changeit".toCharArray();
             keystore.store(fout, password);
-            fout.close();
+
+            IOUtils.write(new Pem("CERTIFICATE", cmsCACert.getEncoded()).toString(), fos);
 
             ///Now use this truststore to get TLS Certificate
             ///Retrieve the certificate from CMS.
-
             properties.setProperty("bearer.token", bearerToken);
             certificates = getCMSSignedCertificate(csrString, trustStorePath, password);
             if( certificates == null ) {
@@ -258,24 +264,20 @@ public class JettyTlsKeystore extends AbstractSetupTask {
             /**
              * save the TLS certificate  signed by CMS to configuration/tls-cert.pem
              */
-            String tlsCertPath = Folders.configuration()+File.separator+"tls-cert.pem";
-            File tlsCertFile = new File(tlsCertPath);
-            FileWriter fileWriter = new FileWriter(tlsCertFile);
             JcaPEMWriter pemWriter = new JcaPEMWriter(fileWriter);
             for(X509Certificate cert : certificates) {
                 pemWriter.writeObject(cert);
             }
             pemWriter.close();
 
-            FileOutputStream fout1 = new FileOutputStream(trustStoreFile, false);
             tlsCertificate = certificates[0];
             keystore.setCertificateEntry("tls", tlsCertificate);
             for(int i=1; i < certificates.length; i++) {
                 keystore.setCertificateEntry("tls-ca-" + i, certificates[i]);
             }
 
-            keystore.store(fout1, password);
-        } catch (IOException ex) {
+            keystore.store(fout, password);
+        } catch (IOException | CertificateException ex) {
             log.debug("exception while updating tls.cert/truststore {}", ex.getMessage());
         }
 
@@ -293,10 +295,12 @@ public class JettyTlsKeystore extends AbstractSetupTask {
         if( propertiesFile.exists() ) {
             properties.load(new StringReader(FileUtils.readFileToString(propertiesFile, Charset.forName("UTF-8"))));
         }
-        properties.setProperty("tls.cert.md5", Md5Digest.digestOf(tlsCertificate.getEncoded()).toString());
-        properties.setProperty("tls.cert.sha1", Sha1Digest.digestOf(tlsCertificate.getEncoded()).toString());
-        properties.setProperty("tls.cert.sha256", Sha256Digest.digestOf(tlsCertificate.getEncoded()).toString());
-        properties.setProperty("tls.cert.sha384", Sha384Digest.digestOf(tlsCertificate.getEncoded()).toString());
+        if (tlsCertificate != null) {
+            properties.setProperty("tls.cert.md5", Md5Digest.digestOf(tlsCertificate.getEncoded()).toString());
+            properties.setProperty("tls.cert.sha1", Sha1Digest.digestOf(tlsCertificate.getEncoded()).toString());
+            properties.setProperty("tls.cert.sha256", Sha256Digest.digestOf(tlsCertificate.getEncoded()).toString());
+            properties.setProperty("tls.cert.sha384", Sha384Digest.digestOf(tlsCertificate.getEncoded()).toString());
+        }
         StringWriter writer = new StringWriter();
         properties.store(writer, String.format("updated on %s", Iso8601Date.format(new Date())));
         FileUtils.write(propertiesFile, writer.toString(), Charset.forName("UTF-8"));

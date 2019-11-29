@@ -129,8 +129,10 @@ public class HmacAuthenticationFilter extends HttpAuthenticationFilter {
                 String[] queryParameterNames = queryParameterNameCsv.split(",");
                 for (String queryParameterName : queryParameterNames) {
                     List<String> values = queryParams.get(queryParameterName);
-                    for (String value : values) {
-                        builder.queryParam(queryParameterName, value);
+                    if (values != null) {
+                        for (String value : values) {
+                            builder.queryParam(queryParameterName, value);
+                        }
                     }
                 }
             }

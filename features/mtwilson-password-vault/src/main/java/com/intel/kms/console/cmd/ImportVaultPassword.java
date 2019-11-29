@@ -84,7 +84,7 @@ public class ImportVaultPassword extends InteractiveCommand {
 
         // read password from stdin
         byte[] password;
-        if (this.options != null && options.getBoolean("pem", false)) {
+        if (options.getBoolean("pem", false)) {
             // read base64-encoded key in PEM-style format
             Pem pem = Pem.valueOf(IOUtils.toString(System.in, Charset.forName("UTF-8")));
             password = pem.getContent();

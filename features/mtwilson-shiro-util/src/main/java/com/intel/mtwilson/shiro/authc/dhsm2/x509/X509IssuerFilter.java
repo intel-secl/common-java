@@ -8,6 +8,7 @@ package com.intel.mtwilson.shiro.authc.dhsm2.x509;
 import com.intel.mtwilson.Folders;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
@@ -37,12 +38,13 @@ public class X509IssuerFilter implements X509Filter {
 						}
 						KeyStore trustStore = KeyStore.getInstance(truststoreType);
 						trustStorePath = trustStorePath + "truststore."+extension;
-						trustStore.load(new FileInputStream(trustStorePath), null);
+						FileInputStream fis = new FileInputStream(trustStorePath);
 
-						Enumeration<String> aliases = null;
+						Enumeration<String> aliases;
 						try {
+								trustStore.load(fis, null);
 								aliases = trustStore.aliases();
-								String certAlias = null;
+								String certAlias;
 								while (aliases.hasMoreElements()) {
 										certAlias = aliases.nextElement();
 										if (trustStore.isCertificateEntry(certAlias)) {
@@ -54,6 +56,11 @@ public class X509IssuerFilter implements X509Filter {
 								}
 						} catch (KeyStoreException e) {
 								log.error("TrustStore Error", e);
+						} catch (IOException e) {
+								log.error("Unable to load TrustStore", e);
+								throw new Exception("Unable to load TrustStore", e);
+						} finally {
+								fis.close();
 						}
 				} catch (Exception e) {
 						log.debug("doGetAuthenticationInfo error", e);

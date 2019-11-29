@@ -70,7 +70,7 @@ public class RetryProxy implements InvocationHandler {
                 // not declared by calling code so must wrap in RuntimeException
                 throw new RuntimeException(e);
             } catch (InvocationTargetException e) {
-                log.debug("call failed ...  now we can retry !!!   backoff={}  max={}", e, retryBackoff.toString(), retryMax);
+                log.debug("call failed ...  now we can retry !!!   backoff={}  max={}", e, retryBackoff, retryMax);
                 // we only rethrow the original exception on the last attempt
                 if (retryMax != null && retries == retryMax) {
                     throw e.getTargetException();
