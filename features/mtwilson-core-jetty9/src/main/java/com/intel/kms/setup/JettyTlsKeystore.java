@@ -236,6 +236,7 @@ public class JettyTlsKeystore extends AbstractSetupTask {
         X509Certificate tlsCertificate = null;
         try(FileWriter fileWriter = new FileWriter(tlsCertFile);
             FileOutputStream fout = new FileOutputStream(trustStoreFile, false);
+            FileOutputStream fout1 = new FileOutputStream(trustStoreFile, false);
             FileOutputStream fos = new FileOutputStream(new File(cmsCaFileName))) {
             /**
              * add the cms ca certificate to truststore. password(changeit) need to be
@@ -276,7 +277,7 @@ public class JettyTlsKeystore extends AbstractSetupTask {
                 keystore.setCertificateEntry("tls-ca-" + i, certificates[i]);
             }
 
-            keystore.store(fout, password);
+            keystore.store(fout1, password);
         } catch (IOException | CertificateException ex) {
             log.debug("exception while updating tls.cert/truststore {}", ex.getMessage());
         }
