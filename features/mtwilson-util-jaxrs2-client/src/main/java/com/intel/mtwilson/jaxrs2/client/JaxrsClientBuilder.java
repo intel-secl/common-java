@@ -21,11 +21,12 @@ import com.intel.dcsg.cpg.crypto.key.password.Password;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
 import com.intel.keplerlake.authz.hmac.client.JaxrsHmacAuthorizationFilter;
 import com.intel.mtwilson.jaxrs2.client.retry.RetryProxy;
+
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
-import org.glassfish.jersey.filter.LoggingFilter;
 import com.intel.mtwilson.MyConfiguration;
 import com.intel.mtwilson.jaxrs2.feature.JacksonFeature;
 import com.intel.mtwilson.retry.Backoff;
@@ -54,6 +55,7 @@ import javax.ws.rs.client.ClientRequestFilter;
 import org.apache.commons.codec.binary.Base64;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider; // jersey 2.4.1
+import org.glassfish.jersey.logging.LoggingFeature;
 
 /**
  * Examples:
@@ -74,6 +76,7 @@ public class JaxrsClientBuilder {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JaxrsClientBuilder.class);
     private static final int DEFAULT_CONNECTION_TIMEOUT = 10;
     private static final int DEFAULT_READ_TIMEOUT = 10;
+    private static final String DEFAULT_LOGGER_CLASS_PATH = "org.glassfish.jersey.logging.LoggingFeature";
 
     public static JaxrsClientBuilder factory() {
         return new JaxrsClientBuilder();
@@ -462,11 +465,12 @@ public class JaxrsClientBuilder {
             }
             Client client = builder.build();
             if (org.slf4j.LoggerFactory.getLogger(JaxrsClient.class).isDebugEnabled() ||
-                    (configuration != null && Boolean.valueOf(configuration.get("org.glassfish.jersey.filter.LoggingFilter.printEntity", "true")))
+                    (configuration != null && Boolean.valueOf(configuration.get(DEFAULT_LOGGER_CLASS_PATH, "true")))
                     ) {
-                client.register(new LoggingFilter(Logger.getLogger("org.glassfish.jersey.filter.LoggingFilter"), true));
+                client.register(new LoggingFeature(Logger.getLogger(DEFAULT_LOGGER_CLASS_PATH),
+                        Level.INFO, LoggingFeature.Verbosity.PAYLOAD_TEXT, 8192));
             } else {
-                client.register(new LoggingFilter());
+                client.register(new LoggingFeature());
             }
 
             if( retryBackoff != null || retryMax != null ) {

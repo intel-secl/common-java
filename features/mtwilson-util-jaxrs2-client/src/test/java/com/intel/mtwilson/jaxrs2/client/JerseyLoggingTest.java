@@ -8,10 +8,6 @@ import ch.qos.logback.classic.Logger;
 import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import javax.ws.rs.QueryParam;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +17,8 @@ import org.slf4j.LoggerFactory;
  */
 public class JerseyLoggingTest {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JerseyLoggingTest.class);
+    private static final String DEFAULT_LOGGER_CLASS_PATH = "org.glassfish.jersey.logging.LoggingFeature";
+
     
     private void setLogLevel(Class clazz, Level level) {
         Logger root = (Logger) LoggerFactory.getLogger(clazz);
@@ -34,14 +32,14 @@ public class JerseyLoggingTest {
     @Test
     public void testWithErrorLogging() throws MalformedURLException {
         setLogLevel(JaxrsClient.class, Level.ERROR);
-        setLogLevel("org.glassfish.jersey.filter.LoggingFilter", Level.ERROR);
+        setLogLevel(DEFAULT_LOGGER_CLASS_PATH, Level.ERROR);
         JaxrsClient client = JaxrsClientBuilder.factory().url(new URL("https://intel.com")).proxy("proxy-us.intel.com", 911).tlsPolicy(new InsecureTlsPolicy()).build();
         log.debug("uri: {}", client.getTargetPath("/").getUri().toString());
         client.getTarget().request().get();
         /*
         Example output:
 10:52:21.789 [main] DEBUG c.i.m.j.client.JerseyLoggingTest - uri: http://intel.com/
-May 29, 2017 11:48:52 AM org.glassfish.jersey.filter.LoggingFilter log
+May 29, 2017 11:48:52 AM org.glassfish.jersey.logging.LoggingFeature log
 INFO: 1 * LoggingFilter - Request received on thread main
 1 > GET https://intel.com
 
@@ -69,14 +67,14 @@ INFO: 2 * LoggingFilter - Response received on thread main
     @Test
     public void testWithInfoLogging() throws MalformedURLException {
         setLogLevel(JaxrsClient.class, Level.INFO);
-        setLogLevel("org.glassfish.jersey.filter.LoggingFilter", Level.INFO);
+        setLogLevel(DEFAULT_LOGGER_CLASS_PATH, Level.INFO);
         JaxrsClient client = JaxrsClientBuilder.factory().url(new URL("https://intel.com")).proxy("proxy-us.intel.com", 911).tlsPolicy(new InsecureTlsPolicy()).build();
         log.debug("uri: {}", client.getTargetPath("/").getUri().toString());
         client.getTarget().request().get();
         /*
         Example output:
 11:50:01.791 [main] DEBUG c.i.m.j.client.JerseyLoggingTest - uri: https://intel.com/
-May 29, 2017 11:50:02 AM org.glassfish.jersey.filter.LoggingFilter log
+May 29, 2017 11:50:02 AM org.glassfish.jersey.logging.LoggingFeature log
 INFO: 1 * LoggingFilter - Request received on thread main
 1 > GET https://intel.com
 
@@ -104,7 +102,7 @@ INFO: 2 * LoggingFilter - Response received on thread main
     @Test
     public void testWithDebugLogging() throws MalformedURLException {
         setLogLevel(JaxrsClient.class, Level.DEBUG);
-        setLogLevel("org.glassfish.jersey.filter.LoggingFilter", Level.DEBUG);
+        setLogLevel(DEFAULT_LOGGER_CLASS_PATH, Level.DEBUG);
         JaxrsClient client = JaxrsClientBuilder.factory().url(new URL("https://intel.com")).proxy("proxy-us.intel.com", 911).tlsPolicy(new InsecureTlsPolicy()).build();
         log.debug("uri: {}", client.getTargetPath("/").getUri().toString());
         client.getTarget().request().get();
