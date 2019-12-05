@@ -229,7 +229,7 @@ public class JettyTlsKeystore extends AbstractSetupTask {
         // create truststore if not already present
         trustStoreFile.createNewFile();
 
-        String tlsCertPath = Folders.configuration()+File.separator+"tls.cert";
+        String tlsCertPath = Folders.configuration()+File.separator+"tls-cert.pem";
         File tlsCertFile = new File(tlsCertPath);
 
         X509Certificate[] certificates = null;
