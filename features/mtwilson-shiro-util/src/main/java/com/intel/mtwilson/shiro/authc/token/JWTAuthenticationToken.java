@@ -47,18 +47,19 @@ public class JWTAuthenticationToken implements AuthenticationToken {
 
     public String[] getPermissionsFromToken(String applicationName) {
         JwtBody jwtBody = this.getJwtBodyFromToken();
-        String[] permissionsFromRole = {};
+        ArrayList<String> permissionsFromRole = new ArrayList<>();
         if(jwtBody != null && jwtBody.getPermissions() != null) {
             for (Permissions permissions : jwtBody.getPermissions()) {
                 if (permissions.getService().equals(applicationName) && permissions.getRules() != null) {
-                    permissionsFromRole = permissions.getRules();
-                    if (permissionsFromRole.length == 0) {
-                        log.warn("No permission provided in JWT for service {}", applicationName);
-                    }
+                    permissionsFromRole.addAll(Arrays.asList(permissions.getRules()));
                 }
             }
         }
-        return permissionsFromRole;
+        if (permissionsFromRole.size() == 0) {
+            log.warn("No permission provided in JWT for service {}", applicationName);
+        }
+        String[] permissionsArray = new String[permissionsFromRole.size()];
+        return permissionsFromRole.toArray(permissionsArray);
     }
 
     private String getKidFromToken() {
