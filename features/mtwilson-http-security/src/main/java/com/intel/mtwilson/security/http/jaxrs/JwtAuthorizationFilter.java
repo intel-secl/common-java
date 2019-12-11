@@ -56,9 +56,7 @@ public class JwtAuthorizationFilter implements ClientRequestFilter {
         // Modify the request
         try {
             String header = String.format("Bearer %s", new String(tokenValue.toCharArray()));
-            log.debug("Authorization: {}", header);
             requestContext.getHeaders().add("Authorization", header);
-
         }
         catch(Exception e) {
             throw new IOException(e);

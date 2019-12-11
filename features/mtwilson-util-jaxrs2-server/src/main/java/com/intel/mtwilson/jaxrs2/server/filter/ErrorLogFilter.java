@@ -38,7 +38,9 @@ public class ErrorLogFilter implements ContainerResponseFilter {
                 MultivaluedMap<String, String> requestHeaderMap = request.getHeaders();
                 for (String headerName : requestHeaderMap.keySet()) {
                     List<String> headerValueList = requestHeaderMap.get(headerName);
+                    if(!headerName.equalsIgnoreCase("Authorization")){
                     log.debug("Request header name {} value {}", headerName, headerValueList);
+                    }
                 }
                 // request body
                 try {
