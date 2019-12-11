@@ -926,6 +926,13 @@ register_startup_script() {
 
 }
 
+check_error()
+{
+    if [ $1 -ne 0 ]; then
+        echo_warning "Error executing $2 command, check error logs in $3 file"
+    fi
+}
+
 # Parameters:
 # - the name of the startup script (one word)
 remove_startup_script() {
@@ -947,7 +954,7 @@ remove_startup_script() {
   # systemd
   systemctlCommand=`which systemctl 2>/dev/null`
   if [ -n "$systemctlCommand" ]; then
-    "$systemctlCommand" disable "${startup_name}.service"
+    "$systemctlCommand" disable "${startup_name}.service" 2>/dev/null
     "$systemctlCommand" daemon-reload
   fi
   if [ -f "/etc/systemd/system/${startup_name}.service" ]; then
