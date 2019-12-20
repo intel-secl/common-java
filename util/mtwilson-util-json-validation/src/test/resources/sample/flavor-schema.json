@@ -1,0 +1,442 @@
+
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "title": "Root schema.",
+  "description": "An explanation about the purpose of this instance.",
+  "properties": {
+    "label": {
+      "type": "string",
+      "title": "Label schema.",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "id": {
+      "type": "string",
+      "title": "Id schema.",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "description": {
+      "type": "string",
+      "title": "Description schema.",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "notBefore": {
+      "type": "string",
+      "title": "NotBefore schema.",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "notAfter": {
+      "type": "null",
+      "title": "NotAfter schema.",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "hardware": {
+      "type": "object",
+      "title": "Hardware schema.",
+      "description": "An explanation about the purpose of this instance.",
+      "properties": {
+        "vendor": {
+          "type": "string",
+          "title": "Vendor schema.",
+          "description": "An explanation about the purpose of this instance."
+        },
+        "features": {
+          "type": "object",
+          "title": "Features schema.",
+          "description": "An explanation about the purpose of this instance.",
+          "properties": {
+            "AES-NI": {
+              "type": "object",
+              "title": "AES-NI schema.",
+              "description": "An explanation about the purpose of this instance.",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "title": "Enabled schema.",
+                  "description": "An explanation about the purpose of this instance."
+                }
+              }
+            },
+            "$anyOf": {
+              "type": "array",
+              "title": "$anyOf schema.",
+              "description": "An explanation about the purpose of this instance.",
+              "items": {
+                "type": "object",
+                "title": "1 schema.",
+                "description": "An explanation about the purpose of this instance.",
+                "properties": {
+                  "SGX": {
+                    "type": "object",
+                    "title": "SGX schema.",
+                    "description": "An explanation about the purpose of this instance.",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "title": "Enabled schema.",
+                        "description": "An explanation about the purpose of this instance."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "TPM": {
+              "type": "object",
+              "title": "TPM schema.",
+              "description": "An explanation about the purpose of this instance.",
+              "properties": {
+                "version": {
+                  "type": "string",
+                  "title": "Version schema.",
+                  "description": "An explanation about the purpose of this instance."
+                },
+                "enabled": {
+                  "type": "boolean",
+                  "title": "Enabled schema.",
+                  "description": "An explanation about the purpose of this instance."
+                },
+                "pcrs": {
+                  "type": "object",
+                  "title": "Pcrs schema.",
+                  "description": "An explanation about the purpose of this instance.",
+                  "properties": {
+                    "0": {
+                      "type": "object",
+                      "title": "0 schema.",
+                      "description": "An explanation about the purpose of this instance.",
+                      "properties": {
+                        "value": {
+                          "type": "string",
+                          "title": "Value schema.",
+                          "description": "An explanation about the purpose of this instance."
+                        }
+                      }
+                    },
+                    "17": {
+                      "type": "object",
+                      "title": "17 schema.",
+                      "description": "An explanation about the purpose of this instance.",
+                      "properties": {
+                        "$oneOf": {
+                          "type": "array",
+                          "title": "$oneOf schema.",
+                          "description": "An explanation about the purpose of this instance.",
+                          "items": {
+                            "type": "object",
+                            "title": "1 schema.",
+                            "description": "An explanation about the purpose of this instance.",
+                            "properties": {
+                              "value": {
+                                "type": "string",
+                                "title": "Value schema.",
+                                "description": "An explanation about the purpose of this instance."
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "software": {
+      "type": "object",
+      "title": "Software schema.",
+      "description": "An explanation about the purpose of this instance.",
+      "properties": {
+        "digestAlg": {
+          "type": "string",
+          "title": "DigestAlg schema.",
+          "description": "An explanation about the purpose of this instance."
+        },
+        "measurements": {
+          "type": "object",
+          "title": "Measurements schema.",
+          "description": "An explanation about the purpose of this instance.",
+          "properties": {
+            "/etc/hosts": {
+              "type": "object",
+              "title": "/etc/hosts schema.",
+              "description": "An explanation about the purpose of this instance.",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "title": "Type schema.",
+                  "description": "An explanation about the purpose of this instance."
+                },
+                "digest": {
+                  "type": "string",
+                  "title": "Digest schema.",
+                  "description": "An explanation about the purpose of this instance."
+                }
+              }
+            },
+            "$oneOf": {
+              "type": "array",
+              "title": "$oneOf schema.",
+              "description": "An explanation about the purpose of this instance.",
+              "items": {
+                "type": "object",
+                "title": "1 schema.",
+                "description": "An explanation about the purpose of this instance.",
+                "properties": {
+                  "/opt/mtwilson/java/mtwilson-util-crypto-3.0.jar": {
+                    "type": "object",
+                    "title": "/opt/mtwilson/java/mtwilson-util-crypto-3.0.jar schema.",
+                    "description": "An explanation about the purpose of this instance.",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "title": "Type schema.",
+                        "description": "An explanation about the purpose of this instance."
+                      },
+                      "digest": {
+                        "type": "string",
+                        "title": "Digest schema.",
+                        "description": "An explanation about the purpose of this instance."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "/etc/apache2/mods.enabled": {
+              "type": "object",
+              "title": "/etc/apache2/mods.enabled schema.",
+              "description": "An explanation about the purpose of this instance.",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "title": "Type schema.",
+                  "description": "An explanation about the purpose of this instance."
+                },
+                "digest": {
+                  "type": "string",
+                  "title": "Digest schema.",
+                  "description": "An explanation about the purpose of this instance."
+                },
+                "include": {
+                  "type": "string",
+                  "title": "Include schema.",
+                  "description": "An explanation about the purpose of this instance."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "boot": {
+      "type": "object",
+      "title": "Boot schema.",
+      "description": "An explanation about the purpose of this instance.",
+      "properties": {
+        "bios": {
+          "type": "object",
+          "title": "Bios schema.",
+          "description": "An explanation about the purpose of this instance.",
+          "properties": {
+            "vendor": {
+              "type": "string",
+              "title": "Vendor schema.",
+              "description": "An explanation about the purpose of this instance."
+            },
+            "version": {
+              "type": "string",
+              "title": "Version schema.",
+              "description": "An explanation about the purpose of this instance."
+            },
+            "digestAlg": {
+              "type": "string",
+              "title": "DigestAlg schema.",
+              "description": "An explanation about the purpose of this instance."
+            },
+            "digest": {
+              "type": "string",
+              "title": "Digest schema.",
+              "description": "An explanation about the purpose of this instance."
+            },
+            "pcr": {
+              "type": "integer",
+              "title": "Pcr schema.",
+              "description": "An explanation about the purpose of this instance."
+            }
+          }
+        },
+        "initrd": {
+          "type": "object",
+          "title": "Initrd schema.",
+          "description": "An explanation about the purpose of this instance.",
+          "properties": {
+            "digestAlg": {
+              "type": "string",
+              "title": "DigestAlg schema.",
+              "description": "An explanation about the purpose of this instance."
+            },
+            "digest": {
+              "type": "string",
+              "title": "Digest schema.",
+              "description": "An explanation about the purpose of this instance."
+            },
+            "pcr": {
+              "type": "integer",
+              "title": "Pcr schema.",
+              "description": "An explanation about the purpose of this instance."
+            }
+          }
+        }
+      }
+    },
+    "external": {
+      "type": "object",
+      "title": "External schema.",
+      "description": "An explanation about the purpose of this instance.",
+      "properties": {
+        "geotag": {
+          "type": "object",
+          "title": "Geotag schema.",
+          "description": "An explanation about the purpose of this instance.",
+          "properties": {
+            "digestAlg": {
+              "type": "string",
+              "title": "DigestAlg schema.",
+              "description": "An explanation about the purpose of this instance."
+            },
+            "digest": {
+              "type": "string",
+              "title": "Digest schema.",
+              "description": "An explanation about the purpose of this instance."
+            },
+            "certificate": {
+              "type": "object",
+              "title": "Certificate schema.",
+              "description": "An explanation about the purpose of this instance.",
+              "properties": {
+                "attributes": {
+                  "type": "object",
+                  "title": "Attributes schema.",
+                  "description": "An explanation about the purpose of this instance.",
+                  "properties": {
+                    "2.5.4.789.1": {
+                      "type": "object",
+                      "title": "2.5.4.789.1 schema.",
+                      "description": "An explanation about the purpose of this instance.",
+                      "properties": {
+                        "country": {
+                          "type": "string",
+                          "title": "Country schema.",
+                          "description": "An explanation about the purpose of this instance."
+                        },
+                        "$oneOf": {
+                          "type": "array",
+                          "title": "$oneOf schema.",
+                          "description": "An explanation about the purpose of this instance.",
+                          "items": {
+                            "type": "object",
+                            "title": "1 schema.",
+                            "description": "An explanation about the purpose of this instance.",
+                            "properties": {
+                              "state": {
+                                "type": "string",
+                                "title": "State schema.",
+                                "description": "An explanation about the purpose of this instance."
+                              },
+                              "city": {
+                                "type": "string",
+                                "title": "City schema.",
+                                "description": "An explanation about the purpose of this instance."
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "2.5.4.789.2": {
+                      "type": "object",
+                      "title": "2.5.4.789.2 schema.",
+                      "description": "An explanation about the purpose of this instance.",
+                      "properties": {
+                        "country": {
+                          "type": "array",
+                          "title": "Country schema.",
+                          "description": "An explanation about the purpose of this instance.",
+                          "items": {
+                            "type": "string",
+                            "title": "0 schema.",
+                            "description": "An explanation about the purpose of this instance."
+                          }
+                        },
+                        "$oneOf": {
+                          "type": "array",
+                          "title": "$oneOf schema.",
+                          "description": "An explanation about the purpose of this instance.",
+                          "items": {
+                            "type": "object",
+                            "title": "1 schema.",
+                            "description": "An explanation about the purpose of this instance.",
+                            "properties": {
+                              "state": {
+                                "type": "array",
+                                "title": "State schema.",
+                                "description": "An explanation about the purpose of this instance.",
+                                "items": {
+                                  "type": "string",
+                                  "title": "0 schema.",
+                                  "description": "An explanation about the purpose of this instance."
+                                }
+                              },
+                              "city": {
+                                "type": "array",
+                                "title": "City schema.",
+                                "description": "An explanation about the purpose of this instance.",
+                                "items": {
+                                  "type": "string",
+                                  "title": "0 schema.",
+                                  "description": "An explanation about the purpose of this instance."
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "issuer": {
+                  "type": "object",
+                  "title": "Issuer schema.",
+                  "description": "An explanation about the purpose of this instance.",
+                  "properties": {
+                    "$anyOf": {
+                      "type": "array",
+                      "title": "$anyOf schema.",
+                      "description": "An explanation about the purpose of this instance.",
+                      "items": {
+                        "type": "object",
+                        "title": "1 schema.",
+                        "description": "An explanation about the purpose of this instance.",
+                        "properties": {
+                          "publicKey": {
+                            "type": "string",
+                            "title": "PublicKey schema.",
+                            "description": "An explanation about the purpose of this instance."
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

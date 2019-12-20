@@ -5,6 +5,9 @@
 package com.intel.mtwilson.jaxrs2;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.intel.dcsg.cpg.validation.Fault;
+import com.intel.dcsg.cpg.validation.Faults;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,10 +23,11 @@ import java.util.Map;
  * @author jbuhacoff
  */
 @JsonInclude(JsonInclude.Include.NON_EMPTY) // jackson 2.0
-public abstract class DocumentCollection<T> {
+public abstract class DocumentCollection<T> implements Faults {
     private final HashMap<String,Object> meta = new HashMap<String,Object>();
     private final HashMap<String,Object> links = new HashMap<String,Object>();
     private final HashMap<String,Object> linked = new HashMap<String,Object>();
+    private final List<Fault> faults = new ArrayList<>();
 
     public Map<String, Object> getMeta() {
         return meta;
@@ -39,4 +43,11 @@ public abstract class DocumentCollection<T> {
 
     @com.fasterxml.jackson.annotation.JsonIgnore // jackson 2.x
     public abstract List<T> getDocuments();
+
+    @Override
+    public List<Fault> getFaults() {
+        return faults;
+    }
+
+
 }

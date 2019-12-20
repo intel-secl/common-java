@@ -70,7 +70,7 @@ public class FilePasswordRealm extends AuthorizingRealm {
             log.debug("doGetAuthorizationInfo for realm: {}", realmName);
         }
         try {
-            LoginDAO dao = new LoginDAO(new File(userFilePath), new File(permissionFilePath));
+            PermissionDAO dao = new PermissionDAO(new File(permissionFilePath));
             Collection<Username> usernames = pc.byType(Username.class);
             for(Username username : usernames) {
                 log.debug("doGetAuthorizationInfo for username: {}", username.getUsername());

@@ -69,11 +69,31 @@ public class ReflectionUtil {
         return notInterface && notAbstract && oneArg;
     }
 
+    /**
+     * 
+     * @param clazz
+     * @return true if the class has any annotations and is not an interface, not abstract, and has a no-arg constructor
+     */
+    public static boolean isAnnotatedClass(Class<?> clazz) {
+        boolean notInterface = !clazz.isInterface();
+        boolean annotated = clazz.getAnnotations().length > 0;
+        boolean notAbstract = !Modifier.isAbstract(clazz.getModifiers());
+        boolean noArgs = hasNoArgConstructor(clazz);
+        return notInterface && notAbstract && annotated && noArgs;
+    }
+
+    /**
+     * 
+     * @param clazz
+     * @param annotation
+     * @return true if the class has the specified annotation and is not an interface, not abstract, and has a no-arg constructor
+     */
     public static boolean isAnnotatedClass(Class<?> clazz, Class<? extends Annotation> annotation) {
         boolean notInterface = !clazz.isInterface();
         boolean annotated = clazz.isAnnotationPresent(annotation);
+        boolean notAbstract = !Modifier.isAbstract(clazz.getModifiers());
         boolean noArgs = hasNoArgConstructor(clazz);
-        return notInterface && annotated && noArgs;
+        return notInterface && notAbstract && annotated && noArgs;
     }
     
 }

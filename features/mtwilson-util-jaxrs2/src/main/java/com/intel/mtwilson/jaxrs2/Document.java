@@ -27,8 +27,8 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public abstract class Document extends AbstractDocument {
     private URL href;
-    private final HashMap<String,Object> meta = new HashMap<>();
-    private final HashMap<String,Object> links = new HashMap<>();
+    private final MetaDataMap meta = new MetaDataMap(super.getMeta());
+    private final LinkHrefMap links = new LinkHrefMap(super.getMeta().getLinkMap());
     private String etag;
     private Date createdOn; 
     private Date modifiedOn;
@@ -40,9 +40,9 @@ public abstract class Document extends AbstractDocument {
     public void setHref(URL href) {
         this.href = href;
     }
-    
-    
-    public Map<String, Object> getMeta() {
+
+    @Override
+    public MetaDataMap getMeta() {
         return meta;
     }
 

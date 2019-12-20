@@ -10,6 +10,7 @@ import com.intel.dcsg.cpg.crypto.SimpleKeystore;
 import com.intel.dcsg.cpg.io.pem.Pem;
 import com.intel.dcsg.cpg.io.pem.PemLikeParser;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.KeyFactory;
 import java.security.KeyManagementException;
@@ -31,10 +32,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.security.x509.GeneralNameInterface;
@@ -138,12 +142,23 @@ public class X509Util {
     /**
      * Reads a DER-encoded certificate and creates a corresponding X509Certificate
      * object.
+     * 
+     * Uses built-in SUN provider. The BouncyCastle provider throws an exception
+     * about malformed integers for some well-known certificates.
+     * 
+     * https://www.bouncycastle.org/releasenotes.html documents a new system 
+     * property org.bouncycastle.asn1.allow_unsafe_integer has been added to 
+     * allow parsing of malformed ASN.1 integers in a similar fashion to what 
+     * BC 1.56 did. The default behavior remains as reject malformed integers.
+     * 
      * @param certificateBytes
      * @return
      * @throws CertificateException 
      */
     public static X509Certificate decodeDerCertificate(byte[] certificateBytes) throws CertificateException {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        log.debug("CertificateFactory provider: {}", cf.getProvider().getName());
+//        java.security.cert.CertificateFactory cf = java.security.cert.CertificateFactory.getInstance("X.509", new BouncyCastleProvider());
         X509Certificate cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certificateBytes));
         return cert;
     }

@@ -29,11 +29,18 @@ public class AbstractDigest {
     }
     
     protected AbstractDigest(DigestAlgorithm algorithm, String hexValue) {
-        if(!algorithm.isValidHex(hexValue)) {
+        if(algorithm.isValidHexWithPrefix(hexValue)) {
+            hexValue = hexValue.substring(algorithm.prefix().length());
+            this.algorithm = algorithm;
+            this.value = HexUtil.toByteArray(hexValue);        
+        }
+        else if(algorithm.isValidHex(hexValue)) {
+            this.algorithm = algorithm;
+            this.value = HexUtil.toByteArray(hexValue);        
+        }
+        else {
             throw new IllegalArgumentException("Invalid "+algorithm.name()+" digest: "+(hexValue==null?"null":hexValue));
         }
-        this.algorithm = algorithm;
-        this.value = HexUtil.toByteArray(hexValue);        
     }
 
     public String algorithm() {
@@ -58,7 +65,15 @@ public class AbstractDigest {
         return Base64.encodeBase64String(value);
     }
     
+    public String toHexWithPrefix() {
+        return String.format("%s%s", algorithm.prefix(), toHexString());
+    }
+
+    public String toBase64WithPrefix() {
+        return String.format("%s%s", algorithm.prefix(), toBase64());
+    }
     
+    //@org.codehaus.jackson.annotate.JsonValue // jackson 1.x
     @com.fasterxml.jackson.annotation.JsonValue // jackson 2.x
     @Override
     public String toString() {

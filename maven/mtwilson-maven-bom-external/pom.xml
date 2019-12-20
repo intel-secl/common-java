@@ -21,6 +21,11 @@
                 <version>1.7.25</version>
             </dependency>
             <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jul-to-slf4j</artifactId>
+                <version>1.7.25</version>
+            </dependency>
+            <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>1.2.3</version>
@@ -39,7 +44,7 @@
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
-                <version>1.9.3</version>
+                <version>1.9.4</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
@@ -59,7 +64,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
-                <version>1.15</version>
+                <version>1.19</version>
             </dependency>
             <dependency>
                 <groupId>commons-configuration</groupId>
@@ -183,49 +188,53 @@
             <dependency>
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-client</artifactId>
-                <version>2.22.4</version>
+                <version>2.29.1</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-common</artifactId>
-                <!--version>2.4.1</version-->
-                <version>2.22.4</version>
+                <version>2.29.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.inject</groupId>
+                <artifactId>jersey-hk2</artifactId>
+                <version>2.29.1</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-server</artifactId>
-                <version>2.22.4</version>
+                <version>2.29.1</version>
                 <!--version>2.26</version-->
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
                 <artifactId>jersey-container-servlet</artifactId>
-                <version>2.22.4</version>
+                <version>2.29.1</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
                 <artifactId>jersey-container-servlet-core</artifactId>
-                <version>2.22.4</version>
+                <version>2.29.1</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.media</groupId>
                 <artifactId>jersey-media-multipart</artifactId>
-                <version>2.22.4</version>
+                <version>2.29.1</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.media</groupId>
                 <artifactId>jersey-media-json-jackson</artifactId>
-                <version>2.22.4</version>
+                <version>2.29.1</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.hk2</groupId>
                 <artifactId>hk2-api</artifactId>
-                <version>2.4.0-b34</version> 
+                <version>2.6.1</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.hk2</groupId>
                 <artifactId>hk2-utils</artifactId>
-                <version>2.4.0-b34</version>
+                <version>2.6.1</version>
             </dependency>
             
             <!--  AttributeConverter interface and @Convert annotation are since javaee 7,  also javax.ws.rs.core.MultivaluedMap.addAll is since java7 -->
@@ -254,42 +263,42 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
-                <version>2.9.7</version>
+                <version>2.10.1</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>2.9.7</version>
+                <version>2.10.1</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.9.9.3</version>
+                <version>2.10.1</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-xml</artifactId>
-                <version>2.9.7</version>
+                <version>2.10.1</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-yaml</artifactId>
-                <version>2.9.7</version>
+                <version>2.10.1</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-base</artifactId>
-                <version>2.9.7</version>
+                <version>2.10.1</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-json-provider</artifactId>
-                <version>2.9.7</version>
+                <version>2.10.1</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-xml-provider</artifactId>
-                <version>2.9.7</version>
+                <version>2.10.1</version>
             </dependency>
             <!--<dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -323,7 +332,7 @@
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>42.2.5</version> <!--9.3-1104-jdbc4-->
+                <version>42.2.8</version> <!--9.3-1104-jdbc4-->
             </dependency>
             
 		
@@ -341,17 +350,17 @@
             <dependency>
                 <groupId>org.glassfish.jersey.connectors</groupId>
                 <artifactId>jersey-jetty-connector</artifactId>
-                <version>2.22.4</version>
+                <version>2.29.1</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
                 <artifactId>jersey-container-jetty-http</artifactId>
-                <version>2.22.4</version>
+                <version>2.29.1</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
                 <artifactId>jersey-container-jetty-servlet</artifactId>
-                <version>2.22.4</version>
+                <version>2.29.1</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
@@ -381,17 +390,17 @@
             <dependency>
                 <groupId>org.apache.shiro</groupId>
                 <artifactId>shiro-core</artifactId>
-                <version>1.4.0</version>
+                <version>1.4.2</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.shiro</groupId>
                 <artifactId>shiro-web</artifactId>
-                <version>1.4.0</version>
+                <version>1.4.2</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.shiro</groupId>
                 <artifactId>shiro-aspectj</artifactId>
-                <version>1.4.0</version>
+                <version>1.4.2</version>
             </dependency>
             <dependency>
                 <groupId>org.aspectj</groupId>
@@ -411,7 +420,7 @@
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk15on</artifactId>
-                <version>1.62</version>
+                <version>1.64</version>
             </dependency>      
             <dependency>
                 <groupId>org.codehaus.woodstox</groupId>
@@ -436,48 +445,48 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-server</artifactId>
-                <version>9.4.14.v20181114</version>
+                <version>9.4.22.v20191022</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-servlet</artifactId>
-                <version>9.4.14.v20181114</version>
+                <version>9.4.22.v20191022</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-servlets</artifactId>
-                <version>9.4.14.v20181114</version>
+                <version>9.4.22.v20191022</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-util</artifactId>
-                <version>9.4.14.v20181114</version>
+                <version>9.4.22.v20191022</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-http</artifactId>
-                <version>9.4.14.v20181114</version>
+                <version>9.4.22.v20191022</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-io</artifactId>
-                <version>9.4.14.v20181114</version>
+                <version>9.4.22.v20191022</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-security</artifactId>
-                <version>9.4.14.v20181114</version>
+                <version>9.4.22.v20191022</version>
             </dependency>
             <!-- to read web.xml -->
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-webapp</artifactId>
-                <version>9.4.14.v20181114</version>
+                <version>9.4.22.v20191022</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-xml</artifactId>
-                <version>9.4.14.v20181114</version>
+                <version>9.4.22.v20191022</version>
             </dependency>
             <dependency>
                 <groupId>org.jooq</groupId>
@@ -515,20 +524,6 @@
                 <artifactId>mailapi</artifactId>
                 <version>1.4.3</version>
             </dependency>
-            <!--dependency-->
-                <!-- Purpose: connecting to hosts via ssh and sftp -->
-                <!-- URL: https://github.com/hierynomus/sshj -->
-                <!-- License: Apache 2.0 https://github.com/hierynomus/sshj/blob/master/LICENSE -->
-                <!--groupId>net.schmizz</groupId>
-                <artifactId>sshj</artifactId>
-                <version>0.10.0</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcprov-jdk15on</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency-->
             <dependency>
                 <groupId>org.opensaml</groupId>
                 <artifactId>opensaml-core</artifactId>
@@ -559,18 +554,23 @@
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpkix-jdk15on</artifactId>
-                <version>1.62</version>
+                <version>1.64</version>
 	    </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcmail-jdk15on</artifactId>
-                <version>1.62</version>
+                <version>1.64</version>
             </dependency>
+	    <dependency>
+           	 <groupId>org.bouncycastle</groupId>
+            	<artifactId>bcpg-jdk15on</artifactId>
+            	<version>1.64</version>
+	    </dependency>
 
             <dependency>
                 <groupId>org.apache.santuario</groupId>
                 <artifactId>xmlsec</artifactId>
-                <version>2.1.0</version>
+                <version>2.1.4</version>
             </dependency>
             
             <!-- mtwilson -->
@@ -582,12 +582,12 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
-                <version>5.1.8.RELEASE</version>
+                <version>5.2.1.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-jdbc</artifactId>
-                <version>5.1.8.RELEASE</version>
+                <version>5.2.1.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>com.googlecode.lanterna</groupId>
@@ -671,7 +671,7 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
-                <version>5.1.8.RELEASE</version>
+                <version>5.2.1.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>com.toastcoders</groupId>
@@ -687,6 +687,11 @@
                 <groupId>org.apache.jclouds.api</groupId>
                 <artifactId>openstack-keystone</artifactId>
                 <version>2.1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt</artifactId>
+                <version>0.9.1</version>
             </dependency>
 
         </dependencies>

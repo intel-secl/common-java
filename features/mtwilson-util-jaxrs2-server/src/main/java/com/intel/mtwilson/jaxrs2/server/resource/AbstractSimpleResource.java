@@ -35,6 +35,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Reference: https://jersey.java.net/documentation/latest/user-guide.html
@@ -123,16 +126,30 @@ public abstract class AbstractSimpleResource<T extends AbstractDocument, C exten
      * @return
      */
     @POST
-    public T createOne(@BeanParam L locator, T item, @Context HttpServletRequest httpServletRequest, @Context HttpServletResponse httpServletResponse) {
+    public Response createOne(@BeanParam L locator, T item, @Context HttpServletRequest httpServletRequest, @Context HttpServletResponse httpServletResponse) {
         try { log.debug("createOne: {}", mapper.writeValueAsString(locator)); } catch(JsonProcessingException e) { log.debug("createOne: cannot serialize locator: {}", e.getMessage()); }
         locator.copyTo(item);
         ValidationUtil.validate(item); // throw new MWException(e, ErrorCode.AS_INPUT_VALIDATION_ERROR, input, method.getName());
         if (item.getId() == null) {
             item.setId(new UUID());
         }
+
+        if (item.getCreatedDate() == null) {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
+            String timeStamp = df.format(new Date());
+            item.setCreatedDate(timeStamp);
+        }
+
         getRepository().create(item);
-        httpServletResponse.setStatus(Status.CREATED.getStatusCode());
-        return item;
+        if (!item.getMeta().getFaults().isEmpty()) {
+            log.debug("BAD_REQUEST");
+            httpServletResponse.setStatus(Status.BAD_REQUEST.getStatusCode());
+        } else {
+            log.debug("CREATED");
+            httpServletResponse.setStatus(Status.OK.getStatusCode());
+        }
+        log.debug("final value: {}", httpServletResponse.getStatus());
+        return Response.status(httpServletResponse.getStatus()).entity(item).build();
     }
 
     // the delete method is on a specific resource id and because we don't return any content it's the same whether its simple object or json api 
@@ -140,17 +157,32 @@ public abstract class AbstractSimpleResource<T extends AbstractDocument, C exten
     // we have a void return type
     @Path("/{id}")
     @DELETE
-    public void deleteOne(@BeanParam L locator, @Context HttpServletRequest httpServletRequest, @Context HttpServletResponse httpServletResponse) {
+    public Response deleteOne(@BeanParam L locator, @Context HttpServletRequest httpServletRequest, @Context HttpServletResponse httpServletResponse) {
         try { log.debug("deleteOne: {}", mapper.writeValueAsString(locator)); } catch(JsonProcessingException e) { log.debug("deleteOne: cannot serialize locator: {}", e.getMessage()); }
         T item = getRepository().retrieve(locator); // subclass is responsible for validating the id in whatever manner it needs to;  most will return null if !UUID.isValid(id)  but we don't do it here because a resource might want to allow using something other than uuid as the url key, for example uuid OR hostname for hosts
         if (item == null) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND); 
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        } else if (!item.getMeta().getFaults().isEmpty()) {
+            log.debug("NOT_FOUND");
+            httpServletResponse.setStatus(Status.NOT_FOUND.getStatusCode());
+            item.getMeta().setOperation("Delete Key");
+        } else {
+            getRepository().delete(locator);
+            httpServletResponse.setStatus(Status.NO_CONTENT.getStatusCode());
         }
-        getRepository().delete(locator);
-        httpServletResponse.setStatus(Status.NO_CONTENT.getStatusCode());
+        return Response.status(httpServletResponse.getStatus()).entity(item).build();
     }
-    
-   
+
+    @DELETE
+    public void deleteCollection(@BeanParam F selector) {
+        try { log.debug("deleteCollection: {}", mapper.writeValueAsString(selector)); } catch(JsonProcessingException e) { log.debug("deleteCollection: cannot serialize selector: {}", e.getMessage()); }
+        C collection = getRepository().search(selector);
+        if( collection.getDocuments().isEmpty() ) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+        // Do the delete here after search
+        getRepository().delete(selector);
+    }
 
     /**
      * Retrieve an item from the collection. Input Content-Type is not
@@ -164,14 +196,18 @@ public abstract class AbstractSimpleResource<T extends AbstractDocument, C exten
      */
     @Path("/{id}")
     @GET
-    public T retrieveOne(@BeanParam L locator, @Context HttpServletRequest httpServletRequest, @Context HttpServletResponse httpServletResponse) {
+    public Response retrieveOne(@BeanParam L locator, @Context HttpServletRequest httpServletRequest, @Context HttpServletResponse httpServletResponse) {
         try { log.debug("retrieveOne: {}", mapper.writeValueAsString(locator)); } catch(JsonProcessingException e) { log.debug("retrieveOne: cannot serialize locator: {}", e.getMessage()); }
         T existing = getRepository().retrieve(locator); // subclass is responsible for validating the id in whatever manner it needs to;  most will return null if !UUID.isValid(id)  but we don't do it here because a resource might want to allow using something other than uuid as the url key, for example uuid OR hostname for hosts
         if (existing == null) {
             httpServletResponse.setStatus(Status.NOT_FOUND.getStatusCode());
             return null;
+        } else if (!existing.getMeta().getFaults().isEmpty()) {
+            httpServletResponse.setStatus(Status.NOT_FOUND.getStatusCode());
+        } else {
+            httpServletResponse.setStatus(Status.OK.getStatusCode());
         }
-        return existing;
+        return Response.status(httpServletResponse.getStatus()).entity(existing).build();
     }
 
     /**

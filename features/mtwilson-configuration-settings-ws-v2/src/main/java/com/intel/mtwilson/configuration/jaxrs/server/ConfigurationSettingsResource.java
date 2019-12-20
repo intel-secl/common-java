@@ -17,7 +17,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 
@@ -29,16 +31,23 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 @Path("/configuration-settings") 
 public class ConfigurationSettingsResource {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ConfigurationSettingsResource.class);
+    CacheControl cc=new CacheControl();
     
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermissions("configuration_settings:retrieve")        
-    public ConfigurationDocument retrieveConfigurationSettings() {
+    public Response retrieveConfigurationSettings() {
         try {
             ConfigurationDocument document = new ConfigurationDocument();
             Configuration configuration = ConfigurationFactory.getConfiguration();
             document.copyFrom(configuration);
-            return document;
+
+            /*Set Cache Control and Pragma in response.
+            Set NoTransform as false as it is set true by default*/
+            cc.setNoCache(true);
+            cc.setNoStore(true);
+            cc.setNoTransform(false);
+            return Response.status(Response.Status.OK).entity(document).cacheControl(cc).header("Pragma", "no-cache").build();
         }
         catch(IOException e) {
             log.error("Cannot retrieve configuration settings", e);
@@ -50,7 +59,7 @@ public class ConfigurationSettingsResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresPermissions("configuration_settings:store")        
-    public ConfigurationDocument storeConfigurationSettings(ConfigurationDocument update) {
+    public Response storeConfigurationSettings(ConfigurationDocument update) {
         try {
             ConfigurationProvider provider = ConfigurationFactory.getConfigurationProvider();
             Configuration configuration = provider.load();
@@ -64,7 +73,13 @@ public class ConfigurationSettingsResource {
             // now return an updated document
             ConfigurationDocument document = new ConfigurationDocument();
             document.copyFrom(configuration);
-            return document;
+
+            /*Set Cache Control  and Pragma in response.
+            Set NoTransform as false as it is set true by default */
+            cc.setNoCache(true);
+            cc.setNoStore(true);
+            cc.setNoTransform(false);
+            return Response.status(Response.Status.OK).entity(document).cacheControl(cc).header("Pragma","no-cache").build();
         }
         catch(IOException | IllegalStateException e) {
             log.error("Cannot store configuration settings", e);

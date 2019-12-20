@@ -8,50 +8,93 @@ import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-
+import org.bouncycastle.crypto.Digest;
+import org.bouncycastle.crypto.digests.SHA256Digest;
+import org.bouncycastle.crypto.digests.SHA384Digest;
+import org.bouncycastle.crypto.digests.SHA512Digest;
+import org.bouncycastle.crypto.generators.HKDFBytesGenerator;
+import org.bouncycastle.crypto.params.HKDFParameters;
 /**
  * Reference: http://tools.ietf.org/html/rfc5869
  *
  * Tested with HmacSHA1 and HmacSHA256 algorithms.
+ * 
+ * Updated to use BouncyCastle HKDFBytesGenerator.
  * 
  * @author jbuhacoff
  */
 public class HKDF {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(HKDF.class);
-    private String macAlgorithm;
-    private int macLength;
+    private final String macAlgorithm;
+    private final int macLength; // bytes
 
     /**
      *
-     * @param algorithm such as "HmacSHA1" or "HmacSHA256"
+     * @param algorithm such as "HmacSHA256" or "HmacSHA384" or "HmacSHA512"
      * @throws NoSuchAlgorithmException
      */
     public HKDF(String algorithm) throws NoSuchAlgorithmException {
-        Mac mac = Mac.getInstance(algorithm); // algorithm like HmacSHA256
-        macAlgorithm = mac.getAlgorithm();
-        macLength = mac.getMacLength();
-        log.debug("Mac {} length {} provider {}", mac.getAlgorithm(), mac.getMacLength(), mac.getProvider().getName());
+        if( algorithm.equalsIgnoreCase("HmacSHA256") || algorithm.equalsIgnoreCase("SHA256")  || algorithm.equalsIgnoreCase("SHA-256") ) {
+            macAlgorithm = "SHA-256";
+            macLength = 32;
+        }
+        else if( algorithm.equalsIgnoreCase("HmacSHA384") || algorithm.equalsIgnoreCase("SHA384")  || algorithm.equalsIgnoreCase("SHA-384") ) {
+            macAlgorithm = "SHA-384";
+            macLength = 48;
+        }
+        else if( algorithm.equalsIgnoreCase("HmacSHA512") || algorithm.equalsIgnoreCase("SHA512")  || algorithm.equalsIgnoreCase("SHA-512") ) {
+            macAlgorithm = "SHA-512";
+            macLength = 64;
+        }
+        else {
+            throw new UnsupportedOperationException("Only SHA-256, SHA-384, and SHA-512 are allowed");
+        }
+        log.debug("Initializing HKDF with digest {}", macAlgorithm);
+    }
+    
+    private Digest createNewDigestInstance() {
+        if( macAlgorithm.equalsIgnoreCase("SHA-256") ) { return new SHA256Digest(); }
+        if( macAlgorithm.equalsIgnoreCase("SHA-384") ) { return new SHA384Digest(); }
+        if( macAlgorithm.equalsIgnoreCase("SHA-512") ) { return new SHA512Digest(); }
+        throw new IllegalStateException("Only SHA-256, SHA-384, and SHA-512 are allowed");
     }
 
+    /**
+     * NOTE: should have been called getDigestAlgorithm
+     * @return
+     * @deprecated
+     */
+    @Deprecated
     public String getMacAlgorithm() {
         return macAlgorithm;
     }
 
+    /**
+     * NOTE: should have been named getDigestLength
+     * @return length of the HASH algorithm output, in BYTES
+     */
+    @Deprecated
     public int getMacLength() {
         return macLength;
     }
 
-    public byte[] hmac(byte[] key, byte[] message) throws NoSuchAlgorithmException, InvalidKeyException {
-        Mac mac = Mac.getInstance(macAlgorithm); // throws NoSuchAlgorithmException
-        SecretKeySpec secret_key = new javax.crypto.spec.SecretKeySpec(key, macAlgorithm);
-        mac.init(secret_key); // throws InvalidKeyException
-        mac.update(message);
-        return mac.doFinal();
+    /**
+     * 
+     * @return 32 for "SHA-256", 48 for "SHA-384", or 64 for "SHA-512"
+     */
+    public int getDigestLengthBytes() {
+        return macLength;
     }
-
+    
+    /**
+     * 
+     * @return "SHA-256", "SHA-384", or "SHA-512"
+     */
+    public String getDigestAlgorithm() {
+        return macAlgorithm;
+    }
+    
     /**
      *
      * @param ikm input keying material
@@ -112,27 +155,17 @@ public class HKDF {
         if (length > 255 * macLength) {
             throw new InvalidParameterException("length");
         }
-        if (salt.length == 0) {
+        if (salt == null) {
             salt = new byte[macLength];
+            log.debug("checking for salt byte:{}",salt);
             Arrays.fill(salt, (byte) 0x00);
         }
-        // step 1. extract.  HKDF-Extract(salt, IKM) -> PRK
-        byte[] prk = hmac(salt, ikm);
-        // step 2. expand. HKDF-Expand(PRK, info, L) -> OKM
-        Mac mac = Mac.getInstance(macAlgorithm);
-        mac.init(new javax.crypto.spec.SecretKeySpec(prk, macAlgorithm));
-        int N = (int) Math.ceil((double) length / macLength); // N is the number of blocks we need to produce, T(1) .. T(N)
-        int r = length % macLength; // the remainder is the number of bytes we need from the last block T(N), for example if maclength=32 and length=42, then r=10 
-        if( r == 0 ) { r = macLength; } 
+        HKDFParameters params = new HKDFParameters(ikm, salt, info);
+        HKDFBytesGenerator hkdf = new HKDFBytesGenerator(createNewDigestInstance());
+        hkdf.init(params);
         byte[] okm = new byte[length];
-        byte[] T = new byte[0];
-        for (byte i = 1; i <= N; i++) {
-            mac.update(T);
-            mac.update(info);
-            mac.update(i); // if i were an int, we'd have to convert with (byte) (i & 0xff) to achieve 0x01, 0x02, etc.
-            T = mac.doFinal();
-            System.arraycopy(T, 0, okm, (i - 1) * macLength, (i < N ? macLength : r));   /// (src,srcpos,dst,dstpos,len)    LOOK AT WHEN length=32,  maclength=32,  N=1, r=0 ,  THIS DOESN'T WORK.
-        }
+        int generatedLength = hkdf.generateBytes(okm, 0, length);
+        log.debug("Generated {} bytes, expecting {} bytes", generatedLength, length);
         return okm;
     }
 }

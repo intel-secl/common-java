@@ -70,6 +70,10 @@
             <groupId>com.intel.mtwilson.services</groupId>
             <artifactId>mtwilson-http-security</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-jaxrs2-client</artifactId>
+        </dependency>
 
         <!-- servlet and jaxrs apis for the exception mapper -->	
         <dependency>
@@ -134,7 +138,10 @@
             <groupId>com.intel.mtwilson.util</groupId>
             <artifactId>mtwilson-util-http</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-jaxrs2-client</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
@@ -151,7 +158,13 @@
             <artifactId>postgresql</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
+        <!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+        </dependency>
+
     </dependencies>
     <properties />
 </project>

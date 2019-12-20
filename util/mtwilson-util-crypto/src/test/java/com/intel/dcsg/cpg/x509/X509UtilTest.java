@@ -9,7 +9,9 @@ import java.io.InputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -19,6 +21,17 @@ import org.junit.Test;
 public class X509UtilTest {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(X509UtilTest.class);
 
+    private String readTestResource(String name) throws IOException {
+        try(InputStream in = getClass().getResourceAsStream(name)) {
+            return IOUtils.toString(in);
+        }
+    }
+    
+    @BeforeClass
+    public static void enableBouncyCastleLenientPemParsing() {
+//        System.setProperty("org.bouncycastle.asn1.allow_unsafe_integer", "true"); // for bouncy castle 1.58 and later, a backward compatibility mode: https://www.bouncycastle.org/releasenotes.html : A new system property org.bouncycastle.asn1.allow_unsafe_integer has been added to allow parsing of malformed ASN.1 integers in a similar fashion to what BC 1.56 did. The default behavior remains as reject malformed integers.
+    }
+    
     @Test
     public void testReadPemCertificatesWithHeaders() throws CertificateException {
         String pem = "-----BEGIN CERTIFICATE-----\n" +
@@ -75,6 +88,15 @@ public class X509UtilTest {
         List<X509Certificate> certs = X509Util.decodePemCertificates(pem);
         for(X509Certificate cert : certs) {
             log.debug("Read certificate for: {}", cert.getSubjectX500Principal().getName());
+        }
+    }
+    
+    @Test
+    public void testReadEndorsementCAPemCertificatesWithHeaders() throws IOException, CertificateException {
+        String pem = readTestResource("/x509/EndorsementCA.pem");
+        List<X509Certificate> certs = X509Util.decodePemCertificates(pem);
+        for(X509Certificate cert : certs) {
+            log.debug("Decoded certificate: {}", cert.getSubjectX500Principal().getName());
         }
     }
     

@@ -115,7 +115,7 @@ public abstract class HttpQueryAuthenticationFilter extends AuthenticationFilter
             if (queryParameters.containsKey(queryParameterName)) {
                 return true;
             }
-        } catch (UnsupportedEncodingException e) {
+        } catch (Exception e) {
             log.error("Cannot parse query string", e);
         }
         log.debug("isAuthenticationRequest did not find query parameter {} header", queryParameterName);

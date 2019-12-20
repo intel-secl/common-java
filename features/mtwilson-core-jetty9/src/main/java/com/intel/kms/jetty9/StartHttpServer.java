@@ -36,7 +36,7 @@ import org.eclipse.jetty.server.handler.ErrorHandler;
  * kms start
  * </pre>
  *
- * Old way:StartHttpServer.java
+ * Old way:
  * <pre>
  * java -jar kms-1.0-SNAPSHOT-with-dependencies.jar start
  * </pre>
@@ -92,6 +92,10 @@ public class StartHttpServer implements Runnable {
         return new File(configuration.get(JettyTlsKeystore.JAVAX_NET_SSL_KEYSTORE, Folders.configuration() + File.separator + "keystore.p12"));
     }
 
+    protected String getKeystoreType() {
+        return configuration.get(JettyTlsKeystore.JAVAX_NET_SSL_KEYSTORETYPE, "PKCS12");
+    }
+
     protected Password getKeystorePassword() throws KeyStoreException, IOException {
         try (PasswordKeyStore passwordVault = PasswordVaultFactory.getPasswordKeyStore(configuration)) {
             if (passwordVault.contains(JettyTlsKeystore.JAVAX_NET_SSL_KEYSTOREPASSWORD)) {
@@ -99,6 +103,14 @@ public class StartHttpServer implements Runnable {
             }
             return null;
         }
+    }
+
+    protected File getTruststoreFile(String truststoreType) {
+        String extension = "p12";
+        if (truststoreType.equalsIgnoreCase("JKS")) {
+            extension = "jks";
+        }
+        return new File(Folders.configuration()+File.separator+"truststore."+extension);
     }
 
     public Integer getHttpPort() {
@@ -247,13 +259,21 @@ public class StartHttpServer implements Runnable {
 		
         // https connector
         try {
-            SslContextFactory sslConnectionFactory = new SslContextFactory();
+            SslContextFactory sslConnectionFactory = new SslContextFactory.Server();
+            String keystoreType = getKeystoreType();
             sslConnectionFactory.setKeyStorePath(getKeystoreFile().getAbsolutePath());
-            sslConnectionFactory.setKeyStoreType(KeyStore.getDefaultType());
+            sslConnectionFactory.setKeyStoreType(keystoreType);
             Password keystorePassword = getKeystorePassword();
             if (keystorePassword != null) {
                 sslConnectionFactory.setKeyStorePassword(new String(keystorePassword.toCharArray()));
             }
+            /**
+             * Adding truststore with Trusted Issuer CA certs
+             */
+            String truststoreType = KeyStore.getDefaultType();
+            sslConnectionFactory.setTrustStorePath(getTruststoreFile(truststoreType).getAbsolutePath());
+            sslConnectionFactory.setTrustStoreType(truststoreType);
+            sslConnectionFactory.setTrustStorePassword(new String("changeit".toCharArray()));
             sslConnectionFactory.setExcludeProtocols("SSL", "SSLv2", "SSLv2Hello", "SSLv3", "TLSv1", "TLSv1.1");
             sslConnectionFactory.setIncludeCipherSuites(
                     "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
@@ -261,6 +281,9 @@ public class StartHttpServer implements Runnable {
                     "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
                     "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
             );
+            /*Add want client cert here*/
+            sslConnectionFactory.setWantClientAuth(true);
+            sslConnectionFactory.setValidateCerts(true);
             sslConnectionFactory.setRenegotiationAllowed(false);
             ServerConnector https = new ServerConnector(jetty, new ConnectionFactory[]{new SslConnectionFactory(sslConnectionFactory, "http/1.1"), new HttpConnectionFactory(httpsConfiguration)});
             https.setPort(getHttpsPort());

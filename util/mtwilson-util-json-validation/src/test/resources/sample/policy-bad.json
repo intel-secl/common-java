@@ -1,0 +1,65 @@
+{
+	"meta": {
+		"version": 1
+	},
+	"label": "policy for my protected dataset 1234",
+	"description": "Intel policy",
+	"validity": {
+		"notBefore": "2016-07-18T09:23:34+00:00",
+		"notAfter": null
+	},
+	"permission": {
+		"key_transfer": {
+			"flavor": [{
+				"label": "Hardened CentOS 7"
+			}, {
+				"label": "Key Escrow on ClearLinux 8830"
+			}],
+			"user": [{
+				"name": "alice",
+				"email": "alicex@intel.com"
+			}, {
+				"name": "bob",
+				"email": "bobx@intel.com"
+			}]
+		},
+		"data_import": {
+			"user": [{
+				"name": "alice",
+				"email": "alicex@intel.com"
+			}]
+		},
+		"data_export": {
+			"user": [{
+				"name": "bob",
+				"email": "bobx@intel.com"
+			}],
+			"target": [{
+				"realm": "university.edu"
+			}]
+		},
+		"data_delete": {
+			"user": [{
+				"match": "wildcard",
+				"email": "*"
+			}]
+		},
+		"data_access": {
+			"image": [{
+				"name": "centos-analytics",
+				"sha256": "8a9a12141979287c88d19107a7c5c470c14f3300f7dead5f375d72adaaa4c631"
+			}]
+
+		},
+		"network_connect": {
+			"user": [{
+				"name": "bob",
+				"email": "bobx@intel.com"
+			}],
+			"image": [{
+				"sha256": "...",
+				"name": "analytics-tool-123"
+			}]
+		}
+	}
+}

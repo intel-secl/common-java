@@ -1,0 +1,372 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "label": {
+      "type": "string"
+    },
+    "description": {
+      "type": "object",
+      "properties": {
+        "comment": {
+          "type": "string"
+        },
+        "bios_name": {
+          "type": "string"
+        },
+        "bios_version": {
+          "type": "string"
+        },
+        "oem": {
+          "type": "string"
+        },
+        "os_name": {
+          "type": "string"
+        },
+        "os_version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "comment",
+        "bios_name",
+        "bios_version",
+        "oem",
+        "os_name",
+        "os_version"
+      ]
+    },
+    "validity": {
+      "type": "object",
+      "properties": {
+        "notBefore": {
+          "type": "string"
+        },
+        "notAfter": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "notBefore",
+        "notAfter"
+      ]
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "realm": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "author": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "email"
+          ]
+        },
+        "schema": {
+          "type": "object",
+          "properties": {
+            "uri": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "uri"
+          ]
+        }
+      },
+      "required": [
+        "realm",
+        "id",
+        "author",
+        "schema"
+      ]
+    },
+    "hardware": {
+      "type": "object",
+      "properties": {
+        "vendor": {
+          "type": "string"
+        },
+        "feature": {
+          "type": "object",
+          "properties": {
+            "AES-NI": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "enabled"
+              ]
+            },
+            "TXT": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "enabled"
+              ]
+            },
+            "TPM": {
+              "type": "object",
+              "properties": {
+                "version": {
+                  "type": "string"
+                },
+                "enabled": {
+                  "type": "boolean"
+                },
+                "pcr": {
+                  "type": "object",
+                  "properties": {
+                    "0": {
+                      "type": "object",
+                      "properties": {
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "value"
+                      ]
+                    },
+                    "17": {
+                      "type": "object",
+                      "properties": {
+                        "event": {
+                          "type": "object",
+                          "properties": {
+                            "initrd": {
+                              "type": "object",
+                              "properties": {
+                                "digest": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "digest"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "required": [
+                "version",
+                "enabled",
+                "pcr"
+              ]
+            }
+          },
+          "required": [
+            "AES-NI",
+            "TXT",
+            "TPM"
+          ]
+        }
+      },
+      "required": [
+        "vendor",
+        "feature"
+      ]
+    },
+    "software": {
+      "type": "object",
+      "properties": {
+        "digestAlg": {
+          "type": "string"
+        },
+        "measurement": {
+          "type": "object",
+          "properties": {
+            "/etc/hosts": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "digest": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "digest"
+              ]
+            },
+            "/opt/mtwilson/java/mtwilson-util-crypto-3.1.jar": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "digest": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "digest"
+              ]
+            },
+            "/etc/apache2/mods.enabled": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "digest": {
+                  "type": "string"
+                },
+                "include": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "digest",
+                "include"
+              ]
+            },
+            "/opt/mtwilson/configuration": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "digest": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "digest"
+              ]
+            }
+          }
+        }
+      },
+      "required": [
+        "digestAlg",
+        "measurement"
+      ]
+    },
+    "external": {
+      "type": "object",
+      "properties": {
+        "geotag": {
+          "type": "object",
+          "properties": {
+            "certificate": {
+              "type": "object",
+              "properties": {
+                "attribute": {
+                  "type": "object",
+                  "properties": {
+                    "2.5.4.789.1": {
+                      "type": "object",
+                      "properties": {
+                        "country": {
+                          "type": "string"
+                        },
+                        "state": {
+                          "type": "string"
+                        },
+                        "city": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "country",
+                        "state",
+                        "city"
+                      ]
+                    },
+                    "2.5.4.789.2": {
+                      "type": "object",
+                      "properties": {
+                        "country": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "state": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "city": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "country",
+                        "state",
+                        "city"
+                      ]
+                    }
+                  }
+                },
+                "issuer": {
+                  "type": "object",
+                  "properties": {
+                    "publicKey": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "publicKey"
+                  ]
+                }
+              },
+              "required": [
+                "attribute",
+                "issuer"
+              ]
+            }
+          },
+          "required": [
+            "certificate"
+          ]
+        }
+      },
+      "required": [
+        "geotag"
+      ]
+    }
+  },
+  "required": [
+    "label",
+    "description",
+    "validity",
+    "meta",
+    "hardware",
+    "software",
+    "external"
+  ]
+}

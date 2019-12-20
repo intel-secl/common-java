@@ -4,48 +4,122 @@
  */
 package com.intel.mtwilson.shiro.file;
 
+import com.intel.dcsg.cpg.http.MutableQuery;
+import com.intel.dcsg.cpg.http.Query;
+import com.intel.dcsg.cpg.io.FileResource;
+import com.intel.dcsg.cpg.io.Resource;
 import com.intel.mtwilson.shiro.file.model.UserPassword;
 import com.intel.mtwilson.shiro.file.model.UserPermission;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FileUtils;
-import org.apache.shiro.authz.permission.WildcardPermission;
-import org.apache.shiro.util.StringUtils;
+import org.apache.commons.io.IOUtils;
 
 /**
- * 
+ * Change in format: Prior to KPL m7, the format was one user per line, where
+ * each line looks like this:
+ *
+ * username:SHA256:waxw1ePem7NH7WGws0zDvg==:jm1BbbPtGrCltNte2F4PnLbiz7gJTj2rqm6EeITGmno=
+ *
+ * This is 4 fields separated by colon,
+ * `username:algorithm:base64(salt):base64(hashed-password)` with an assumed
+ * iteration count of 1. When parsing this line, we split on `:` and then take
+ * the first four items in that order. This is forward compatible with anything
+ * that has the same first four parameters and additional data after a fourth
+ * `:`.
+ *
+ * Starting in KPL m7, the format is:
+ *
+ * username:SHA256:waxw1ePem7NH7WGws0zDvg==:jm1BbbPtGrCltNte2F4PnLbiz7gJTj2rqm6EeITGmno=:i=100000
+ *
+ * This is 5 fields separated by colon,
+ * `username:algorithm:base64(salt):base64(hashed-password):parameters`. which
+ * adds a new backward-compatible `parameters` field. When parsing this line, we
+ * split on `:` and take the first four items as they are, and if the fifth item
+ * `parameters` is present we parse it as a query string which is a set of
+ * `key=value` pairs separated by `&` where keys and values are url-encoded. The
+ * `:` character is allowed in pre-encoded keys and values because url-encoding
+ * changes it to %3A so it would not interfere with the use of `:` as the
+ * general delimiter.
+ *
+ * To help with unit testing, new constructors and methods are introduced which
+ * accept a Resource for the user file and permission file, so the class can now
+ * read files from disk, test resources, or any input stream.
+ *
+ * Starting in KPL m8, the PermissionDAO is now a separate class which is used
+ * by LoginDAO. This provides flexibility in tracking permissions for users who
+ * have a password login and possibly another login method like HMAC, Token,
+ * or X509.
+ *
  * @author jbuhacoff
  */
 public class LoginDAO  {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(LoginDAO.class);
 
-    private final File userFile; 
-    private final File permissionFile; 
-    private final Map<String,UserPassword> users;
-    private final Map<String,List<UserPermission>> permissions;
-    
-    public LoginDAO(File userFile, File permissionFile) throws IOException {
-        this.userFile = userFile;
-        this.permissionFile = permissionFile;
+    private static final Charset UTF8 = Charset.forName("UTF-8");
+    private final Resource userResource;
+    private final PermissionDAO permissionDAO;
+    private final Map<String, UserPassword> users;
+
+    public LoginDAO(Resource userResource) throws IOException {
+        this.userResource = userResource;
+        this.permissionDAO = null;
         this.users = new HashMap<>();
-        this.permissions = new HashMap<>();
         load();
+    }
+
+    public LoginDAO(Resource userResource, Resource permissionResource) throws IOException {
+        this.userResource = userResource;
+        this.permissionDAO = new PermissionDAO(permissionResource);
+        this.users = new HashMap<>();
+        load();
+    }
+
+    /**
+     *
+     * @param userFile not required to exist, an empty database will be used if
+     * the file is not found on load
+     * @param permissionFile not required to exist, will be replaced or created
+     * on save
+     * @throws IOException
+     */
+    public LoginDAO(File userFile, File permissionFile) throws IOException {
+        this(new FileResource(userFile), new FileResource(permissionFile));
     }
     
     private String toString(UserPassword userLoginPassword) {
-        return String.format("%s:%s:%s:%s", 
+        String parameters = toQueryParameters("i",String.valueOf(userLoginPassword.getIterations()));
+        return String.format("%s:%s:%s:%s:%s",
                 userLoginPassword.getUsername(),
                 userLoginPassword.getAlgorithm(),
                 Base64.encodeBase64String(userLoginPassword.getSalt()),
-                Base64.encodeBase64String(userLoginPassword.getPasswordHash())
+                Base64.encodeBase64String(userLoginPassword.getPasswordHash()),
+                parameters
                 );
+    }
+
+    /**
+     *
+     * @param args key1,value1,key2,value2,...  if a value is null it must be included as `null`
+     * @return
+     */
+    private String toQueryParameters(String... args) {
+        MutableQuery query = new MutableQuery();
+        for(int i=0; i<args.length; i+=2) {
+            query.add(args[i], args[i+1]);
+        }
+        return query.toString();
+    }
+
+    private Map<String,String> fromQueryParameters(String queryParameters) {
+        return Query.parseSinglevalued(queryParameters);
     }
     
     private UserPassword toUserLoginPassword(String text) {
@@ -55,6 +129,13 @@ public class LoginDAO  {
         userLoginPassword.setAlgorithm(parts[1]);
         userLoginPassword.setSalt(Base64.decodeBase64(parts[2]));
         userLoginPassword.setPasswordHash(Base64.decodeBase64(parts[3]));
+        if( parts.length > 4 ) {
+            Map<String,String> parameters = fromQueryParameters(parts[4]);
+            String iterations = parameters.get("i");
+            if( iterations != null ) {
+                userLoginPassword.setIterations(Integer.valueOf(iterations));
+            }
+        }
         return userLoginPassword;
     }
 
@@ -89,42 +170,42 @@ public class LoginDAO  {
             throw new IllegalArgumentException("User does not exist");
         }
         users.remove(username);
-        permissions.remove(username);
         save();
+        if( permissionDAO != null ) {
+            permissionDAO.removeAll(username);
+        }
     }
-    
+
+    /**
+     *
+     * @param username
+     * @param permissionText
+     * @throws IOException
+     * @throws NullPointerException if LoginDAO was not initialized with a permission resource or permission file
+     */
     public void addPermission(String username, String permissionText) throws IOException {
-        List<UserPermission> list = permissions.get(username);
-        if( list == null ) {
-            list = new ArrayList<>();
-        }
-        log.debug("adding permission for user {}", username);
-        list.add(UserPermission.parse(permissionText));
-        permissions.put(username, list);
-        save();
+        permissionDAO.addPermission(username, permissionText);
     }
-    
+
+    /**
+     *
+     * @param username
+     * @param permissionText
+     * @throws IOException
+     * @throws NullPointerException if LoginDAO was not initialized with a permission resource or permission file
+     */
     public void removePermission(String username, String permissionText) throws IOException {
-        List<UserPermission> list = permissions.get(username);
-        if( list == null ) { return; }
-        ArrayList<UserPermission> accepted = new ArrayList<>(); // new list of permissions for the user
-        WildcardPermission removed = new WildcardPermission(permissionText);
-        for(UserPermission permission : list) {
-            WildcardPermission item = new WildcardPermission(permission.toString());
-            if( !item.implies(removed) ) {
-                accepted.add(permission); // adding all permissions that are NOT the one we are removing
-            }
-        }
-        permissions.put(username, accepted);
-        save();
+        permissionDAO.removePermission(username, permissionText);
     }
-    
+
+    /**
+     *
+     * @param username
+     * @return
+     * @throws NullPointerException if LoginDAO was not initialized with a permission resource or permission file
+     */
     public List<UserPermission> getPermissions(String username) {
-        List<UserPermission> list = permissions.get(username);
-        if( list == null ) {
-            list = Collections.EMPTY_LIST;
-        }
-        return list;
+        return permissionDAO.getPermissions(username);
     }
 
     private void save() throws IOException {
@@ -135,103 +216,24 @@ public class LoginDAO  {
             String line = toString(userLoginPassword);
             userLines.add(line);
         }
-        FileUtils.writeLines(userFile, userLines);
-        // store permissions
-        ArrayList<String> permissionLines = new ArrayList<>();
-        for(String username : permissions.keySet()) {
-            log.debug("Saving permissions for {}", username);
-            List<UserPermission> permissionList = permissions.get(username);
-            ArrayList<String> permissionTextList = new ArrayList<>();
-            for(UserPermission permission : permissionList) {
-                permissionTextList.add(permission.toString());
-            }
-            CommaSeparatedValues csv = new CommaSeparatedValues(permissionTextList);
-            KeyValuePair line = new KeyValuePair(username, csv.toString());
-            permissionLines.add(line.toString());
+        try (OutputStream out = userResource.getOutputStream()) {
+            IOUtils.writeLines(userLines, IOUtils.LINE_SEPARATOR_UNIX, out, UTF8);
         }
-        FileUtils.writeLines(permissionFile, permissionLines);
     }
     
     private void load() throws IOException {
-        if( !userFile.exists() ) {
+        InputStream userInputStream = userResource.getInputStream();
+        if (userInputStream == null) {
             log.debug("Password file does not exist");
-            return; // not an error because caller can add users and then call save() to create the password file
+            return; // not an error because caller can add users and then call save() to create the password file; and since we don't have any users defined, there isn't any need to continue and read the permission file either
         }
         // load users
-        List<String> userLines = FileUtils.readLines(userFile);
-        for(String line : userLines) {
-            UserPassword userLoginPassword = toUserLoginPassword(line);
-            users.put(userLoginPassword.getUsername(), userLoginPassword);
-        }
-        // load permissions
-        List<String> permissionLines = FileUtils.readLines(permissionFile);
-        int lineNumber = 0;
-        for(String line : permissionLines) {
-            lineNumber++;
-            try {
-            KeyValuePair userPermission = KeyValuePair.parse(line);
-            String user = userPermission.getKey();
-            CommaSeparatedValues permissionList = CommaSeparatedValues.parse(userPermission.getValue());
-            ArrayList<UserPermission> list = new ArrayList<>();
-            for(String item : permissionList.getValues()) {
-                list.add(UserPermission.parse(item));
+        try (InputStream in = userInputStream) {
+            List<String> userLines = IOUtils.readLines(in, UTF8);
+            for (String line : userLines) {
+                UserPassword userLoginPassword = toUserLoginPassword(line);
+                users.put(userLoginPassword.getUsername(), userLoginPassword);
             }
-            permissions.put(user,list);
-            } catch (Exception e) {
-                log.error("Cannot parse line {} of {}: {}", lineNumber, permissionFile, e.getMessage());
-            }
-        }
-    }
-
-    public static class KeyValuePair {
-        private String key;
-        private String value;
-        public KeyValuePair(String key, String value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        public String getKey() {
-            return key;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("%s=%s", key, value);
-        }
-        
-        public static KeyValuePair parse(String text) {
-            List<String> pair = Arrays.asList(text.split("\\s*=\\s*"));
-            if( pair.size() != 2 ) {
-                throw new IllegalArgumentException("Invalid format: "+text);
-            }
-            return new KeyValuePair(pair.get(0), pair.get(1));
-        }
-    }
-    
-    public static class CommaSeparatedValues {
-        private List<String> values;
-        public CommaSeparatedValues(String... array) {
-            this.values = Arrays.asList(array);
-        }
-        public CommaSeparatedValues(List<String> list) {
-            this.values = list;
-        }
-        public List<String> getValues() { 
-            return values;
-        }
-
-        @Override
-        public String toString() {
-            return StringUtils.join(values.iterator(), ",");
-        }
-        public static CommaSeparatedValues parse(String text) {
-            List<String> values = Arrays.asList(text.split("\\s*,\\s*"));
-            return new CommaSeparatedValues(values);
         }
     }
 }

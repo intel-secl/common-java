@@ -4,6 +4,8 @@
  */
 package com.intel.dcsg.cpg.net;
 
+import java.lang.reflect.Field;
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.List;
 import org.junit.Test;
@@ -20,6 +22,13 @@ public class NetUtilsTest {
         List<String> addresses = NetUtils.getNetworkAddressList();
         log.debug("addresses: {}", addresses);
     }
+    
+    @Test
+    public void testGetLocalIpv4Addresses() throws SocketException {
+        List<String> addresses = NetUtils.getIPv4NetworkAddressList();
+        log.debug("addresses: {}", addresses);
+    }
+    
     @Test
     public void testGetLocalHostnames() throws SocketException {
         List<String> hostnames = NetUtils.getNetworkHostnameList();

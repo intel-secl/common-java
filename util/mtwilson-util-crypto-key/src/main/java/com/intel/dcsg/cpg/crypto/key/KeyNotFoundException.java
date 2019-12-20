@@ -10,7 +10,7 @@ package com.intel.dcsg.cpg.crypto.key;
  * @since 0.1
  * @author jbuhacoff
  */
-public class KeyNotFoundException extends Exception {
+public class KeyNotFoundException extends RuntimeException {
     private byte[] keyId;
     
     public KeyNotFoundException(byte[] keyId) {

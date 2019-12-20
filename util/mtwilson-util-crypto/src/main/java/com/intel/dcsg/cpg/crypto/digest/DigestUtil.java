@@ -24,5 +24,14 @@ public class DigestUtil {
         if( name.equalsIgnoreCase("sha512") || name.equalsIgnoreCase("sha2512") ) { return "SHA-512"; }
         return null;
     }
+
+    /**
+     * 
+     * @param algorithm
+     * @return the name of the algorithm as a prefix, but not the full prefix because we omit the ":" after the algorithm name here
+     */
+    public static String getPrefixName(String algorithm) {
+        return algorithm.trim().replace("-", "").toLowerCase(); // "SHA-256" becomes "sha256"
+    }
     
 }

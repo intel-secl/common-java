@@ -1,0 +1,95 @@
+{
+  "label": "Key Escrow on ClearLinux 8830",
+  "id": "author@site.edu/e4746425-f56b-4b99-83d9-93262f1581fa",
+  "description": "Measurements of binaries and settings",
+  "notBefore": "2016-07-18T09:23:34+00:00",
+  "notAfter": "",
+  "hardware": {
+    "vendor": "GenuineIntel",
+    "features": {
+      "AES-NI": { "enabled": true },
+        "TXT": { "enabled": true } ,
+         "SGX": { "enabled": true } ,
+      
+      "TPM": {
+        "version": "1.2",
+        "enabled": true,
+        "pcrs": {
+          "01": { "value": "2aae6c35c94fcfb415dbe95f408b9ce91ee846ed" },
+          "171": 
+            { "value": "f1f0188d7e74ce2e9b395726ee39848bcd92e869" }
+            
+          
+        }
+      }
+    }
+  },
+  "software": {
+    "digestAlg": "sha-256",
+    "measurements": {
+      "/etc/hosts": { "type": "file", "digest": "2cab4cce4d11a47acdd4625b63f207974824d1d7f1804f4d4825f7a4472d39f9" },
+      
+        
+          "/opt/mtwilson/java/mtwilson-util-crypto-3.1.jar": {
+            "type": "file",
+            "digest": "98f2b01890b947c4789d2907ca3111c50fedfcb1dba028d06e16bb04852e975a" 
+          }
+        ,
+        
+      "/opt/mtwilson/java/mtwilson-util-crypto-3.2.jar": {
+            "type": "file",
+            "digest": "98f2b01890b947c4789d2907ca3111c50fedfcb1dba028d06e16bb04852e975a" 
+          }
+        ,
+      "/etc/apache2/mods.enabled": {
+        "type": "dir",
+        "digest": "3890b04101b1b2178aaddbc2a2d692611d5e6668835c01d4e2710c2785427738",
+        "include": "[0-9A-Za-z_-]*(?:.load|.conf)" 
+      }
+    }
+  },
+  "boot": {
+    "bios": {
+      "vendor": "Intel",
+      "version": "1.2.3",
+      "digestAlg": "sha-1",
+      "digest": "ac9ff4e0e2a43c3124ee555035d31b42b89a7d6e",
+      "pcr": 0
+    },
+    "initrd": {
+      "digestAlg": "sha-1",
+      "digest": "99b3b7a100fded7c7eb1c59f4d75d84137822596",
+      "pcr": 8
+    }
+  },
+  "external": {
+    "geotag": {
+      "digestAlg": "sha-1",
+      "digest": "f21edca8819e2f854e84dae73570c061cafacf65",
+      "certificate": {
+        "attributes": {
+          "2.5.4.789.1": {
+              "country": "US",
+              
+                
+                 "state": "OR", "city": "Hillsboro" 
+              
+          },
+          "2.5.4.789.2": {
+              "country": ["US"],
+              
+                
+                "state": ["OR"], "city": ["Hillsboro"] 
+              
+          }
+        },
+        "issuer": {
+         
+             "publicKey": [ "...base64 of DER-encoded..." ]
+           
+          
+        }
+      }
+    }
+  }
+}

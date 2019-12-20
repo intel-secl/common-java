@@ -386,6 +386,10 @@ public class MyConfiguration {
         return new File(getDirectoryPath() + File.separator + username + ".p12");
     }
 
+    public File getTruststoreFile() {
+        return new File(getDirectoryPath() + File.separator + "truststore.p12");
+    }
+
     public String getKeystoreUsername() {
         return conf.getString("mtwilson.api.username", System.getProperty("user.name", "anonymous"));
     }
@@ -400,6 +404,14 @@ public class MyConfiguration {
 
     public String getTagKeystorePassword() {
         return conf.getString("mtwilson.tag.api.password");
+    }
+
+    public String getMtwilsonAdminUsername() {
+        return conf.getString("mtwilson.admin.username");
+    }
+
+    public String getMtwilsonAdminPassword() {
+        return conf.getString("mtwilson.admin.password");
     }
 
     public URL getMtWilsonURL() throws MalformedURLException {

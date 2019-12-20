@@ -15,8 +15,13 @@ import java.io.IOException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateParsingException;
+import java.util.List;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.x509.GeneralName;
+import sun.security.x509.GeneralNameInterface;
+import sun.security.x509.X500Name;
 
 /**
  *
@@ -31,6 +36,8 @@ public class X509BuilderTest {
         String exampleOid = "1.2.3.4";
         boolean found = false;
         KeyPair keys = RsaUtil.generateRsaKeyPair(1024);
+        log.debug("private key: {}", RsaUtil.encodePemPrivateKey(keys.getPrivate()));
+        log.debug("public key: {}", RsaUtil.encodePemPublicKey(keys.getPublic()));
         X509Builder builder = X509Builder.factory().selfSigned("CN=testcert", keys).expires(30, TimeUnit.DAYS).noncriticalExtension(exampleOid, randomData);
         X509Certificate cert = builder.build();
         if( cert == null ) {
@@ -197,4 +204,96 @@ F6FPAUGVcKUWoqAsVbZJH4mwldAxsQ==
          * 
          */
     }    
+    
+    
+    @Test
+    public void testCreateWithUriSubjectAlternativeName() throws NoSuchAlgorithmException, IOException, CertificateEncodingException, CertificateParsingException {
+        String exampleUri = "urn:intel:keplerlake:realm:example.com";
+        boolean found = false;
+        KeyPair keys = RsaUtil.generateRsaKeyPair(1024);
+        log.debug("private key: {}", RsaUtil.encodePemPrivateKey(keys.getPrivate()));
+        log.debug("public key: {}", RsaUtil.encodePemPublicKey(keys.getPublic()));
+        X509Builder builder = X509Builder.factory().selfSigned("CN=testcert", keys).expires(30, TimeUnit.DAYS).uriAlternativeName(exampleUri);
+        X509Certificate cert = builder.build();
+        if( cert == null ) {
+            for(Fault fault : builder.getFaults()) {
+                log.error("Cannot create certificate: {}", fault.toString());
+//                if( !fault.getFaults().isEmpty() ) {
+//                    log.error("{} related faults", fault.getFaults().size());
+//                }
+            }
+            fail();
+        }
+        assertNotNull(cert);
+        assertNotNull(cert.getSubjectAlternativeNames());
+        assertFalse(cert.getSubjectAlternativeNames().isEmpty());
+        for(List altName : cert.getSubjectAlternativeNames()) {
+            if( altName.size() != 2 ) { log.error("expected (type,value) altname entry, but it has {} items", altName.size());  continue; }
+            Integer type = (Integer)altName.get(0);
+            String value = (String)altName.get(1);
+            log.debug("subject alternative name type {} value {}", type, value);
+            if( type == X500Name.NAME_URI /* 6 */ && value.equals(exampleUri)) {
+                found = true;
+            }
+        }
+        assertTrue(found);
+        
+        log.debug("Certificate: {}", X509Util.encodePemCertificate(cert));
+        
+        /**
+         * Example:
+         * <pre>
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 8892209639768192990 (0x7b67798deeaff7de)
+    Signature Algorithm: sha256WithRSAEncryption
+        Issuer: CN=testcert
+        Validity
+            Not Before: May  5 01:00:53 2017 GMT
+            Not After : Jun  4 01:00:53 2017 GMT
+        Subject: CN=testcert
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (1024 bit)
+                Modulus:
+                    00:d6:b9:2d:ca:e1:d4:5b:dc:5c:db:92:eb:9b:54:
+                    99:b1:6a:7f:2a:53:63:65:fb:48:b9:9c:c1:aa:a8:
+                    53:84:91:46:58:1c:b7:9b:95:95:bf:6b:ca:16:7d:
+                    6a:87:86:39:69:f3:4c:f6:f4:f9:24:b8:e6:06:9d:
+                    e8:70:fd:e9:32:00:46:99:c7:10:ec:99:c1:20:f1:
+                    b5:eb:1a:b2:28:66:5c:4b:33:a8:ad:67:82:07:71:
+                    90:06:2c:10:7d:f0:dc:84:ee:bb:b9:4e:b2:f2:2a:
+                    97:40:17:65:c1:5f:06:a4:9c:36:a6:a2:16:3a:c7:
+                    de:bc:d1:6c:04:7c:fa:45:a9
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Subject Alternative Name:
+                URI:urn:intel:keplerlake:realm:example.com
+    Signature Algorithm: sha256WithRSAEncryption
+         a1:d8:b4:16:e9:89:c2:0a:4e:27:d9:68:42:76:f7:2e:70:f1:
+         2e:4e:db:f3:38:fe:e8:4f:53:89:c4:8c:b5:0f:8a:7e:74:f7:
+         96:bf:d0:69:44:16:65:98:99:57:58:2a:f1:ae:46:d3:8e:05:
+         2f:75:cc:db:94:fd:6d:45:b5:57:9c:6a:a5:da:66:86:b2:3d:
+         bd:a4:c0:b6:8a:81:3b:32:86:bc:6d:73:41:5e:d7:ff:3b:13:
+         a9:17:b8:8e:39:7b:a8:a2:01:64:92:39:7b:83:73:c8:f7:fb:
+         a6:a4:29:8d:a0:5f:53:62:2c:a1:42:82:71:aa:24:04:d4:5a:
+         11:a9
+-----BEGIN CERTIFICATE-----
+MIIB2DCCAUGgAwIBAgIIe2d5je6v994wDQYJKoZIhvcNAQELBQAwEzERMA8GA1UEAxMIdGVzdGNl
+cnQwHhcNMTcwNTA1MDEwMDUzWhcNMTcwNjA0MDEwMDUzWjATMREwDwYDVQQDEwh0ZXN0Y2VydDCB
+nzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA1rktyuHUW9xc25Lrm1SZsWp/KlNjZftIuZzBqqhT
+hJFGWBy3m5WVv2vKFn1qh4Y5afNM9vT5JLjmBp3ocP3pMgBGmccQ7JnBIPG16xqyKGZcSzOorWeC
+B3GQBiwQffDchO67uU6y8iqXQBdlwV8GpJw2pqIWOsfevNFsBHz6RakCAwEAAaM1MDMwMQYDVR0R
+BCowKIYmdXJuOmludGVsOmtlcGxlcmxha2U6cmVhbG06ZXhhbXBsZS5jb20wDQYJKoZIhvcNAQEL
+BQADgYEAodi0FumJwgpOJ9loQnb3LnDxLk7b8zj+6E9TicSMtQ+KfnT3lr/QaUQWZZiZV1gq8a5G
+044FL3XM25T9bUW1V5xqpdpmhrI9vaTAtoqBOzKGvG1zQV7X/zsTqRe4jjl7qKIBZJI5e4NzyPf7
+pqQpjaBfU2IsoUKCcaokBNRaEak=
+-----END CERTIFICATE-----
+         * </pre>
+         * 
+         */
+    }
+    
+    
 }

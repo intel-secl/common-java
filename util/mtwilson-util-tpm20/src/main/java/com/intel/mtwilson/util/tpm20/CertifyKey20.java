@@ -11,16 +11,15 @@ import com.intel.mtwilson.util.tpm20.x509.TpmCertifyKeySignature;
 import gov.niarl.his.privacyca.TpmCertifyKey20;
 import gov.niarl.his.privacyca.TpmUtils;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
+import java.security.*;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.xml.bind.DatatypeConverter;
+
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 
@@ -222,6 +221,37 @@ public class CertifyKey20 {
             throw ex;
         }
 
+    }
+
+    /**
+     * Validates the public key digest with that present in the CertifyKey
+     * specified.
+     *
+     * @param publicKeyInfo
+     * @param tcgCertificate
+     * @return
+     * @throws Exception
+     */
+    public static boolean validatePublicKey(byte[] publicKeyInfo, byte[] tcgCertificate) throws Exception {
+        try {
+            log.debug("Validating the Public Key.");
+            TpmCertifyKey20 tpmCertifyKey = new TpmCertifyKey20(tcgCertificate);
+
+            //Get the public key digest from attestation info
+            byte[] providedName = tpmCertifyKey.getTpmuAttest().getTpmsCertifyInfoBlob().getTpmtHa().getDigest();
+            log.debug("Provided name in key attestation: {}", TpmUtils.byteArrayToHexString(providedName));
+
+            //remove first two bytes that represent the public area size
+            byte[] publicKeyInfoBuffer = Arrays.copyOfRange(publicKeyInfo, 2, publicKeyInfo.length);
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+            byte[] publicKeyInfoBufferDigest = messageDigest.digest(DatatypeConverter.parseHexBinary
+                    (TpmUtils.byteArrayToHexString(publicKeyInfoBuffer)));
+            log.debug("Public key SHA 256 digest: {}", TpmUtils.byteArrayToHexString(publicKeyInfoBufferDigest));
+
+            return Arrays.equals(providedName, publicKeyInfoBufferDigest);
+        } catch (TpmUtils.TpmBytestreamResouceException | TpmUtils.TpmUnsignedConversionException ex) {
+            throw ex;
+        }
     }
 
 

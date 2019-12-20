@@ -38,6 +38,10 @@
         </dependency>
         <dependency>
             <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
             <artifactId>mtwilson-util-io</artifactId>
         </dependency>
         <dependency>
@@ -52,11 +56,6 @@
             <groupId>com.intel.mtwilson.util</groupId>
             <artifactId>mtwilson-util-crypto-key</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.intel.mtwilson.util</groupId>
-            <artifactId>mtwilson-util-crypto-password</artifactId>
-        </dependency>
-        
         
         <!-- for setup tasks -->
         <dependency>

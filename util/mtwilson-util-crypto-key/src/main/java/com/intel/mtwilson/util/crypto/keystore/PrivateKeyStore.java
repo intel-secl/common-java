@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2019 Intel Corporation
- * SPDX-License-Identifier: BSD-3-Clause
+ * Copyright (C) 2014 Intel Corporation
+ * All rights reserved.
  */
 package com.intel.mtwilson.util.crypto.keystore;
 
@@ -40,23 +40,33 @@ public class PrivateKeyStore extends AbstractKeyStore implements Closeable {
      */
     public PrivateKeyStore(String keystoreType, File keystoreFile, char[] keystorePassword) throws KeyStoreException, IOException {
         super(keystoreType, keystoreFile, keystorePassword);
+//        super.setKeyProtectionDelegate(new SinglePasswordKeyProtectionDelegate(keystorePassword));
         this.keystore = super.keystore();
+//        this.keystorePassword = keystorePassword;
         this.keyProtectionDelegate = new SinglePasswordKeyProtectionDelegate(keystorePassword);
     }
     public PrivateKeyStore(String keystoreType, Resource keystoreResource, char[] keystorePassword) throws KeyStoreException, IOException {
         super(keystoreType, keystoreResource, keystorePassword);
+//        super.setKeyProtectionDelegate(new SinglePasswordKeyProtectionDelegate(keystorePassword));
         this.keystore = super.keystore();
+//        this.keystorePassword = keystorePassword;
         this.keyProtectionDelegate = new SinglePasswordKeyProtectionDelegate(keystorePassword);
     }
     public PrivateKeyStore(String keystoreType, Resource keystoreResource, Password keystorePassword) throws KeyStoreException, IOException {
         super(keystoreType, keystoreResource, keystorePassword);
+//        super.setKeyProtectionDelegate(new SinglePasswordKeyProtectionDelegate(keystorePassword));
         this.keystore = super.keystore();
+//        this.keystorePassword = keystorePassword;
         this.keyProtectionDelegate = new SinglePasswordKeyProtectionDelegate(keystorePassword);
     }
 
     /**
      * Precondition: keystore file exists (or throws FileNotFoundException)
      *
+     * Assumes key is protected by same password as keystore.  If key has
+     * a separate password, use getPrivateKey(alias,password)
+     * 
+     * @param alias
      * @return
      * @throws KeyStoreException
      * @throws FileNotFoundException
@@ -74,15 +84,50 @@ public class PrivateKeyStore extends AbstractKeyStore implements Closeable {
         }
     }
     
+    public PrivateKey getPrivateKey(String alias, Password password) throws KeyStoreException {
+        try {
+            PrivateKey key = (PrivateKey)keystore.getKey(alias, password.toCharArray());
+            return key;
+        } catch (GeneralSecurityException e) {
+            throw new KeyStoreException("Cannot load private key", e);
+        }
+    }
+    
     public Certificate[] getCertificates(String alias) throws KeyStoreException {
         return keystore.getCertificateChain(alias);
     }
 
+    /**
+     * Assumes the key will be protected using same password as keystore.
+     * 
+     * @param alias
+     * @param key
+     * @param certificates
+     * @throws KeyStoreException 
+     */
     public void set(String alias, PrivateKey key, Certificate[] certificates) throws KeyStoreException {
         if (keystore.containsAlias(alias)) {
             log.warn("Replacing private key {}", alias);
         }
         keystore.setKeyEntry(alias, key, keyProtectionDelegate.getPassword(alias), certificates);
+        modified();
+    }
+
+    /**
+     * Sets a separate password for this key, independently of the keystore
+     * password.
+     * 
+     * @param alias
+     * @param key
+     * @param password
+     * @param certificates
+     * @throws KeyStoreException 
+     */
+    public void set(String alias, PrivateKey key, Password password, Certificate[] certificates) throws KeyStoreException {
+        if (keystore.containsAlias(alias)) {
+            log.warn("Replacing private key {}", alias);
+        }
+        keystore.setKeyEntry(alias, key, password.toCharArray(), certificates);
         modified();
     }
     

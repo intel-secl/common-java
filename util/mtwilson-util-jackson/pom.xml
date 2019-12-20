@@ -68,15 +68,6 @@
             <artifactId>bcprov-jdk15on</artifactId>
             <optional>true</optional>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcmail-jdk16</artifactId>
-            <version>1.46</version>
-            <optional>true</optional>
-        </dependency>
-        -->
-        
         <dependency>
             <groupId>com.intel.mtwilson.util</groupId>
             <artifactId>mtwilson-util-crypto</artifactId>

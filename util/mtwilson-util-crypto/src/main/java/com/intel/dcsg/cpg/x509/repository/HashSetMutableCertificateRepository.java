@@ -7,6 +7,7 @@ package com.intel.dcsg.cpg.x509.repository;
 import java.security.KeyManagementException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import org.slf4j.Logger;
@@ -19,9 +20,19 @@ import org.slf4j.LoggerFactory;
  */
 public class HashSetMutableCertificateRepository implements MutableCertificateRepository {
 
-    private Logger log = LoggerFactory.getLogger(getClass());
-    private HashSet<X509Certificate> keystore = new HashSet<>();
+    private final Logger log = LoggerFactory.getLogger(getClass());
+    private final HashSet<X509Certificate> keystore;
 
+    public HashSetMutableCertificateRepository() {
+        keystore = new HashSet<>();
+    }
+
+    public HashSetMutableCertificateRepository(Collection<X509Certificate> certificates) {
+        keystore = new HashSet<>();
+        keystore.addAll(certificates);
+    }
+    
+    
     public HashSet<X509Certificate> getKeystore() {
         return keystore;
     }

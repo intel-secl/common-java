@@ -54,14 +54,14 @@ public class Rpcs extends AbstractJsonapiResource<Rpc,RpcCollection,RpcFilterCri
     @Override
     @Path("/{id}")
     @DELETE
-    public void deleteOne(@BeanParam RpcLocator locator, @Context HttpServletRequest request, @Context HttpServletResponse response) {
+    public Response deleteOne(@BeanParam RpcLocator locator, @Context HttpServletRequest request, @Context HttpServletResponse response) {
         log.debug("Rpcs deleteOne");
         boolean isRunning = false;
         if (isRunning) {
             throw new WebApplicationException(Response.Status.CONFLICT);
         }
         // now remove from database
-        super.deleteOne(locator, request, response);
+        return (super.deleteOne(locator, request, response));
     }
     
     @Path("/{id}/input")
