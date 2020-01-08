@@ -53,6 +53,12 @@ sed -i 's/\(<version>\).*\(<\/version>\)/\1'${version}'\2/g' features/mtwilson-c
 if [ $? -ne 0 ]; then echo "Failed to change version in \"features/mtwilson-core-html5-login-token/feature.xml\"" >&2; exit 3; fi
 sed -i 's/\(<version>\).*\(<\/version>\)/\1'${version}'\2/g' features/mtwilson-core-version/feature.xml
 if [ $? -ne 0 ]; then echo "Failed to change version in \"features/mtwilson-core-version/feature.xml\"" >&2; exit 3; fi
+sed -i 's/\(<version>\).*\(<\/version>\)/\1'${version}'\2/g' maven/mtwilson-maven-bom-coreutil/pom.xml
+if [ $? -ne 0 ]; then echo "Failed to change version in \"maven/mtwilson-maven-bom-coreutil/pom.xml\"" >&2; exit 3; fi
+sed -i 's/\(<version>\).*\(<\/version>\)/\1'${version}'\2/g' util/mtwilson-util-json-validation/pom.xml
+if [ $? -ne 0 ]; then echo "Failed to change version in \"util/mtwilson-util-json-validation/pom.xml\"" >&2; exit 3; fi
+sed -i 's/\(<version>\).*\(<\/version>\)/\1'${version}'\2/g' util/mtwilson-util-retry/mtwilson-util-retry/pom.xml
+if [ $? -ne 0 ]; then echo "Failed to change version in \"util/mtwilson-util-retry/mtwilson-util-retry/pom.xml\"" >&2; exit 3; fi
 
 (cd features-linux  && $changeVersionCommand)
 if [ $? -ne 0 ]; then echo "Failed to change maven version on \"features-linux\" folder" >&2; exit 3; fi
