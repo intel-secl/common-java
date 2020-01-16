@@ -22,7 +22,7 @@ public class MyJdbc {
     private MyConfiguration config = new MyConfiguration(null);
     
     public MyJdbc(MyConfiguration config) {
-        conf = new PropertiesConfiguration(config.getProperties("mtwilson.db.protocol", "mtwilson.db.driver", "mtwilson.db.host", "mtwilson.db.port", "mtwilson.db.schema", "mtwilson.db.user", "mtwilson.db.password"));
+        conf = new PropertiesConfiguration(config.getProperties("mtwilson.db.protocol", "mtwilson.db.driver", "mtwilson.db.host", "mtwilson.db.port", "mtwilson.db.schema", "mtwilson.db.user", "mtwilson.db.password", "mtwilson.db.sslmode", "mtwilson.db.sslrootcert"));
     }
     public MyJdbc(Configuration config) {
         conf = config;
@@ -155,7 +155,7 @@ public class MyJdbc {
         String driver = driver();
         log.debug("JDBC Driver: {}", driver);
         Class.forName(driver);
-        Connection c = DriverManager.getConnection(url(), username(), password());
+        Connection c = DriverManager.getConnection(url(), config.getDatabaseConnectionProperties());
         return c;
     }
     

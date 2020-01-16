@@ -1778,53 +1778,6 @@ postgres_install() {
   fi
 }
 
-# Checks if postgresql packages need to be added to install application, and adds them
-add_postgresql_install_packages() {
-  local cprefix=${1}
-  local yum_packages=$(eval "echo \$${cprefix}_YUM_PACKAGES")
-  local apt_packages=$(eval "echo \$${cprefix}_APT_PACKAGES")
-  local yast_packages=$(eval "echo \$${cprefix}_YAST_PACKAGES")
-  local zypper_packages=$(eval "echo \$${cprefix}_ZYPPER_PACKAGES")
-  
-  local repo_url=
-  local distro_release=
-  local repo_key_path=
-  
-  # detect available package management tools. start with the less likely ones to differentiate.
-  yum_detect; yast_detect; zypper_detect; rpm_detect; aptget_detect; dpkg_detect;
-  
-  echo "Checking to see if postgresql package is available for install..."
-  if [[ -n "$aptget" && -n "$apt_packages" ]]; then
-    pgAddPackRequired=`apt-cache search \`echo $apt_packages | cut -d' ' -f1\``
-    repo_url="http://apt.postgresql.org/pub/repos/apt/"
-    distro_release=`cat /etc/*-release | grep DISTRIB_CODENAME | sed 's/DISTRIB_CODENAME=//'`
-    distro_release="${distro_release}-pgdg"
-    repo_key_path="/etc/apt/trusted.gpg.d/ACCC4CF8.asc"
-  #elif [[ -n "$yast" && -n "$yast_packages" ]]; then
-    # code goes here
-  elif [[ -n "$yum" && -n "$yum_packages" ]]; then
-    pgAddPackRequired=$(yum list $yum_packages 2>/dev/null | grep -E 'Available Packages|Installed Packages')
-    repo_url="https://download.postgresql.org/pub/repos/yum/9.4/redhat/rhel-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm"
-    distro_release=
-    repo_key_path=
-  #elif [[ -n "$zypper" && -n "$zypper_packages" ]]; then
-    # code goes here
-  else
-    echo_failure "Package manager not supported."
-    return 2
-  fi
-  #if postgresql package already available, return with no error code; no need to add repo
-  if [ -n "$pgAddPackRequired" ]; then
-    return 0
-  fi
-  prompt_with_default ADD_POSTGRESQL_REPO "Required version of postgresql repository is not there in local package manager. You want to add it? " "no"
-  if [ "$ADD_POSTGRESQL_REPO" == "no" ]; then
-    echo_failure "User declined to add postgresql repository to local package manager."
-    return 1
-  fi
-  add_package_repository "${repo_url}" "${distro_release}" "${repo_key_path}"
-}
-
 # Environment:
 # - POSTGRES_REQUIRED_VERSION
 # installs postgres server 
@@ -2033,7 +1986,7 @@ postgres_require() {
 # format like this -> psql -h 127.0.0.1 -p 5432 -d mw_as -U root -c "\l"
 postgres_connection() {
   postgres_require
-  postgres_connect="$psql -h ${POSTGRES_HOSTNAME:-$DEFAULT_POSTGRES_HOSTNAME} -p ${POSTGRES_PORTNUM:-$DEFAULT_POSTGRES_PORTNUM} -d ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} -U ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}"
+  postgres_connect="$psql -h ${POSTGRES_HOSTNAME:-$DEFAULT_POSTGRES_HOSTNAME} -p ${POSTGRES_PORTNUM:-$DEFAULT_POSTGRES_PORTNUM} --set=sslmode=${POSTGRES_SSLMODE} --set=sslrootcert=${POSTGRES_SSLROOTCERT}  -d ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} -U ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}"
   echo "postgres_connect=$postgres_connect" >> $INSTALL_LOG_FILE
 }
 
@@ -2049,7 +2002,7 @@ postgres_test_connection() {
   if [ ! -f $POSTGRES_LOG ]; then
     touch $POSTGRES_LOG
   fi
-  $psql -h ${POSTGRES_HOSTNAME:-$DEFAULT_POSTGRES_HOSTNAME} -p ${POSTGRES_PORTNUM:-$DEFAULT_POSTGRES_PORTNUM} -d ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} -U ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME} -w -c "select 1" 2>$POSTGRES_LOG >/dev/null
+  $psql -h ${POSTGRES_HOSTNAME:-$DEFAULT_POSTGRES_HOSTNAME} -p ${POSTGRES_PORTNUM:-$DEFAULT_POSTGRES_PORTNUM} -d ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} --set=sslmode=${POSTGRES_SSLMODE} --set=sslrootcert=${POSTGRES_SSLROOTCERT} -U ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME} -w -c "select 1" 2>$POSTGRES_LOG >/dev/null
    if [ $? -eq 0 ]; then
     is_postgres_available="yes"
     return 0
@@ -2084,179 +2037,6 @@ postgres_test_connection_report() {
 # - script_name such as 'asctl' or 'wlmctl'
 # - intel_conf_dir (deprecated, just use absolute package_config_filename)
 # - package_config_filename  (should be absolute)
-postgres_configure_connection() {
-    local config_file="${1:-/etc/intel/cloudsecurity/postgres.properties}"
-    local prefix="${2:-postgres}"
-    postgres_test_connection
-    if [ -z "$is_postgres_available" ]; then
-      #postgres_read_connection_properties "${config_file}" "${prefix}"
-      postgres_test_connection
-    fi
-    while [ -n "$postgres_connection_error" ]
-    do
-      echo_warning "Cannot connect to Postgres: $postgres_connection_error"
-      prompt_yes_no POSTGRES_RETRY_CONFIGURE_AFTER_FAILURE "Do you want to configure it now?"
-      if [[ "no" == "$POSTGRES_RETRY_CONFIGURE_AFTER_FAILURE" ]]; then
-        echo "Postgres settings are in ${package_config_filename}"
-        echo "Run '${script_name} setup' after configuring to continue."
-        return 1
-      fi
-      postgres_userinput_connection_properties
-      postgres_test_connection
-    done
-      echo_success "Connected to database [${POSTGRES_DATABASE}] on ${POSTGRES_HOSTNAME}" >> $INSTALL_LOG_FILE
-#      local should_save
-#      prompt_yes_no should_save "Save in ${package_config_filename}?"
-#      if [[ "yes" == "${should_save}" ]]; then
-      postgres_write_connection_properties "${config_file}" "${prefix}"
-#      fi
-}
-
-postgres_change_owner() {
-  local POSTGRES_PREVUSERNAME=$(sudo -u postgres psql -d ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} postgres -t -c "select tableowner from pg_tables where schemaname='public' limit 1" | tr -d '[:space:]')
-  if [[ ! -z "$POSTGRES_PREVUSERNAME" && "$POSTGRES_PREVUSERNAME" != "${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" ]]; then
-    sudo -u postgres psql  postgres -c "GRANT ALL PRIVILEGES ON DATABASE ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} to ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" 1>/dev/null
-    sudo -u postgres psql -d ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} postgres -c "REASSIGN OWNED BY $POSTGRES_PREVUSERNAME TO ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" 1>/dev/null
-    sudo -u postgres psql  postgres -c "REVOKE ALL PRIVILEGES ON DATABASE ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} FROM $POSTGRES_PREVUSERNAME" 1>/dev/null
-  fi
-}
-
-# requires a postgres connection that can access the existing database, OR (if it doesn't exist)
-# requires a postgres connection that can create databases and grant privileges
-# call postgres_configure_connection before calling this function
-postgres_create_database() {
-if postgres_server_detect ; then
-  if [ -n "$postgres_conf" ]; then
-    #set password_encryption to on so our password can be encrypted
-    grep '^password_encryption = on' $postgres_conf > /dev/null
-    if [ $? -ne 0 ]; then
-      if [ "$(whoami)" == "root" ]; then
-        sed -i 's|^#\(password_encryption[ ]*\)=\(.*\)|\1= on|g' $postgres_conf
-        echo "Restarting PostgreSQL for updates to support password encryption."
-        postgres_restart >> $INSTALL_LOG_FILE
-        sleep 10
-      else
-        echo_warning "Following line must be in $postgres_conf: password_encryption = on"
-      fi
-    fi
-
-  #we first need to find if the user has specified a different port than the once currently configured for postgres
-    current_port=`grep "port =" $postgres_conf | awk '{print $3}'`
-    has_correct_port=`grep $POSTGRES_PORTNUM $postgres_conf`
-    if [ -z "$has_correct_port" ]; then
-      if [ "$(whoami)" == "root" ]; then
-        echo "Port needs to be reconfigured from $current_port to $POSTGRES_PORTNUM"
-        sed -i s/$current_port/$POSTGRES_PORTNUM/g $postgres_conf
-        echo "Restarting PostgreSQL for port config updates to take effect."
-        postgres_restart >> $INSTALL_LOG_FILE
-        sleep 10
-      else
-        echo_warning "Port '$POSTGRES_PORTNUM' must be updated in $postgres_conf"
-      fi
-    fi
-  else
-    echo "warning: postgresql.conf not found" >> $INSTALL_LOG_FILE
-  fi
-	
-  postgres_test_connection
-  if [ -n "$is_postgres_available" ]; then
-    echo_success "Database [${POSTGRES_DATABASE}] already exists"
-    if [ "$(whoami)" == "root" ]; then
-      sudo -u postgres psql -lqt | cut -d \| -f 1 | grep ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} >/dev/null
-      if [ $? -eq 0 ]; then
-        postgres_change_owner
-      fi
-    fi
-    return 0
-  else
-    echo "Creating database..."
-    local detect_superuser="select rolcreatedb from pg_authid where rolname = '$POSTGRES_USERNAME'"
-    if [ "$(whoami)" == "root" ]; then
-      user_is_superuser=$(sudo -u postgres psql postgres -c "$detect_superuser" 2>&1 | grep "(1 row)")
-      if [ -z "$user_is_superuser" ]; then
-        local user_exists=`sudo -u postgres psql postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}'"`
-        if [[ -z "$user_exists" || ! user_exists ]]; then
-          local create_user_sql="CREATE USER ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME} WITH PASSWORD '${POSTGRES_PASSWORD:-$DEFAULT_POSTGRES_PASSWORD}';"
-          sudo -u postgres psql postgres -c "${create_user_sql}" 1>/dev/null
-
-          # Do not provide Superuser Privileges to HVS Database User ISECL-3860
-          local superuser_alter="ALTER USER ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME} WITH NOSUPERUSER;"
-          sudo -u postgres psql postgres -c "${superuser_alter}" 1>/dev/null
-          superuser_alter="ALTER USER ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME} WITH CREATEDB;"
-          sudo -u postgres psql postgres -c "${superuser_alter}" 1>/dev/null
-        fi
-      fi
-
-    sudo -u postgres psql -lqt | cut -d \| -f 1 | grep ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} >/dev/null
-    if [ $? -eq 0 ]; then
-      postgres_change_owner
-    else
-      local create_sql="CREATE DATABASE ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE};"
-      sudo -u postgres psql postgres -c "${create_sql}" 2>/dev/null 1>/dev/null
-      local grant_sql="GRANT ALL PRIVILEGES ON DATABASE ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} TO ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME};"
-      sudo -u postgres psql postgres -c "${grant_sql}" 2>/dev/null 1>/dev/null
-    fi
-    else
-      user_is_superuser=$(psql postgres -U "${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}" -c "$detect_superuser" 2>&1 | grep "(1 row)")
-      if [ -z "$user_is_superuser" ]; then
-        echo_failure "You must make '$POSTGRES_USERNAME' postgres user a superuser as root"
-        return 1
-      fi
-      # add additional checks here? is db created? does user have privilege for db?
-    fi
-  fi
-
-  if [ "$(whoami)" == "root" ]; then
-    #comment out ident line so our connection can be made
-    sed -i 's|\(^host[ ]*all[ ]*all[ ]*127.0.0.1/32[ ]*ident\)|#\1|g' $postgres_pghb_conf
-    
-    postgres_pghb_conf_has_entry=$(cat $postgres_pghb_conf | grep '^host[ ]*all[ ]*all[ ]*127.0.0.1/32[ ]*md5')
-    if [ -z "$postgres_pghb_conf_has_entry" ]; then
-      if [ -n "$postgres_pghb_conf" ]; then
-        has_host=`grep "^host" $postgres_pghb_conf | grep "127.0.0.1" | grep -E "md5"`
-        if [ -z "$has_host" ]; then
-          echo host  all  all  127.0.0.1/32  md5 >> $postgres_pghb_conf
-          echo "Restarting PostgreSQL for pghb updates to take effect."
-          postgres_restart >> $INSTALL_LOG_FILE
-        fi
-      else
-        echo "warning: pg_hba.conf not found" >> $INSTALL_LOG_FILE
-      fi
-    fi
-  else
-    echo_warning "Following line must be in $postgres_pghb_conf: host  all  all  127.0.0.1/32  md5"
-  fi
-
-  postgres_conf_has_entry=$(cat $postgres_conf | grep '^listen_addresses' | grep '127.0.0.1')
-  if [ -z "$postgres_conf_has_entry" ]; then
-    if [ "$(whoami)" == "root" ]; then
-      if [ -n "$postgres_conf" ]; then
-        has_listen_addresses=`grep "^listen_addresses" $postgres_conf`
-        if [ -z "$has_listen_addresses" ]; then
-          echo listen_addresses=\'127.0.0.1\' >> $postgres_conf
-          echo "Restarting PostgreSQL for local address updates to take effect."
-          postgres_restart >> $INSTALL_LOG_FILE
-        fi
-      else
-        echo "warning: postgresql.conf not found" >> $INSTALL_LOG_FILE
-      fi
-    else
-      echo_warning "Following line must be in $postgres_conf: listen_addresses='127.0.0.1'"
-    fi
-  fi
-
-  sleep 10
-  postgres_test_connection
-
-  if [ -z "$is_postgres_available" ]; then
-    echo_failure "Failed to create database."  | tee -a $INSTALL_LOG_FILE
-    echo "Try to execute the following commands on the database:"  >> $INSTALL_LOG_FILE
-    echo "${create_sql}" >> $INSTALL_LOG_FILE
-    echo "${grant_sql}"  >> $INSTALL_LOG_FILE
-    return 1
-  fi
-fi
-}
 
 # before using this function, you must first set the connection variables postgres_*
 # example:  postgres_run_script /path/to/statements.sql
@@ -2265,26 +2045,6 @@ postgres_run_script() {
   local datestr=`date +%Y-%m-%d.%H%M`
   echo "##### [${datestr}] Script file: ${scriptfile}" >> ${postgres_setup_log}
   $postgres_connect --force ${POSTGRES_DATABASE} < "${scriptfile}" 2>> ${postgres_setup_log}
-}
-
-# requires a postgres connection that can create tables and procedures inside an existing database.
-# depends on postgres_* variables for the connection information.
-# call postgres_configure_connection before calling this function.
-# Parameters: a list of sql files to execute (absolute paths)
-postgres_install_scripts() {
-  local scriptlist="$@"
-  postgresd_test_connection
-  if [ -n "$is_postgres_available" ]; then
-    echo "Connected to ${POSTGRES_HOSTNAME} as ${POSTGRES_USERNAME}. Executing script..."
-    for scriptname in $scriptlist
-    do
-        postgres_run_script $scriptname
-    done
-    return 0
-  else
-    echo_failure "Cannot connect to database."
-    return 1
-  fi
 }
 
 postgres_running() {  
@@ -3788,29 +3548,6 @@ postgres_write_connection_properties() {
     fi
 }
 
-# parameters:
-# - configuration filename (absolute path)
-# - property prefix for settings in the configuration file (java format is assumed, dot will be automatically appended to prefix)
-postgres_userinput_connection_properties() {
-    echo "Configuring DB Connection..."
-    prompt_with_default POSTGRES_HOSTNAME "Hostname:" ${DEFAULT_POSTGRES_HOSTNAME}
-    prompt_with_default POSTGRES_PORTNUM "Port Num:" ${DEFAULT_POSTGRES_PORTNUM}
-    prompt_with_default POSTGRES_DATABASE "Database:" ${DEFAULT_POSTGRES_DATABASE}
-    prompt_with_default POSTGRES_USERNAME "Username:" ${DEFAULT_POSTGRES_USERNAME}
-    prompt_with_default_password POSTGRES_PASSWORD "Password:" ${DEFAULT_POSTGRES_PASSWORD}
-}
-
-# Set config file db properties
-set_config_db_properties() {
-  local scriptname="$1"
-  local packagename="$2"
-  intel_conf_dir=/etc/intel/cloudsecurity
-  package_dir=/opt/intel/cloudsecurity/${packagename}
-  package_config_filename=${intel_conf_dir}/${packagename}.properties
-  package_env_filename=${package_dir}/${packagename}.env
-  package_install_filename=${package_dir}/${packagename}.install
-}
-
 # The EclipseLink persistence framework sends messages to stdout that start with the text [EL Info] or [EL Warning].
 # We suppress those because they are not useful for the customer, only for debugging.
 # Caller can set setupconsole_dir to the directory where jars are found; default provided by DEFAULT_MTWILSON_JAVA_DIR
@@ -4076,112 +3813,6 @@ load_defaults() {
   fi
 }
 
-change_db_pass() {
-  mysqladmin=`which mysqladmin 2>/dev/null`
-  psql=`which psql 2>/dev/null`
-  mtwilson=`which mtwilson 2>/dev/null`
-  cryptopass="$MTWILSON_PASSWORD"
-  
-  #load_default_env 1>/dev/null
-  
-  # Do not allow a blank password to be specified
-  prompt_with_default_password DATABASE_PASSWORD_NEW "New database password: " "$DATABASE_PASSWORD_NEW"
-  new_db_pass="$DATABASE_PASSWORD_NEW"
-  sed_escaped_value=$(sed_escape "$new_db_pass")
-  
-  # Check for encryption, add to array if encrypted
-  encrypted_files=()
-  count=0
-  for i in `ls -1 /etc/intel/cloudsecurity/*.properties`; do
-    if file_encrypted "$i"; then
-      encrypted_files[count]="$i"
-    fi
-    let count++
-  done
-  
-  local decryption_error=false
-  for i in ${encrypted_files[@]}; do
-    decrypt_file "$i" "$cryptopass"
-    if [ $? -ne 0 ]; then
-      decryption_error=true
-    fi
-  done
-  if $decryption_error; then
-    echo_error "Cannot decrypt configuration files; please set MTWILSON_PASSWORD"
-    return 1
-  fi
-  
-  load_conf
-  load_defaults
-  
-  # Test DB connection and change password
-  if using_mysql; then #MYSQL
-    echo_success "using mysql"
-    mysql_detect
-    mysql_version
-    mysql_test_connection_report
-    if [ $? -ne 0 ]; then exit; fi
-    $mysqladmin -h "$DATABASE_HOSTNAME" -u "$DATABASE_USERNAME" -p"$DATABASE_PASSWORD" password "$new_db_pass"
-    if [ $? -ne 0 ]; then echo_failure "Issue building mysql command."; exit; fi
-  elif using_postgres; then #POSTGRES
-    echo_success "using postgres"
-    postgres_detect
-    postgres_version
-    postgres_test_connection_report
-    if [ $? -ne 0 ]; then exit; fi
-    temp=$(cd /tmp && "$psql" -h "$DATABASE_HOSTNAME" -d "$DATABASE_SCHEMA" -U "$DATABASE_USERNAME" -c "ALTER USER $DATABASE_USERNAME WITH PASSWORD '$new_db_pass';")
-    if [ $? -ne 0 ]; then echo_failure -e "\nIssue building postgres or expect command."; exit; fi
-    # Edit postgres password file if it exists
-    if [ -f ~/.pgpass ]; then
-      echo
-      echo -n "Updating database password value in .pgpass file...."
-      sed -i 's|\(.*:'"$DATABASE_SCHEMA"':'"$DATABASE_USERNAME"':\).*|\1'"$new_db_pass"'|' ~/.pgpass
-      #temp=`cat ~/.pgpass | cut -f1,2,3,4 -d":"`
-      #temp="$temp:$new_db_pass"
-      #echo $temp > ~/.pgpass;
-    fi
-    echo "Restarting PostgreSQL for change DB password updates to take effect."
-    postgres_restart
-    echo_success "Done"
-  fi
-
-  # Edit .properties files
-  for i in `ls -1 /etc/intel/cloudsecurity/*.properties`; do
-    echo -n "Updating database password value in $i...."
-    sed -i -e 's/db.password=[^\n]*/db.password='"$sed_escaped_value"'/g' "$i"
-    echo_success "Done"
-  done
-
-  # 20140427 commented out the update to mtwilson.env because
-  # running system should not depend on it or update it in any way;
-  # the mtwilson.env is for install time only and is assumed to be 
-  # deleted after install.
-  ## Update password in mtwilson.env file
-  #if [ -f /root/mtwilson.env ]; then
-  #  echo -n "Updating database password value in mtwilson.env file...."
-  #  export sed_escaped_value=$(sed_escape "$new_db_pass")
-  #  sed -i -e 's/DATABASE_PASSWORD=[^\n]*/DATABASE_PASSWORD='\'"$sed_escaped_value"\''/g' "/root/mtwilson.env"
-  #  echo_success "Done"
-  #fi
-
-  # Restart
-  if using_tomcat; then
-    echo_success "using tomcat"
-    echo "Restarting mtwilson......"
-    $mtwilson tomcat-restart
-  fi
-  echo_success "RESTART COMPLETED"
-
-  # Encrypt files
-  for i in ${encrypted_files[@]}; do
-    encrypt_file "$i" "$cryptopass"
-  done
-
-  echo_success "DB PASSWORD CHANGE FINISHED"
-}
-
-#echoerr() { echo_failure "$@" 1>&2; }
-
 function erase_data() {
   mysql=`which mysql 2>/dev/null`
   psql=`which psql 2>/dev/null`
@@ -4219,7 +3850,7 @@ function erase_data() {
     if [ $? -ne 0 ]; then return 1; fi
     postgres_password=${POSTGRES_PASSWORD:-$DEFAULT_POSTGRES_PASSWORD}
     for table in ${arr[*]}; do
-      temp=`(cd /tmp && PGPASSWORD=$postgres_password "$psql" -d "$DATABASE_SCHEMA" -U "$DATABASE_USERNAME" -h "$DATABASE_HOSTNAME" -c "DELETE from $table;")`
+      temp=`(cd /tmp && PGPASSWORD=$postgres_password "$psql" -d "$DATABASE_SCHEMA" -U "$DATABASE_USERNAME" -h "$DATABASE_HOSTNAME" --set=sslmode=${POSTGRES_SSLMODE} --set=sslrootcert=${POSTGRES_SSLROOTCERT} -c "DELETE from $table;")`
     done
   fi
 }

@@ -576,6 +576,23 @@ public class MyConfiguration {
         return conf.getString("mtwilson.db.host", "127.0.0.1");
     }
 
+    public Properties getDatabaseConnectionProperties(){
+        Properties properties = new Properties();
+        properties.setProperty("sslmode", getDatabaseSSLMode());
+        properties.setProperty("sslrootcert", getDatabaseSSLCert());
+        properties.setProperty("user", getDatabaseUsername());
+        properties.setProperty("password", getDatabasePassword());
+        return properties;
+    }
+
+    public String getDatabaseSSLMode() {
+        return conf.getString("mtwilson.db.sslmode", "require");
+    }
+
+    public String getDatabaseSSLCert() {
+        return conf.getString("mtwilson.db.sslrootcert", "");
+    }
+
     public String getDatabaseUsername() {
         return conf.getString("mtwilson.db.user", ""); // removing default in mtwilson 1.2; was "root"
     }
