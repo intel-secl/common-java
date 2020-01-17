@@ -3507,21 +3507,6 @@ The supported server is t=Tomcat"
   done
   echo "Web Server Choice: $WEBSERVICE_VENDOR" >> $INSTALL_LOG_FILE
 }
-# parameters:
-# 1. path to properties file
-# 2. properties prefix (for mountwilson.as.db.user etc. the prefix is mountwilson.as.db)
-# the default prefix is "postgres" for properties like "postgres.user", etc. The
-# prefix must not have any spaces or special shell characters
-# ONLY USE IF FILES ARE UNENCRYPTED!!!
-postgres_read_connection_properties() {
-    local config_file="$1"
-    local prefix="${2:-postgres}"
-    POSTGRES_HOSTNAME=`read_property_from_file ${prefix}.host "${config_file}"`
-    POSTGRES_PORTNUM=`read_property_from_file ${prefix}.port "${config_file}"`
-    POSTGRES_USERNAME=`read_property_from_file ${prefix}.user "${config_file}"`
-    POSTGRES_PASSWORD=`read_property_from_file ${prefix}.password "${config_file}"`
-    POSTGRES_DATABASE=`read_property_from_file ${prefix}.schema "${config_file}"`
-}
 
 # ONLY USE IF FILES ARE UNENCRYPTED!!!
 postgres_write_connection_properties() {
@@ -3539,6 +3524,8 @@ postgres_write_connection_properties() {
     update_property_in_file ${prefix}.port "${config_file}" "${POSTGRES_PORTNUM}"
     update_property_in_file ${prefix}.user "${config_file}" "${POSTGRES_USERNAME}"
     update_property_in_file ${prefix}.password "${config_file}" "${POSTGRES_PASSWORD}"
+    update_property_in_file ${prefix}.sslmode "${config_file}" "${POSTGRES_SSLMODE}"
+    update_property_in_file ${prefix}.sslrootcert "${config_file}" "${POSTGRES_SSLROOTCERT}"
     update_property_in_file ${prefix}.schema "${config_file}" "${POSTGRES_DATABASE}"
     update_property_in_file ${prefix}.driver "${config_file}" "org.postgresql.Driver"
     
@@ -3644,6 +3631,8 @@ load_conf() {
       export CONF_DATABASE_SCHEMA=`echo $temp | awk -F'mtwilson.db.schema=' '{print $2}' | awk -F' ' '{print $1}'`
       export CONF_DATABASE_USERNAME=`echo $temp | awk -F'mtwilson.db.user=' '{print $2}' | awk -F' ' '{print $1}'`
       export CONF_DATABASE_PASSWORD=`echo $temp | awk -F'mtwilson.db.password=' '{print $2}' | awk -F' ' '{print $1}'`
+      export CONF_DATABASE_SSLMODE=`echo $temp | awk -F'mtwilson.db.sslmode=' '{print $2}' | awk -F' ' '{print $1}'`
+      export CONF_DATABASE_SSLROOTCERT=`echo $temp | awk -F'mtwilson.db.sslrootcert=' '{print $2}' | awk -F' ' '{print $1}'`
       export CONF_DATABASE_PORTNUM=`echo $temp | awk -F'mtwilson.db.port=' '{print $2}' | awk -F' ' '{print $1}'`
       export CONF_DATABASE_DRIVER=`echo $temp | awk -F'mtwilson.db.driver=' '{print $2}' | awk -F' ' '{print $1}'`
       export CONF_MTWILSON_DEFAULT_TLS_POLICY_ID=`echo $temp | awk -F'mtwilson.default.tls.policy.id=' '{print $2}' | awk -F' ' '{print $1}'`
@@ -3662,6 +3651,8 @@ load_conf() {
       export CONF_DATABASE_SCHEMA=`read_property_from_file mtwilson.db.schema "$mtw_props_path"`
       export CONF_DATABASE_USERNAME=`read_property_from_file mtwilson.db.user "$mtw_props_path"`
       export CONF_DATABASE_PASSWORD=`read_property_from_file mtwilson.db.password "$mtw_props_path"`
+      export CONF_DATABASE_SSLMODE=`read_property_from_file mtwilson.db.sslmode "$mtw_props_path"`
+      export CONF_DATABASE_SSLROOTCERT=`read_property_from_file mtwilson.db.sslrootcert "$mtw_props_path"`
       export CONF_DATABASE_PORTNUM=`read_property_from_file mtwilson.db.port "$mtw_props_path"`
       export CONF_DATABASE_DRIVER=`read_property_from_file mtwilson.db.driver "$mtw_props_path"`
       export CONF_MTWILSON_DEFAULT_TLS_POLICY_ID=`read_property_from_file mtwilson.default.tls.policy.id "$mtw_props_path"`
@@ -3741,6 +3732,8 @@ load_defaults() {
   export DEFAULT_DATABASE_SCHEMA=""
   export DEFAULT_DATABASE_USERNAME=""
   export DEFAULT_DATABASE_PASSWORD=""
+  export DEFAULT_DATABASE_SSLMODE="require"
+  export DEFAULT_DATABASE_SSLROOTCERT=""
   export DEFAULT_DATABASE_PORTNUM=""
   export DEFAULT_DATABASE_DRIVER=""
   export DEFAULT_WEBSERVICE_VENDOR=""
@@ -3772,6 +3765,8 @@ load_defaults() {
   export DATABASE_SCHEMA=${DATABASE_SCHEMA:-${CONF_DATABASE_SCHEMA:-$DEFAULT_DATABASE_SCHEMA}}
   export DATABASE_USERNAME=${DATABASE_USERNAME:-${CONF_DATABASE_USERNAME:-$DEFAULT_DATABASE_USERNAME}}
   export DATABASE_PASSWORD=${DATABASE_PASSWORD:-${CONF_DATABASE_PASSWORD:-$DEFAULT_DATABASE_PASSWORD}}
+  export DATABASE_SSLMODE=${DATABASE_SSLMODE:-${CONF_DATABASE_SSLMODE:-$DEFAULT_DATABASE_SSLMODE}}
+  export DATABASE_SSLROOTCERT=${DATABASE_SSLROOTCERT:-${CONF_DATABASE_SSLROOTCERT:-$DEFAULT_DATABASE_SSLROOTCERT}}
   export DATABASE_PORTNUM=${DATABASE_PORTNUM:-${CONF_DATABASE_PORTNUM:-$DEFAULT_DATABASE_PORTNUM}}
   export DATABASE_DRIVER=${DATABASE_DRIVER:-${CONF_DATABASE_DRIVER:-$DEFAULT_DATABASE_DRIVER}}
   export DATABASE_VENDOR=${DATABASE_VENDOR:-${CONF_DATABASE_VENDOR:-$DEFAULT_DATABASE_VENDOR}}
@@ -3810,6 +3805,8 @@ load_defaults() {
     export POSTGRES_DATABASE=${DATABASE_SCHEMA}
     export POSTGRES_USERNAME=${DATABASE_USERNAME}
     export POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+    export POSTGRES_SSLMODE=${DATABASE_SSLMODE}
+    export POSTGRES_SSLROOTCERT=${DATABASE_SSLROOTCERT}
   fi
 }
 
