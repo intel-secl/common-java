@@ -28,18 +28,6 @@ TRUSTAGENT_HOME=${TRUSTAGENT_HOME:-/opt/trustagent}
 LOGFILE=${TRUSTAGENT_INSTALL_LOG_FILE:-$TRUSTAGENT_HOME/logs/install.log}
 mkdir -p $(dirname $LOGFILE)
 
-# identify tpm version
-# postcondition:
-#   variable TPM_VERSION is set to 1.2 or 2.0
-detect_tpm_version() {
-  export TPM_VERSION
-  if [[ -f "/sys/class/misc/tpm0/device/caps" || -f "/sys/class/tpm/tpm0/device/caps" ]]; then
-    TPM_VERSION=1.2
-  else
-    TPM_VERSION=2.0
-  fi
-}
-
 if [ -z "$TPM_VERSION" ]; then
   detect_tpm_version
 fi
@@ -54,11 +42,8 @@ if yum_detect; then
   # 1. Add epel-release-latest-7.noarch repository
   add_package_repository https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
   # 2. Install redhat-lsb-core and other redhat-specific packages
-  yum -y install redhat-lsb libvirt net-tools > /dev/null 2>&1
-  yum -y install grub2-efi-modules > /dev/null 2>&1
+  yum -y install redhat-lsb net-tools > /dev/null 2>&1
   yum -y install redhat-lsb-core > /dev/null 2>&1
-#elif aptget_detect; then
-#  
 fi
 
 install_openssl() {
@@ -69,12 +54,30 @@ install_openssl() {
   auto_install "openssl" "TRUSTAGENT_OPENSSL" > /dev/null 2>&1
 }
 
+if [ "$(whoami)" == "root" ]; then
+  # 1. Install msr-tools and other packages
+  yum -y install unzip cpuid > /dev/null 2>&1
+  yum -y install msr-tools > /dev/null 2>&1
+  if [ $? -ne 0 ]; then echo_failure "Failed to install prerequisites through package installer"; exit 1; fi
+else
+  echo_warning "Required packages:"
+  echo yum -y install unzip cpuid msr-tools
+fi
+
+###### Check if sUEFI enabled #######
+if is_suefi_enabled; then
+  export SUEFI_ENABLED="true"
+  echo_warning "As sUEFI feature is enabled, skipping tboot installation"
+  export SKIP_INSTALL_TBOOT="y"
+fi
+
 # tpm 2.0
-# install tboot 1.9.4 for tpm2
+# install tboot 1.9.7 for tpm2
 # NOTE: eventually these should be available via package managers on central
 #       repositories, when that happens we can use code like install_tboot
 install_tboot_tpm2() {
   if yum_detect; then
+    yum -y install grub2-efi-x64-modules > /dev/null 2>&1
     local TBOOT_RPM=`ls -1 tboot-*.rpm | head -n 1`
     if [ -n "$TBOOT_RPM" ]; then
       yum -y install $TBOOT_RPM
@@ -86,6 +89,7 @@ install_tboot_tpm2() {
       apt-get -y install -f
     fi
   fi
+  if [ $? -eq 0 ]; then return 255; fi
 }
 
 update_tboot_grub_configuration_script() {
@@ -117,7 +121,10 @@ install_tss2_tpmtools2() {
 
 install_openssl
 
-install_tboot_tpm2
+if [[ "$SKIP_INSTALL_TBOOT" != "y" && "$SKIP_INSTALL_TBOOT" != "Y" && "$SKIP_INSTALL_TBOOT" != "yes" ]]; then
+  install_tboot_tpm2
+  tbootReboot=$?
+fi
 
 if [ "$TPM_VERSION" == "2.0" ]; then
   install_tss2_tpmtools2
@@ -130,9 +137,7 @@ fi
 
 
 # TODO TPM2.0
-#    2. install tboot 1.9.4 rpm package 
-#       ? Download tboot_1.9.4-3.hd.x86_64.rpm to the host from \\192.168.0.1\cit\2.2
-#       ? Install tboot ( #rpm -i tboot_1.9.4-3.hd.x86_64.rpm )
+#    2. install tboot 1.9.7 rpm package
 #       * change the boot entry to tboot by editting the line GRUB_DEFAULT in file /etc/defaut/grub
 #       * Run "grub2-mkconfig -o /boot/grub2/grub.cfg" command
 #       ? Reboot the host server and make sure TXT is enabled and tboot boots correctly
@@ -212,7 +217,10 @@ configure_grub() {
 #       * check if /dev/tpm0 exist. if so, go to next step. otherwise, stop and look for help
 
 
-configure_grub
+# only configure grub if tboot was installed
+if [[ $tbootReboot -eq 255 ]]; then
+  configure_grub
+fi
 
 # 7. Ask for reboot (only if we are not already in trusted boot)
 
@@ -281,8 +289,11 @@ is_reboot_required() {
   fi
 }
 
-if is_reboot_required; then
+# only require reboot if tboot was installed
+if [[ $tbootReboot -eq 255 ]]; then
+  if is_reboot_required; then
     exit 255
+  fi
 fi
 
 # tpm 2.0
