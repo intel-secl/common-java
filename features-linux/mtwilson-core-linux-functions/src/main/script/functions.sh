@@ -577,25 +577,6 @@ using_tomcat() {
     fi
   fi
 }
-# currently jetty is indicated either by WEBSERVER_VENDOR=jetty or by
-# absence of tomcat . there's not an independent
-# function for jetty_detect.
-using_jetty() {
-  if [[ -n "$WEBSERVER_VENDOR" ]]; then
-    if [[ "${WEBSERVER_VENDOR}" == "jetty" ]]; then
-      return 0
-    else
-      return 1
-    fi
-  else
-    tomcat_detect 2>&1 > /dev/null
-    if [ -z "$TOMCAT_HOME" ]; then
-      return 0
-    else
-      return 1
-    fi
-  fi
-}
 
 using_mysql() { if [[ "${DATABASE_VENDOR}" == "mysql" ]]; then return 0; else return 1; fi }
 using_postgres() { if [[ "${DATABASE_VENDOR}" == "postgres" ]]; then return 0; else return 1; fi }
@@ -1852,11 +1833,9 @@ postgres_detect(){
   fi
   psql=`which psql 2>/dev/null`
   export psql
-  echo "psql=$psql" >> $INSTALL_LOG_FILE
   
   if [ -e "$psql" ]; then
     POSTGRES_HOME=`dirname "$psql"`
-    echo "Found postgres client: $psql" >> $INSTALL_LOG_FILE
     postgres_version ${min_version}
     if [ "$POSTGRES_CLIENT_VERSION_OK" != "yes" ]; then
       echo "postgres client version not ok. resetting psql=''"
@@ -1864,7 +1843,6 @@ postgres_detect(){
       psql=""
     fi
   fi
-echo "POSTGRES_CLIENT_VERSION_OK: $POSTGRES_CLIENT_VERSION_OK" >> $INSTALL_LOG_FILE
 }
 
 # instead of checking separately for pg_hba.conf, postgresql.conf, and /etc/init.d/postgresql
@@ -1953,14 +1931,12 @@ postgres_version(){
 
   if [ -n "$psql" ]; then
     POSTGRES_CLIENT_VERSION=`(cd /tmp && $psql --version |  head -n1 | awk '{print $3}')`
-    echo "POSTGRES_CLIENT_VERSION: $POSTGRES_CLIENT_VERSION" >> $INSTALL_LOG_FILE
     if is_version_at_least "$POSTGRES_CLIENT_VERSION" "${min_version}"; then
       POSTGRES_CLIENT_VERSION_OK=yes
     else
       POSTGRES_CLIENT_VERSION_OK=no
     fi
   fi
-  echo "POSTGRES_CLIENT_VERSION_OK: $POSTGRES_CLIENT_VERSION_OK" >> $INSTALL_LOG_FILE
 }
 
 # must load from config file or call postgres_detect prior to calling this function
@@ -1987,7 +1963,6 @@ postgres_require() {
 postgres_connection() {
   postgres_require
   postgres_connect="$psql -h ${POSTGRES_HOSTNAME:-$DEFAULT_POSTGRES_HOSTNAME} -p ${POSTGRES_PORTNUM:-$DEFAULT_POSTGRES_PORTNUM} --set=sslmode=${POSTGRES_SSLMODE} --set=sslrootcert=${POSTGRES_SSLROOTCERT}  -d ${POSTGRES_DATABASE:-$DEFAULT_POSTGRES_DATABASE} -U ${POSTGRES_USERNAME:-$DEFAULT_POSTGRES_USERNAME}"
-  echo "postgres_connect=$postgres_connect" >> $INSTALL_LOG_FILE
 }
 
 # Environment:
@@ -1998,7 +1973,7 @@ postgres_test_connection() {
   is_postgres_available=""
 
   #check if postgres is installed and we can connect with provided credentials
-  POSTGRES_LOG=${POSTGRES_LOG:-"/opt/mtwilson/logs/intel.postgres.err"}
+  POSTGRES_LOG=${POSTGRES_LOG:-"/tmp/intel.postgres.err"}
   if [ ! -f $POSTGRES_LOG ]; then
     touch $POSTGRES_LOG
   fi
@@ -2008,9 +1983,6 @@ postgres_test_connection() {
     return 0
   fi
   postgres_connection_error=`cat $POSTGRES_LOG`
-  
-  #echo "postgres_connection_error: $postgres_connection_error"
-  #rm -f /tmp/intel.postgres.err
 
   return 1
 }
@@ -2018,7 +1990,7 @@ postgres_test_connection() {
 # Environment:
 # - POSTGRES_REQUIRED_VERSION
 postgres_test_connection_report() {
-  echo -n "Testing database connection... "
+  echo "Testing database connection... "
   postgres_test_connection
   if [ -n "$is_postgres_available" ]; then
     echo "OK"
@@ -2026,6 +1998,7 @@ postgres_test_connection_report() {
     echo "FAILED"
     echo_failure "${postgres_connection_error}"
   fi
+  rm -f $POSTGRES_LOG
 }
 
 # responsible for ensuring that the connection properties in the config file
@@ -2182,528 +2155,6 @@ function valid_ip() {
         stat=$?
     fi
     return $stat
-}
-
-
-
-
-### FUNCTION LIBRARY: tomcat
-
-# tomcat 
-
-tomcat_clear() {
-  TOMCAT_CONF=""
-  TOMCAT_HOME=""
-  tomcat_bin=""
-  tomcat=""
-}
-
-
-tomcat_require() {
-  local min_version="${1:-${tomcat_required_version:-$DEFAULT_TOMCAT_REQUIRED_VERSION}}"
-  if not tomcat_ready; then
-    tomcat_detect ${min_version} > /dev/null
-  fi
-  if not tomcat_ready; then
-    echo_failure "Cannot find Tomcat server version $min_version or later"
-    exit 1
-  fi
-}
-
-tomcat_ready_report() {
-  if [[ -z "$TOMCAT_HOME" ]]; then echo_warning "TOMCAT_HOME variable is not set"; return 1; fi
-  if [[ -z "$tomcat_bin" ]]; then echo_warning "Tomcat binary path is not set"; return 1; fi
-  if [[ ! -f "$tomcat_bin" ]]; then echo_warning "Cannot find Tomcat binary at $tomcat_bin"; return 1; fi
-  if [[ -z "$tomcat" ]]; then echo_warning "Tomcat command is not set"; return 1; fi
-  echo_success "Using Tomcat at $TOMCAT_HOME"
-  return 0
-}
-
-
-tomcat_ready() {
-  tomcat_ready_report > /dev/null
-  return $?
-}
-
-# How to use;   TOMCAT_VERSION   =`tomcat_version`
-# If you pass a parameter, it is the path to a tomcat "asadmin" binary
-# If you do not pass a parameter, the "tomcat" variable is used as the path to the binary
-tomcat_version() {
-  # Either the JAVA_HOME or the JRE_HOME environment variable must be defined
-  # At least one of these environment variable is needed to run this program
-  if [ -z $JAVA_HOME ]; then java_detect; fi
-  if [ -z $JAVA_HOME ]; then return 1; fi
-
-  if [[ -n "$tomcat" ]]; then
-    # extract the version number from a string like: tomcat version "3.0"
-    local current_tomcat_version=`$tomcat version 2>&1 | grep -i "^Server version:" | grep -i version | awk -F / '{ print $2 }'`
-    if [ -n "$current_tomcat_version" ]; then
-      echo "current_tomcat_version: $current_tomcat_version" >> $INSTALL_LOG_FILE
-      export TOMCAT_VERSION=$current_tomcat_version
-      return 0
-    fi
-    return 2
-  fi
-  return 1
-}
-
-# sample output from "$tomcat version":
-#Using CATALINA_BASE:   /usr/share/apache-tomcat-7.0.34
-#Using CATALINA_HOME:   /usr/share/apache-tomcat-7.0.34
-#Using CATALINA_TMPDIR: /usr/share/apache-tomcat-7.0.34/temp
-#Using JRE_HOME:        /usr/share/jdk1.7.0_51
-#Using CLASSPATH:       /usr/share/apache-tomcat-7.0.34/bin/bootstrap.jar
-#Server version: Apache Tomcat/7.0.34
-#Server built:   July 19 2010 1458
-#Server number:  7.0.34
-#OS Name:        Linux
-#OS Version:     3.0.0-12-server
-#Architecture:   amd64
-#JVM Version:    1.7.0_51
-#JVM Vendor:     Sun Microsystems Inc.
-
-
-# Environment:
-# - TOMCAT_REQUIRED_VERSION  (default is 7.0.34)
-tomcat_version_report() {
-  local min_version="${1:-${tomcat_required_version:-$DEFAULT_TOMCAT_REQUIRED_VERSION}}"
-  #TOMCAT_VERSION=`tomcat_version`
-  tomcat_version
-  if is_version_at_least "$TOMCAT_VERSION" "${min_version}"; then
-    echo_success "Tomcat version $TOMCAT_VERSION is ok"
-    return 0
-  else
-    echo_warning "Tomcat version $TOMCAT_VERSION is not supported, minimum is ${min_version}"
-    return 1
-  fi
-}
-
-# detects possible tomcat installations
-# does nothing if TOMCAT_HOME is already set; unset before calling to force detection
-tomcat_detect() {
-  local min_version="${1:-${tomcat_required_version:-${DEFAULT_TOMCAT_REQUIRED_VERSION}}}"
-  java=$JAVA_CMD
-  if [[ -z $JAVA_HOME || -z $java ]]; then java_detect; fi
-  if [[ -z $JAVA_HOME || -z $java ]]; then return 1; fi
-  if [[ -n "$java" ]]; then    
-    local java_bindir=`dirname "$java"`
-  fi
-
-  # start with TOMCAT_HOME if it is already configured
-  if [ "$(whoami)" == "root" ]; then
-    if [ -n "$TOMCAT_HOME" ] && [[ "$TOMCAT_HOME" == /opt/mtwilson* ]]; then
-      tomcat_bin="$TOMCAT_HOME/bin/catalina.sh"
-      if [ -z "$tomcat" ]; then
-        if [ -n "$java" ]; then    
-          # the tomcat admin tool read timeout is in milliseconds, so 900,000 is 900 seconds
-          tomcat="env PATH=$java_bindir:$PATH $tomcat_bin"
-        else
-          tomcat="$tomcat_bin"
-        fi
-      fi
-      if [ -d "$TOMCAT_HOME/conf" ] && [ -f "$TOMCAT_HOME/conf/tomcat-users.xml" ] && [ -f "$TOMCAT_HOME/conf/server.xml" ]; then
-        export TOMCAT_CONF="$TOMCAT_HOME/conf"
-      else
-        # we think we know TOMCAT_HOME but we can't find TOMCAT_CONF so
-        # reset the "tomcat" variable to force a new detection below
-        tomcat=""
-      fi
-      if [ -n "$tomcat" ]; then
-        #TOMCAT_VERSION=`tomcat_version`
-        tomcat_version
-        if is_version_at_least "$TOMCAT_VERSION" "${min_version}"; then
-          return 0
-        fi
-      fi
-    fi
-    searchdir=/
-  else
-    #TODO update it to $MTWILSON_HOME
-    searchdir=/opt/mtwilson
-  fi
-
-  TOMCAT_CANDIDATES=`find /opt/mtwilson -name tomcat-users.xml 2>/dev/null`
-  if [ -z "$TOMCAT_CANDIDATES" ]; then
-    TOMCAT_CANDIDATES=`find $searchdir -name tomcat-users.xml 2>/dev/null`
-  fi
-  tomcat_clear
-  for c in $TOMCAT_CANDIDATES; do
-    if [ -z "$TOMCAT_HOME" ]; then
-      local conf_dir=`dirname $c`
-      local parent=`dirname $conf_dir`
-      if [ -f "$parent/bin/catalina.sh" ]; then
-        export TOMCAT_HOME="$parent"
-        export TOMCAT_BASE="$parent"
-        export TOMCAT_CONF="$conf_dir"
-        tomcat_bin=$parent/bin/catalina.sh
-        tomcat="env PATH=$java_bindir:$PATH JAVA_HOME=$JAVA_HOME CATALINA_HOME=$TOMCAT_HOME CATALINA_BASE=$TOMCAT_BASE CATALINA_CONF=$TOMCAT_CONF $tomcat_bin"
-        echo "Found Tomcat: $TOMCAT_HOME" >> $INSTALL_LOG_FILE
-        echo "tomcat=$tomcat" >> $INSTALL_LOG_FILE
-        tomcat_version
-        if is_version_at_least "$TOMCAT_VERSION" "${min_version}"; then
-          return 0
-        fi
-      fi
-    fi
-  done
-  #echo_failure "Cannot find Tomcat"
-  tomcat_clear
-  return 1
-}
-
-
-
-# Run this AFTER tomcat_install
-# optional global variables:  
-#   tomcat_username (default value tomcat)
-#   TOMCAT_HOME (default value /usr/share/tomcat)
-# works on Debian, Ubuntu, CentOS, RedHat, SUSE
-# Username should not contain any spaces or punctuation
-# Optional arguments:  one or more directories for tomcat user to own
-tomcat_permissions() {
-  local chown_locations="$@"
-  local username=${MTWILSON_USERNAME:-mtwilson}
-  local user_exists=`cat /etc/passwd | grep "^${username}"`
-  if [ -z "$user_exists" ]; then    
-	echo_failure "User [$username] does not exists"
-	return 1	
-  fi
-  local file
-  for file in $(find "${chown_locations}" 2>/dev/null); do
-    if [[ -n "$file" && -e "$file" ]]; then
-      owner=`stat -c '%U' $file`
-      if [ $owner != ${username} ]; then
-        if [ -w "$file" ]; then
-          chown -R "${username}:${username}" "$file"
-        else
-          echo_failure "Current user [$(whoami)] does not have permission to change file [$file]"
-          return 1
-        fi
-      fi
-    fi
-  done
-}
-
-tomcat_running() {  
-  TOMCAT_RUNNING=''
-  if [ -z "$TOMCAT_HOME" ]; then
-    tomcat_detect 2>&1 > /dev/null
-  fi
-  if [ -n "$TOMCAT_HOME" ]; then
-    TOMCAT_PID=$(ps gauwxx | grep java | grep "$TOMCAT_HOME" | awk '{ print $2 }')
-    if [ -n "$TOMCAT_PID" ]; then
-      TOMCAT_RUNNING=yes
-      return 0
-    fi
-  fi
-  return 1
-}
-
-tomcat_running_report() {
-  echo -n "Checking Tomcat process... "
-  if tomcat_running; then
-    echo_success "Running (pid $TOMCAT_PID)"
-  else
-    echo_failure "Not running"
-  fi
-}
-tomcat_start() {
-  tomcat_require 2>&1 > /dev/null
-  if tomcat_running; then
-    echo_warning "Tomcat already running [PID: $TOMCAT_PID]"
-  elif [ -n "$tomcat" ]; then
-    echo -n "Waiting for Tomcat services to startup..."
-    ($tomcat start &) 2>&1 > /dev/null
-    while ! tomcat_running; do
-      sleep 1
-    done
-    echo_success " Done"
-  fi
-}
-tomcat_shutdown() {
-  if tomcat_running; then
-    if [ -n "$TOMCAT_PID" ]; then
-      kill -9 $TOMCAT_PID 2>/dev/null
-    fi
-  fi
-}
-tomcat_stop() {
-  tomcat_require 2>&1 > /dev/null
-  if ! tomcat_running; then
-    echo_warning "Tomcat already stopped"
-  elif [ -n "$tomcat" ]; then
-    echo -n "Waiting for Tomcat services to shutdown..."
-    $tomcat stop 2>&1 > /dev/null
-    while tomcat_running; do
-      tomcat_shutdown 2>&1 > /dev/null
-      sleep 3
-    done
-    echo_success " Done"
-  fi
-}
-tomcat_async_stop() {
-  tomcat_require 2>&1 > /dev/null
-  if ! tomcat_running; then
-    echo_warning "Tomcat already stopped"
-  elif [ -n "$tomcat" ]; then
-    echo -n "Shutting down Tomcat services in the background..."
-    ($tomcat stop &) 2>&1 > /dev/null
-    echo_success " Done"
-  fi
-}
-tomcat_restart() {
-  tomcat_stop
-  tomcat_start
-  tomcat_running_report
-}
-tomcat_start_report() {
-  action_condition TOMCAT_RUNNING "Starting Tomcat" "tomcat_start > /dev/null; tomcat_running;"
-}
-tomcat_uninstall() {
-  tomcat_require
-  echo "Stopping Tomcat..."
-  tomcat_shutdown
-  # application files
-  echo "Removing Tomcat in $TOMCAT_HOME..."
-  rm -rf "$TOMCAT_HOME"
-}
-
-tomcat_create_ssl_cert_prompt() {
-    ifconfig=$(which ifconfig 2>/dev/null)
-    ifconfig=${ifconfig:-"/sbin/ifconfig"}
-    prompt_yes_no TOMCAT_CREATE_SSL_CERT "Do you want to set up an SSL certificate for Tomcat?"
-    echo
-    if [ "${TOMCAT_CREATE_SSL_CERT}" == "yes" ]; then
-      if no_java ${JAVA_REQUIRED_VERSION:-$DEFAULT_JAVA_REQUIRED_VERSION}; then echo "Cannot find Java ${JAVA_REQUIRED_VERSION:-$DEFAULT_JAVA_REQUIRED_VERSION} or later"; return 1; fi
-      tomcat_require
-      DEFAULT_TOMCAT_SSL_CERT_CN=`"$ifconfig" | grep "inet addr" | awk '{ print $2 }' | awk -F : '{ print $2 }' | sed -e ':a;N;$!ba;s/\n/,/g'`
-      prompt_with_default TOMCAT_SSL_CERT_CN "Domain name[s] for SSL Certificate:" ${DEFAULT_TOMCAT_SSL_CERT_CN:-127.0.0.1}
-      tomcat_create_ssl_cert "${TOMCAT_SSL_CERT_CN}"
-    fi
-}
-
-# Parameters:
-# - serverName (hostname in the URL, such as 127.0.0.1, 192.168.1.100, my.attestation.com, etc.)
-tomcat_create_ssl_cert() {
-  if no_java ${JAVA_REQUIRED_VERSION:-$DEFAULT_JAVA_REQUIRED_VERSION}; then echo "Cannot find Java ${JAVA_REQUIRED_VERSION:-$DEFAULT_JAVA_REQUIRED_VERSION} or later"; return 1; fi
-  tomcat_require
-  local serverName="${1}"
-  serverName=$(echo $serverName | sed -e 's/ //g' | sed -e 's/,$//')
-
-  local keystorePassword="$MTWILSON_TLS_KEYSTORE_PASS"   #changeit
-  local keystore="${TOMCAT_HOME}/ssl/.keystore"
-  local tomcatServerXml="${TOMCAT_HOME}/conf/server.xml"
-  local configDir="/opt/mtwilson/configuration"
-  local mtwilsonPropertiesFile="${configDir}/mtwilson.properties"
-  local keytool="${JAVA_HOME}/bin/keytool"
-  local mtwilson=$(which mtwilson 2>/dev/null)
-  local tmpHost=$(echo "$serverName" | awk -F ',' '{ print $1 }' | sed -e 's/ //g')
-
-  if [ -z "$MTWILSON_TLS_KEYSTORE_PASS" ] || [ "$MTWILSON_TLS_KEYSTORE_PASS" == "changeit" ]; then MTWILSON_TLS_KEYSTORE_PASS=$(generate_password 32); fi
-  keystorePassword="$MTWILSON_TLS_KEYSTORE_PASS"   #changeit
-
-  # decrypt file
-  if file_encrypted "${mtwilsonPropertiesFile}"; then
-    encrypted="true"
-    decrypt_file "${mtwilsonPropertiesFile}" "$MTWILSON_PASSWORD"
-  fi
-
-  # read value
-  keystorePasswordOld=$(read_property_from_file "mtwilson.tls.keystore.password" "${mtwilsonPropertiesFile}")
-
-  # Return the file to encrypted state, if it was before
-  if [ "$encrypted" == "true" ]; then
-    encrypt_file "${mtwilsonPropertiesFile}" "$MTWILSON_PASSWORD"
-  fi
-
-  keystorePasswordOld=${keystorePasswordOld:-"changeit"}
-
-  # Create an array of host ips and dns names from csv list passed into function
-  OIFS="$IFS"
-  IFS=','
-  read -a hostArray <<< "${serverName}"
-  IFS="$OIFS"
-  
-  # create common names and sans strings by parsing array
-  local cert_cns=""
-  local cert_sans=""
-  for i in "${hostArray[@]}"; do
-    cert_cns+="CN=$i,"
-    tmpCN=""
-    if valid_ip "$i"; then 
-      tmpCN="ip:$i"
-    else
-      tmpCN="dns:$i"
-    fi
-    cert_sans+="$tmpCN,"
-  done
-  cert_cns=$(echo $cert_cns | sed -e 's/,$//')
-  cert_sans=$(echo $cert_sans | sed -e 's/,$//')
-  
-  mkdir -p ${TOMCAT_HOME}/ssl
-
-  # fix for if old version of mtwilson was saving incorrect password; reverts current password to "changeit"
-  has_incorrect_password=$($keytool -list -v -alias tomcat -keystore "$keystore" -storepass "$keystorePasswordOld" 2>&1 | grep "password was incorrect")
-  if [ -n "$has_incorrect_password" ]; then
-    keystorePasswordOld="changeit"
-    has_incorrect_password=$($keytool -list -v -alias tomcat -keystore "$keystore" -storepass "$keystorePasswordOld" 2>&1 | grep "password was incorrect")
-    if [ -n "$has_incorrect_password" ]; then
-      echo_failure "Current SSL keystore password is incorrect"
-      exit -1
-    fi
-  fi
-
-  if [ "${TOMCAT_CREATE_SSL_CERT:-yes}" == "yes" ]; then
-    if [ "$keystorePasswordOld" != "$keystorePassword" ]; then  # "OLD" != "NEW"
-      echo "Changing keystore password and updating in Tomcat server.xml..."
-      if [ -f "$keystore" ]; then
-        $keytool -storepass "$keystorePasswordOld" -storepasswd -new "$keystorePassword" -keystore "$keystore"
-      fi
-      #sed -i.bak 's|sslProtocol=\"TLS\" />|sslEnabledProtocols=\"TLSv1,TLSv1.1,TLSv1.2\" keystoreFile=\"'"$keystore"'\" keystorePass=\"'"$keystorePassword"'\" />|g' "$tomcatServerXml"
-      #sed -i 's/keystorePass=.*\b/keystorePass=\"'"$keystorePassword"'/g' "$tomcatServerXml"
-      xmlstarlet ed --inplace --delete '/Server/Service/Connector[@SSLEnabled="true"][@protocol="HTTP/1.1"]/@sslProtocol' "$tomcatServerXml"
-      xmlstarlet ed --inplace --insert '/Server/Service/Connector[@SSLEnabled="true"][@protocol="HTTP/1.1"][not(@sslEnabledProtocols)]' --type attr -n sslEnabledProtocols -v 'TLSv1.2' "$tomcatServerXml"
-      xmlstarlet ed --inplace --insert '/Server/Service/Connector[@SSLEnabled="true"][@protocol="HTTP/1.1"][not(@keystoreFile)]' --type attr -n keystoreFile -v "$keystore" "$tomcatServerXml"
-      xmlstarlet ed --inplace --insert '/Server/Service/Connector[@SSLEnabled="true"][@protocol="HTTP/1.1"][not(@keystorePass)]' --type attr -n keystorePass -v "$keystorePassword" "$tomcatServerXml"
-      #update for upgrades; attribute already exists
-      xmlstarlet ed --inplace --update '/Server/Service/Connector[@SSLEnabled="true"][@protocol="HTTP/1.1"]/@sslEnabledProtocols' -v 'TLSv1.2' "$tomcatServerXml"
-      xmlstarlet ed --inplace --update '/Server/Service/Connector[@SSLEnabled="true"][@protocol="HTTP/1.1"]/@keystoreFile' -v "$keystore" "$tomcatServerXml"
-      xmlstarlet ed --inplace --update '/Server/Service/Connector[@SSLEnabled="true"][@protocol="HTTP/1.1"]/@keystorePass' -v "$keystorePassword" "$tomcatServerXml"
-
-      echo "Restarting Tomcat as a new Tomcat keystore password was set..."
-      tomcat_restart >/dev/null
-      update_property_in_file "mtwilson.tls.keystore.password" "${mtwilsonPropertiesFile}" "$keystorePassword"
-    fi
-    
-    echo "Creating SSL Certificate for ${serverName}..."
-    # Delete public insecure certs within keystore.p12 and cacerts.p12
-    $keytool -delete -alias tomcat -keystore "$keystore" -storepass "$keystorePassword" 2>&1 >/dev/null
-
-    # Update keystore.p12
-    $keytool -genkeypair -alias tomcat -dname "$cert_cns, OU=Mt Wilson, O=Trusted Data Center, C=US" -ext san="$cert_sans" -keyalg RSA -keysize 3072 -validity 3650 -keystore "$keystore" -keypass "$keystorePassword" -storepass "$keystorePassword"
-    
-    echo "Restarting Tomcat as a new SSL certificate was generated..."
-    tomcat_restart >/dev/null
-  fi
-  
-  has_cert=$($keytool -list -v -alias tomcat -keystore "$keystore" -storepass "$keystorePassword" | grep "^Owner:" | grep "$tmpHost")
-  if [ -n "$has_cert" ]; then
-    $keytool -export -alias tomcat -file "${TOMCAT_HOME}/ssl/ssl.${tmpHost}.crt" -keystore $keystore -storepass "$keystorePassword"
-    openssl x509 -in "${TOMCAT_HOME}/ssl/ssl.${tmpHost}.crt" -inform der -out "$configDir/ssl.crt.pem" -outform pem
-    cp "${TOMCAT_HOME}/ssl/ssl.${tmpHost}.crt" "$configDir/ssl.crt"
-    cp "$keystore" "$configDir/mtwilson-tls.p12"
-    mtwilson_tls_cert_sha1=`openssl sha1 -hex "$configDir/ssl.crt" | awk -F '=' '{ print $2 }' | tr -d ' '`
-    update_property_in_file "mtwilson.api.tls.policy.certificate.sha1" "$configDir/mtwilson.properties" "$mtwilson_tls_cert_sha1"
-    mtwilson_tls_cert_sha384=`openssl sha384 -hex "$configDir/ssl.crt" | awk -F '=' '{ print $2 }' | tr -d ' '`
-    update_property_in_file "mtwilson.api.tls.policy.certificate.sha384" "$configDir/mtwilson.properties" "$mtwilson_tls_cert_sha384"
-else
-    echo_warning "No SSL certificate found in Tomcat keystore"
-  fi
-}
-tomcat_env_report(){
-  echo "TOMCAT_HOME=$TOMCAT_HOME"
-  echo "tomcat_bin=$tomcat_bin"
-  echo "tomcat=\"$tomcat\""
-}
-
-# Must call java_require before calling this.
-# Parameters:
-# - certificate alias to report on (default is tomcat, the tomcat default ssl cert alias)
-tomcat_sslcert_report() {
-  local alias="${1:-tomcat}"
-  local keystorePassword="${MTWILSON_TLS_KEYSTORE_PASSWORD:-$MTW_TLS_KEYSTORE_PASS}"
-  local keystore=${TOMCAT_HOME}/ssl/.keystore
-  java_keystore_cert_report "$keystore" "$keystorePassword" "$alias"
-}
-
-tomcat_init_manager() {
-  local config_file=/opt/mtwilson/configuration/mtwilson.properties
-  TOMCAT_MANAGER_USER=""
-  TOMCAT_MANAGER_PASS=""
-  TOMCAT_MANAGER_PORT=""
-  if [ -z "$WEBSERVICE_MANAGER_USERNAME" ]; then WEBSERVICE_MANAGER_USERNAME=admin; fi
-  if [ -z "$TOMCAT_HOME" ]; then tomcat_detect; fi
-  TOMCAT_MANAGER_USER=`read_property_from_file tomcat.admin.username "${config_file}"`
-  TOMCAT_MANAGER_PASS=`read_property_from_file tomcat.admin.password "${config_file}"`
-  if [[ -z "$TOMCAT_MANAGER_USER" ]]; then
-    tomcat_manager_xml=`grep "username=\"$WEBSERVICE_MANAGER_USERNAME\"" $TOMCAT_HOME/conf/tomcat-users.xml | head -n 1`
-    
-    OIFS="$IFS"
-    IFS=' '
-    read -a managerArray <<< "${tomcat_manager_xml}"
-    IFS="$OIFS"
-
-    for i in "${managerArray[@]}"; do
-      if [[ "$i" == *"username"* ]]; then
-        TOMCAT_MANAGER_USER=`echo $i|awk -F'=' '{print $2}'|sed 's/^"\(.*\)"$/\1/'`
-      fi
-  
-      if [[ "$i" == *"password"* ]]; then
-        TOMCAT_MANAGER_PASS=`echo $i|awk -F'=' '{print $2}'|sed 's/^"\(.*\)"$/\1/'`
-      fi
-    done
-  fi
-
-  # get manager port
-  tomcat_managerPort_xml=`cat $TOMCAT_HOME/conf/server.xml|
-    awk 'in_comment&&/-->/{sub(/([^-]|-[^-])*--+>/,"");in_comment=0}
-    in_comment{next}
-    {gsub(/<\!--+([^-]|-[^-])*--+>/,"");
-    in_comment=sub(/<\!--+.*/,"");
-    print}'|
-    grep "<Connector"|grep "port="|head -n1`
-
-  OIFS="$IFS"
-  IFS=' '
-  read -a managerPortArray <<< "${tomcat_managerPort_xml}"
-  IFS="$OIFS"
-
-  for i in "${managerPortArray[@]}"; do
-    if [[ "$i" == *"port"* ]]; then
-      TOMCAT_MANAGER_PORT=`echo $i|awk -F'=' '{print $2}'|sed 's/^"\(.*\)"$/\1/'`
-    fi
-  done
-
-  test=`wget http://$TOMCAT_MANAGER_USER:$TOMCAT_MANAGER_PASS@127.0.0.1:$TOMCAT_MANAGER_PORT/manager/text/list -O - -q --no-check-certificate --no-proxy|grep "OK"`
-
-  if [ -n "$test" ]; then
-    echo_success "Tomcat manger connection success."
-  else
-    echo_failure "Tomcat manager connection failed. Incorrect credentials."
-  fi
-}
-
-tomcat_no_additional_webapps_exist() {
-  if [ -z "$TOMCAT_HOME" ]; then tomcat_detect; fi
-  if [ -z "$TOMCAT_HOME" ]; then return 1; fi
-  TOMCAT_ADDITIONAL_APPLICATIONS_INSTALLED=$(ls "$TOMCAT_HOME/webapps" | sed '/^docs$\|^examples$\|^host-manager$\|^manager$\|^ROOT$\|^$/d')
-  if [ -n "$TOMCAT_ADDITIONAL_APPLICATIONS_INSTALLED" ]; then
-    return 1
-  fi
-  return 0
-}
-
-tomcat_no_additional_webapps_exist_wait() {
-  tomcat_no_additional_webapps_exist
-  if [[ "$TOMCAT_ADDITIONAL_APPLICATIONS_INSTALLED" == *".war"* ]]; then
-    echo_warning "Additional tomcat webapps exist: $TOMCAT_ADDITIONAL_APPLICATIONS_INSTALLED"
-    return 1
-  fi
-  echo -n "Checking if additional tomcat webapps exist..."
-  for (( c=1; c<=10; c++ )); do
-    if ! tomcat_no_additional_webapps_exist; then
-      echo -n "."
-      sleep 3
-    fi
-  done
-  if [ -n "$TOMCAT_ADDITIONAL_APPLICATIONS_INSTALLED" ]; then
-    echo
-    echo_warning "Additional tomcat webapps exist: $TOMCAT_ADDITIONAL_APPLICATIONS_INSTALLED"
-    return 1
-  else
-    echo
-    return 0
-  fi
 }
 
 ### FUNCTION LIBRARY: jetty
@@ -3455,59 +2906,6 @@ webservice_require(){
 
 ### FUNCTION LIBRARY: DATABASE FUNCTIONS
 
-database_restart(){
-  if using_tomcat; then
-    tomcat_restart
-  fi
-}
-
-database_shutdown(){
- if using_tomcat; then
-    tomcat_shutdown
-  fi
-}
-# determine database
-which_dbms(){
-  echo "Please identify the database which will be used for the Mt Wilson server.
-The supported databases are m=MySQL | p=PostgreSQL"
-  while true; do
-    prompt_with_default DATABASE_CHOICE "Choose Database:" "p";
-
-    if [ "$DATABASE_CHOICE" != 'm' ] && [ "$DATABASE_CHOICE" != 'p' ]; then
-      echo "[m]ysql or [p]ostgresql: "
-      DATABASE_CHOICE=
-    else
-      if [ "$DATABASE_CHOICE" = 'm' ]; then 
-        export DATABASE_VENDOR="mysql"
-      else
-        export DATABASE_VENDOR="postgres"
-      fi
-      break
-    fi
-  done
-  echo "Database Choice: $DATABASE_VENDOR" >> $INSTALL_LOG_FILE
-}
-
-# determine web server
-which_web_server(){
-echo "Please identify the web server which will be used for the Mt Wilson server.
-The supported server is t=Tomcat"
-  while true; do
-    prompt_with_default WEBSERVER_CHOICE "Choose Web Server:" "t";
-
-    if [ "$WEBSERVER_CHOICE" != 't' ]; then
-      echo "[t]omcat: "
-      WEBSERVER_CHOICE=
-    else
-      if [ "$WEBSERVER_CHOICE" = 't' ]; then 
-        export WEBSERVICE_VENDOR="tomcat"
-      fi
-      break
-    fi
-  done
-  echo "Web Server Choice: $WEBSERVICE_VENDOR" >> $INSTALL_LOG_FILE
-}
-
 # ONLY USE IF FILES ARE UNENCRYPTED!!!
 postgres_write_connection_properties() {
     local config_file="$1"
@@ -3533,19 +2931,6 @@ postgres_write_connection_properties() {
     if [ encrypted == "true" ]; then
       encrypt_file "$config_file" "$MTWILSON_PASSWORD"
     fi
-}
-
-# The EclipseLink persistence framework sends messages to stdout that start with the text [EL Info] or [EL Warning].
-# We suppress those because they are not useful for the customer, only for debugging.
-# Caller can set setupconsole_dir to the directory where jars are found; default provided by DEFAULT_MTWILSON_JAVA_DIR
-# Caller can set conf_dir to the directory where logback-stderr.xml is found; default provided by DEFAULT_MTWILSON_CONF_DIR
-call_setupcommand() {
-  local java_lib_dir=${setupconsole_dir:-$DEFAULT_MTWILSON_JAVA_DIR}
-  if no_java ${JAVA_REQUIRED_VERSION:-$DEFAULT_JAVA_REQUIRED_VERSION}; then echo "Cannot find Java ${JAVA_REQUIRED_VERSION:-$DEFAULT_JAVA_REQUIRED_VERSION} or later"; return 1; fi
-  SETUP_CONSOLE_JARS=$(JARS=($java_lib_dir/*.jar); IFS=:; echo "${JARS[*]}")
-  mainclass=com.intel.mtwilson.setup.TextConsole
-  java -cp "$SETUP_CONSOLE_JARS" -Dlogback.configurationFile=${conf_dir:-$DEFAULT_MTWILSON_CONF_DIR}/logback-stderr.xml $mainclass $@ | grep -vE "^\[EL Info\]|^\[EL Warning\]" 2> /dev/null
-  return $?
 }
 
 # Caller can set setupconsole_dir to the directory where jars are found; default provided by DEFAULT_MTWILSON_JAVA_DIR
@@ -3611,110 +2996,40 @@ encrypt_file() {
 }
 
 load_conf() {
-  local mtw_props_path="/etc/intel/cloudsecurity/mtwilson.properties"
-  #local as_props_path="/etc/intel/cloudsecurity/attestation-service.properties"
-  local ta_props_path="/etc/intel/cloudsecurity/trustagent.properties"
-  
+
+  local config_file="$1"
+  local prefix="$2"
+
   if [ -n "$DEFALT_ENV_LOADED" ]; then return; fi
 
-  # mtwilson.properties file
-  if [ -f "$mtw_props_path" ]; then
-    echo -n "Reading properties from "
-    if file_encrypted "$mtw_props_path"; then
-      echo -n "encrypted file [$mtw_props_path]....."
-      temp=$(call_tag_setupcommand export-config --in="$mtw_props_path" --stdout 2>&1)
-      if [[ "$temp" == *"Incorrect password"* ]]; then
-        echo_failure -e "Incorrect encryption password. Please verify \"MTWILSON_PASSWORD\" variable is set correctly."
+  echo -n "Reading properties from "
+  if file_encrypted "$config_file"; then
+    echo -n "encrypted file [$config_file]....."
+    temp=$("$prefix" export-config --in="$config_file" --stdout 2>&1)
+    if [[ "$temp" == *"Incorrect password"* ]]; then
         return 2
-      fi
-      export CONF_DATABASE_HOSTNAME=`echo $temp | awk -F'mtwilson.db.host=' '{print $2}' | awk -F' ' '{print $1}'`
-      export CONF_DATABASE_SCHEMA=`echo $temp | awk -F'mtwilson.db.schema=' '{print $2}' | awk -F' ' '{print $1}'`
-      export CONF_DATABASE_USERNAME=`echo $temp | awk -F'mtwilson.db.user=' '{print $2}' | awk -F' ' '{print $1}'`
-      export CONF_DATABASE_PASSWORD=`echo $temp | awk -F'mtwilson.db.password=' '{print $2}' | awk -F' ' '{print $1}'`
-      export CONF_DATABASE_SSLMODE=`echo $temp | awk -F'mtwilson.db.sslmode=' '{print $2}' | awk -F' ' '{print $1}'`
-      export CONF_DATABASE_SSLROOTCERT=`echo $temp | awk -F'mtwilson.db.sslrootcert=' '{print $2}' | awk -F' ' '{print $1}'`
-      export CONF_DATABASE_PORTNUM=`echo $temp | awk -F'mtwilson.db.port=' '{print $2}' | awk -F' ' '{print $1}'`
-      export CONF_DATABASE_DRIVER=`echo $temp | awk -F'mtwilson.db.driver=' '{print $2}' | awk -F' ' '{print $1}'`
-      export CONF_MTWILSON_DEFAULT_TLS_POLICY_ID=`echo $temp | awk -F'mtwilson.default.tls.policy.id=' '{print $2}' | awk -F' ' '{print $1}'`
-      export CONF_MTWILSON_TLS_POLICY_ALLOW=`echo $temp | awk -F'mtwilson.tls.policy.allow=' '{print $2}' | awk -F' ' '{print $1}'`
-      export CONF_MTWILSON_TLS_KEYSTORE_PASSWORD=`echo $temp | awk -F'mtwilson.tls.keystore.password=' '{print $2}' | awk -F' ' '{print $1}'`
-      export CONF_MTWILSON_TAG_API_USERNAME=`echo $temp | awk -F'mtwilson.tag.api.username=' '{print $2}' | awk -F' ' '{print $1}'`
-      export CONF_MTWILSON_TAG_API_PASSWORD=`echo $temp | awk -F'mtwilson.tag.api.password=' '{print $2}' | awk -F' ' '{print $1}'`
-      export CONF_WEBSERVICE_VENDOR=$(echo $temp | awk -F'mtwilson.webserver.vendor=' '{print $2}' | awk -F' ' '{print $1}')
-      if [ "CONF_WEBSERVICE_VENDOR == tomcat" ]; then
-        export CONF_WEBSERVICE_MANAGER_USERNAME=$(echo $temp | awk -F'tomcat.admin.username=' '{print $2}' | awk -F' ' '{print $1}')
-        export CONF_WEBSERVICE_MANAGER_PASSWORD=$(echo $temp | awk -F'tomcat.admin.password=' '{print $2}' | awk -F' ' '{print $1}')
-      fi
-    else
-      echo -n "file [$mtw_props_path]....."
-      export CONF_DATABASE_HOSTNAME=`read_property_from_file mtwilson.db.host "$mtw_props_path"`
-      export CONF_DATABASE_SCHEMA=`read_property_from_file mtwilson.db.schema "$mtw_props_path"`
-      export CONF_DATABASE_USERNAME=`read_property_from_file mtwilson.db.user "$mtw_props_path"`
-      export CONF_DATABASE_PASSWORD=`read_property_from_file mtwilson.db.password "$mtw_props_path"`
-      export CONF_DATABASE_SSLMODE=`read_property_from_file mtwilson.db.sslmode "$mtw_props_path"`
-      export CONF_DATABASE_SSLROOTCERT=`read_property_from_file mtwilson.db.sslrootcert "$mtw_props_path"`
-      export CONF_DATABASE_PORTNUM=`read_property_from_file mtwilson.db.port "$mtw_props_path"`
-      export CONF_DATABASE_DRIVER=`read_property_from_file mtwilson.db.driver "$mtw_props_path"`
-      export CONF_MTWILSON_DEFAULT_TLS_POLICY_ID=`read_property_from_file mtwilson.default.tls.policy.id "$mtw_props_path"`
-      export CONF_MTWILSON_TLS_POLICY_ALLOW=`read_property_from_file mtwilson.tls.policy.allow "$mtw_props_path"`
-      export CONF_MTWILSON_TLS_KEYSTORE_PASSWORD=`read_property_from_file mtwilson.tls.keystore.password "$mtw_props_path"`
-      export CONF_MTWILSON_TAG_API_USERNAME=`read_property_from_file mtwilson.tag.api.username "$mtw_props_path"`
-      export CONF_MTWILSON_TAG_API_PASSWORD=`read_property_from_file mtwilson.tag.api.password "$mtw_props_path"`
-      export CONF_WEBSERVICE_VENDOR=$(read_property_from_file mtwilson.webserver.vendor "$mtw_props_path")
-      if [ "$CONF_WEBSERVICE_VENDOR" == "tomcat" ]; then
-        export CONF_WEBSERVICE_MANAGER_USERNAME=$(read_property_from_file tomcat.admin.username "$mtw_props_path")
-        export CONF_WEBSERVICE_MANAGER_PASSWORD=$(read_property_from_file tomcat.admin.password "$mtw_props_path")
-      fi
     fi
-    echo_success "Done"
+    export CONF_DATABASE_HOSTNAME=`echo $temp | awk -F"${prefix}.db.host=" '{print $2}' | awk -F' ' '{print $1}'`
+    export CONF_DATABASE_SCHEMA=`echo $temp | awk -F"${prefix}.db.schema=" '{print $2}' | awk -F' ' '{print $1}'`
+    export CONF_DATABASE_USERNAME=`echo $temp | awk -F"${prefix}.db.user=" '{print $2}' | awk -F' ' '{print $1}'`
+    export CONF_DATABASE_PASSWORD=`echo $temp | awk -F"${prefix}.db.password=" '{print $2}' | awk -F' ' '{print $1}'`
+    export CONF_DATABASE_SSLMODE=`echo $temp | awk -F"${prefix}.db.sslmode=" '{print $2}' | awk -F' ' '{print $1}'`
+    export CONF_DATABASE_SSLROOTCERT=`echo $temp | awk -F"${prefix}.db.sslrootcert=" '{print $2}' | awk -F' ' '{print $1}'`
+    export CONF_DATABASE_PORTNUM=`echo $temp | awk -F"${prefix}.db.port=" '{print $2}' | awk -F' ' '{print $1}'`
+    export CONF_DATABASE_DRIVER=`echo $temp | awk -F"${prefix}.db.driver=" '{print $2}' | awk -F' ' '{print $1}'`
+  else
+    echo -n "file [$config_file]....."
+    export CONF_DATABASE_HOSTNAME=`read_property_from_file ${prefix}.db.host "$config_file"`
+    export CONF_DATABASE_SCHEMA=`read_property_from_file ${prefix}.db.schema "$config_file"`
+    export CONF_DATABASE_USERNAME=`read_property_from_file ${prefix}.db.user "$config_file"`
+    export CONF_DATABASE_PASSWORD=`read_property_from_file ${prefix}.db.password "$config_file"`
+    export CONF_DATABASE_SSLMODE=`read_property_from_file ${prefix}.db.sslmode "$config_file"`
+    export CONF_DATABASE_SSLROOTCERT=`read_property_from_file ${prefix}.db.sslrootcert "$config_file"`
+    export CONF_DATABASE_PORTNUM=`read_property_from_file ${prefix}.db.port "$config_file"`
+    export CONF_DATABASE_DRIVER=`read_property_from_file ${prefix}.db.driver "$config_file"`
   fi
-  
-  # attestation-service.properties
-  if [ -f "$as_props_path" ]; then
-    echo -n "Reading properties from "
-    if file_encrypted "$as_props_path"; then
-      echo -n "encrypted file [$as_props_path]....."
-      temp=$(call_tag_setupcommand export-config --in="$as_props_path" --stdout 2>&1)
-      if [[ "$temp" == *"Incorrect password"* ]]; then
-        echo_failure -e "Incorrect encryption password. Please verify \"MTWILSON_PASSWORD\" variable is set correctly."
-        return 2
-      fi
-      export CONF_SAML_KEYSTORE_FILE=`echo $temp | awk -F'saml.keystore.file=' '{print $2}' | awk -F' ' '{print $1}'`
-      export CONF_SAML_KEYSTORE_PASSWORD=`echo $temp | awk -F'saml.keystore.password=' '{print $2}' | awk -F' ' '{print $1}'`
-      export CONF_SAML_KEY_ALIAS=`echo $temp | awk -F'saml.key.alias=' '{print $2}' | awk -F' ' '{print $1}'`
-      export CONF_SAML_KEY_PASSWORD=`echo $temp | awk -F'saml.key.password=' '{print $2}' | awk -F' ' '{print $1}'`
-      export CONF_SAML_ISSUER=`echo $temp | awk -F'saml.issuer=' '{print $2}' | awk -F' ' '{print $1}'`
-      export CONF_PRIVACYCA_SERVER=`echo $temp | awk -F'privacyca.server=' '{print $2}' | awk -F' ' '{print $1}'`
-    else
-      echo -n "file [$as_props_path]....."
-      export CONF_SAML_KEYSTORE_FILE=`read_property_from_file saml.keystore.file "$as_props_path"`
-      export CONF_SAML_KEYSTORE_PASSWORD=`read_property_from_file saml.keystore.password "$as_props_path"`
-      export CONF_SAML_KEY_ALIAS=`read_property_from_file saml.key.alias "$as_props_path"`
-      export CONF_SAML_KEY_PASSWORD=`read_property_from_file saml.key.password "$as_props_path"`
-      export CONF_SAML_ISSUER=`read_property_from_file saml.issuer "$as_props_path"`
-      export CONF_PRIVACYCA_SERVER=`read_property_from_file privacyca.server "$as_props_path"`
-    fi
-    echo_success "Done"
-  fi
-  
-  # trustagent.properties
-  if [ -f "$ta_props_path" ]; then
-    echo -n "Reading properties from "
-    if file_encrypted "$ta_props_path"; then
-      echo -n "encrypted file [$ta_props_path]....."
-      temp=$(call_tag_setupcommand export-config --in="$ta_props_path" --stdout 2>&1)
-      if [[ "$temp" == *"Incorrect password"* ]]; then
-        echo_failure -e "Incorrect encryption password. Please verify \"MTWILSON_PASSWORD\" variable is set correctly."
-        return 2
-      fi
-      export CONF_TRUSTAGENT_KEYSTORE_PASS=`echo $temp | awk -F'trustagent.keystore.password=' '{print $2}' | awk -F' ' '{print $1}'`
-    else
-      echo -n "file [$ta_props_path]....."
-      export CONF_TRUSTAGENT_KEYSTORE_PASS=`read_property_from_file trustagent.keystore.password "$ta_props_path"`
-    fi
-    echo_success "Done"
-  fi
-  
+  echo_success "Done"
+
   # Determine DATABASE_VENDOR
   if grep -q "postgres" <<< "$CONF_DATABASE_DRIVER"; then
     export CONF_DATABASE_VENDOR="postgres";
@@ -3737,8 +3052,6 @@ load_defaults() {
   export DEFAULT_DATABASE_PORTNUM=""
   export DEFAULT_DATABASE_DRIVER=""
   export DEFAULT_WEBSERVICE_VENDOR=""
-  export DEFAULT_WEBSERVICE_MANAGER_USERNAME="admin"
-  export DEFAULT_WEBSERVICE_MANAGER_PASSWORD=$(generate_password 16)
   export DEFAULT_DATABASE_VENDOR=""
   export DEFAULT_PRIVACYCA_SERVER=""
   export DEFAULT_SAML_KEYSTORE_FILE="SAML.p12"
@@ -3770,9 +3083,6 @@ load_defaults() {
   export DATABASE_PORTNUM=${DATABASE_PORTNUM:-${CONF_DATABASE_PORTNUM:-$DEFAULT_DATABASE_PORTNUM}}
   export DATABASE_DRIVER=${DATABASE_DRIVER:-${CONF_DATABASE_DRIVER:-$DEFAULT_DATABASE_DRIVER}}
   export DATABASE_VENDOR=${DATABASE_VENDOR:-${CONF_DATABASE_VENDOR:-$DEFAULT_DATABASE_VENDOR}}
-  export WEBSERVICE_VENDOR=${WEBSERVICE_VENDOR:-${WEBSERVER_VENDOR:-${CONF_WEBSERVICE_VENDOR:-$DEFAULT_WEBSERVICE_VENDOR}}}
-  export WEBSERVICE_MANAGER_USERNAME=${WEBSERVICE_MANAGER_USERNAME:-${CONF_WEBSERVICE_MANAGER_USERNAME:-$DEFAULT_WEBSERVICE_MANAGER_USERNAME}}
-  export WEBSERVICE_MANAGER_PASSWORD=${WEBSERVICE_MANAGER_PASSWORD:-${CONF_WEBSERVICE_MANAGER_PASSWORD:-$DEFAULT_WEBSERVICE_MANAGER_PASSWORD}}
   export PRIVACYCA_SERVER=${PRIVACYCA_SERVER:-${CONF_PRIVACYCA_SERVER:-$DEFAULT_PRIVACYCA_SERVER}}
   export SAML_KEYSTORE_FILE=${SAML_KEYSTORE_FILE:-${CONF_SAML_KEYSTORE_FILE:-$DEFAULT_SAML_KEYSTORE_FILE}}
   export SAML_KEYSTORE_PASSWORD=${SAML_KEYSTORE_PASSWORD:-${CONF_SAML_KEYSTORE_PASSWORD:-$DEFAULT_SAML_KEYSTORE_PASSWORD}}
@@ -3784,13 +3094,8 @@ load_defaults() {
   export API_KEY_ALIAS=${API_KEY_ALIAS:-${CONF_API_KEY_ALIAS:-$DEFAULT_API_KEY_ALIAS}}
   export API_KEY_PASS=${API_KEY_PASS:-${CONF_API_KEY_PASS:-$DEFAULT_API_KEY_PASS}}
   export CONFIGURED_API_BASEURL=${CONFIGURED_API_BASEURL:-${CONF_CONFIGURED_API_BASEURL:-$DEFAULT_CONFIGURED_API_BASEURL}}
-  export MTWILSON_DEFAULT_TLS_POLICY_ID=${MTWILSON_DEFAULT_TLS_POLICY_ID:-${CONF_MTWILSON_DEFAULT_TLS_POLICY_ID:-$DEFAULT_MTWILSON_DEFAULT_TLS_POLICY_ID}}
-  export MTWILSON_TLS_POLICY_ALLOW=${MTWILSON_TLS_POLICY_ALLOW:-${CONF_MTWILSON_TLS_POLICY_ALLOW:-$DEFAULT_MTWILSON_TLS_POLICY_ALLOW}}
-  export MTWILSON_TLS_KEYSTORE_PASSWORD=${MTWILSON_TLS_KEYSTORE_PASSWORD:-${CONF_MTWILSON_TLS_KEYSTORE_PASSWORD:-$DEFAULT_MTWILSON_TLS_KEYSTORE_PASSWORD}}
   export TDBP_KEYSTORE_DIR=${TDBP_KEYSTORE_DIR:-${CONF_TDBP_KEYSTORE_DIR:-$DEFAULT_TDBP_KEYSTORE_DIR}}
   export ENDORSEMENT_P12_PASS=${ENDORSEMENT_P12_PASS:-${CONF_ENDORSEMENT_P12_PASS:-$DEFAULT_ENDORSEMENT_P12_PASS}}
-  export MTWILSON_TAG_API_USERNAME=${MTWILSON_TAG_API_USERNAME:-${CONF_MTWILSON_TAG_API_USERNAME:-$DEFAULT_MTWILSON_TAG_API_USERNAME}}
-  export MTWILSON_TAG_API_PASSWORD=${MTWILSON_TAG_API_PASSWORD:-${CONF_MTWILSON_TAG_API_PASSWORD:-$DEFAULT_MTWILSON_TAG_API_PASSWORD}}
   export TRUSTAGENT_KEYSTORE_PASS=${TRUSTAGENT_KEYSTORE_PASS:-${CONF_TRUSTAGENT_KEYSTORE_PASS:-$DEFAULT_TRUSTAGENT_KEYSTORE_PASS}}
 
   if using_mysql; then
@@ -3813,21 +3118,7 @@ load_defaults() {
 function erase_data() {
   mysql=`which mysql 2>/dev/null`
   psql=`which psql 2>/dev/null`
-  
-  #encrypted_files=()
-  #count=0
-  #for i in `ls -1 /etc/intel/cloudsecurity/*.properties`; do
-  #  if file_encrypted "$i"; then
-  #    encrypted_files[count]="$i"
-  #  fi
-  #  let count++
-  #done
-  #
-  #for i in ${encrypted_files[@]}; do
-  #  decrypt_file "$i" "$MTWILSON_PASSWORD"
-  #done
-  
-  arr=(mw_link_flavor_host mw_link_flavor_flavorgroup mw_link_flavorgroup_host mw_queue mw_report mw_host_status mw_flavorgroup mw_host mw_flavor mw_host_credential mw_tag_certificate mw_tag_certificate_request mw_host_tpm_password mw_audit_log_entry mw_tls_policy)
+  local arr="$*"
 
   # Test DB connection and change password
   if using_mysql; then #MYSQL
@@ -3849,142 +3140,6 @@ function erase_data() {
     for table in ${arr[*]}; do
       temp=`(cd /tmp && PGPASSWORD=$postgres_password "$psql" -d "$DATABASE_SCHEMA" -U "$DATABASE_USERNAME" -h "$DATABASE_HOSTNAME" --set=sslmode=${POSTGRES_SSLMODE} --set=sslrootcert=${POSTGRES_SSLROOTCERT} -c "DELETE from $table;")`
     done
-  fi
-}
-
-key_backup() {
-  shift
-  if ! options=$(getopt -a -n key-backup -l passwd: -o p: -- "$@"); then echo_failure "Usage: $0 key-backup [-p PASSWORD | --passwd PASSWORD]"; return 1; fi
-  eval set -- "$options"
-  while [ $# -gt 0 ]
-  do
-    case $1 in
-      -p|--passwd) eval MTWILSON_PASSWORD="\$$2"; shift;;
-      --) shift; args="$@"; shift;;
-    esac
-    shift
-  done
-
-  args=`echo $args | sed -e 's/^ *//' -e 's/ *$//'`
-  if [ -n "$args" ]; then echo_failure "Usage: $0 key-backup [-p PASSWORD | --passwd PASSWORD]"; return 2; fi
-
-  export MTWILSON_PASSWORD
-  if [ -z "$MTWILSON_PASSWORD" ]; then echo_failure "Encryption password cannot be null."; return 3; fi
-
-  configDir="/opt/mtwilson/configuration"
-  if [ -w "/var/" ]; then
-     keyBackupDir="/var/mtwilson/key-backup"
-  else
-     keyBackupDir="/opt/mtwilson/var/mtwilson/key-backup"
-  fi
-  datestr=`date +%Y-%m-%d.%H%M%S`
-  keyBackupFile="$keyBackupDir/mtwilson-keys_$datestr.enc"
-  mkdir -p "$keyBackupDir" 2>/dev/null
-  filesToEncrypt="$configDir/*.*"
-  if [ -f "$configDir/private/password.txt" ]; then filesToEncrypt="$filesToEncrypt $configDir/private/*.*"; fi
-  /opt/mtwilson/bin/encrypt.sh -p MTWILSON_PASSWORD --nopbkdf2 "$keyBackupFile" "$filesToEncrypt" > /dev/null
-  find "$configDir/" -name "*.sig" -type f -delete
-  shred -uzn 3 "$keyBackupFile.zip"
-  echo_success "Keys backed up to: $keyBackupFile"
-}
-
-key_restore() {
-  shift
-  if ! options=$(getopt -a -n key-restore -l passwd: -o p: -- "$@"); then echo_failure "Usage: $0 key-restore [-p PASSWORD | --passwd PASSWORD] file_name"; return 1; fi
-  eval set -- "$options"
-  while [ $# -gt 0 ]
-  do
-    case $1 in
-      -p|--passwd) eval MTWILSON_PASSWORD="\$$2"; shift;;
-      --) shift; args="$@"; shift;;
-    esac
-    shift
-  done
-
-  args=`echo $args | sed -e 's/^ *//' -e 's/ *$//'`
-  if [[ "$args" == *" "* ]]; then echo_failure "Usage: $0 key-restore [-p PASSWORD | --passwd PASSWORD] file_name"; return 2; fi
-
-  export MTWILSON_PASSWORD
-  if [ -z "$MTWILSON_PASSWORD" ]; then echo_failure "Encryption password cannot be null."; return 3; fi
-
-  keyBackupFile="$args"
-  keyBackupDir="$keyBackupFile.d"
-  configDir="/opt/mtwilson/configuration"
-  if [ ! -f "$keyBackupFile" ]; then
-    echo_failure "File does not exist"
-    return 4
-  fi
-  /opt/mtwilson/bin/decrypt.sh -p MTWILSON_PASSWORD "$keyBackupFile" > /dev/null
-  find "$keyBackupDir/" -name "*.sig" -type f -delete
-  cp -R "$keyBackupDir"/* "$configDir"/
-  # cd to make sure in readable directory to prevent find utility error on "sudo -u mtwilson ..."
-  (cd "$keyBackupDir" && find "$keyBackupDir" -type f -exec shred -uzn 3 {} \;)
-  rm -rf "$keyBackupDir"
-  shred -uzn 3 "$keyBackupFile.zip"
-
-  # password.txt file in private directory
-  if [ -f "$configDir/password.txt" ]; then
-    mkdir -p "$configDir/private" 2>/dev/null
-    cp -R "$configDir/password.txt" "$configDir/private/password.txt"
-    shred -uzn 3 "$configDir/password.txt"
-  fi
-
-  echo_success "Keys restored from: $keyBackupFile"
-}
-
-# called by installer to automatically configure the server for localhost integration
-shiro_localhost_integration() {
-  local shiroIniPath="${1}"
-  local iplist;
-  local finalIps;
-  iplist="127.0.0.1"
-  
-  OIFS=$IFS
-  IFS=',' read -ra newIps <<< "$iplist"
-  IFS=$OIFS
-  
-  iniHostRealmPropertyExists=$(cat "${shiroIniPath}" | grep '^iniHostRealm=' 2>/dev/null)
-  if [ -z "${iniHostRealmPropertyExists}" ]; then
-    sed -i 's|\(^securityManager.realms*\)|iniHostRealm=\n\1|' "${shiroIniPath}"
-  fi
-  iniHostRealmAllowPropertyExists=$(cat "${shiroIniPath}" | grep '^iniHostRealm.allow=' 2>/dev/null)
-  if [ -z "${iniHostRealmAllowPropertyExists}" ]; then
-    sed -i 's|\(^securityManager.realms*\)|iniHostRealm.allow=\n\1|' "${shiroIniPath}"
-  fi
-  hostMatcherPropertyExists=$(cat "${shiroIniPath}" | grep '^hostMatcher=' 2>/dev/null)
-  if [ -z "${hostMatcherPropertyExists}" ]; then
-    sed -i 's|\(^securityManager.realms*\)|hostMatcher=\n\1|' "${shiroIniPath}"
-  fi
-  iniHostRealmCredentialsMatcherPropertyExists=$(cat "${shiroIniPath}" | grep '^iniHostRealm.credentialsMatcher=' 2>/dev/null)
-  if [ -z "${iniHostRealmCredentialsMatcherPropertyExists}" ]; then
-    sed -i 's|\(^securityManager.realms*\)|iniHostRealm.credentialsMatcher=\n\1|' "${shiroIniPath}"
-  fi
-  
-  update_property_in_file "iniHostRealm" "${shiroIniPath}" 'com.intel.mtwilson.shiro.authc.host.IniHostRealm'
-  update_property_in_file "hostMatcher" "${shiroIniPath}" 'com.intel.mtwilson.shiro.authc.host.HostCredentialsMatcher'
-  update_property_in_file "iniHostRealm.credentialsMatcher" "${shiroIniPath}" '$hostMatcher'
-  
-  #iniHostRealm.allow
-  hostAllow=$(read_property_from_file iniHostRealm.allow ${shiroIniPath})
-  finalIps="$hostAllow"
-  for i in "${newIps[@]}"; do
-    OIFS=$IFS
-    IFS=',' read -ra oldIps <<< "$finalIps"
-    IFS=$OIFS
-    if [[ "${oldIps[*]}" != *"$i"* ]]; then
-      if [ -z "$finalIps" ]; then
-        finalIps="$i"
-      else
-        finalIps+=",$i"
-      fi
-    fi
-  done
-  update_property_in_file "iniHostRealm.allow" "${shiroIniPath}" "$finalIps";
-  
-  #securityManager.realms
-  securityManagerPropertyHasIniHostRealm=$(cat "${shiroIniPath}" | grep '^securityManager.realms' 2>/dev/null | grep '$iniHostRealm' 2>/dev/null)
-  if [ -z "${securityManagerPropertyHasIniHostRealm}" ]; then
-    sed -i 's|\(^securityManager.realms.*\)|\1, $iniHostRealm|' "${shiroIniPath}"
   fi
 }
 
