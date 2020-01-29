@@ -258,6 +258,11 @@
                 <artifactId>javax.persistence</artifactId>
                 <version>2.1.1</version>
             </dependency>
+            <dependency>
+                <groupId>org.eclipse.persistence</groupId>
+                <artifactId>org.eclipse.persistence.moxy</artifactId>
+                <version>2.7.5</version>
+            </dependency>
             
             <!-- jackson 2.x, updated from version 2.3.2 to version 2.5.1 -->
             <dependency>
