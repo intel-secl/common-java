@@ -898,8 +898,28 @@ register_startup_script() {
       rm -f "/etc/systemd/system/${startup_name}.service"
     fi
 
-    echo -e "[Unit]\nDescription=${startup_name}\n\n[Service]\nType=forking\nPIDFile=${pid_file}\nSuccessExitStatus=SIGKILL\nExecStart=${absolute_filename} start\nExecStop=${absolute_filename} stop\nTimeoutSec=300\n\n[Install]\nWantedBy=multi-user.target\n" > "/etc/systemd/system/${startup_name}.service"
-    chmod 664 "/etc/systemd/system/${startup_name}.service"
+	cat << EOF > /etc/systemd/system/${startup_name}.service
+[Unit]
+Description=${startup_name}
+
+[Service]
+Type=forking
+User=${startup_name}
+Group=${startup_name}
+RuntimeDirectory=${startup_name}
+RuntimeDirectoryMode=0775
+WorkingDirectory=/opt/${startup_name}/
+PIDFile=${pid_file}
+SuccessExitStatus=SIGKILL
+ExecStart=${absolute_filename} start
+ExecStop=${absolute_filename} stop
+TimeoutSec=300
+
+[Install]
+WantedBy=multi-user.target
+EOF
+	
+	chmod 664 "/etc/systemd/system/${startup_name}.service"
     "$systemctlCommand" daemon-reload
     "$systemctlCommand" enable "${startup_name}.service"
     "$systemctlCommand" daemon-reload
