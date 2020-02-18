@@ -143,7 +143,6 @@ public class ShiroUtil {
         } else {
             throw new AuthenticationException("No JWT token present in request");
         }
-        log.info("JWT token claims: {}", claims);
         return true;
     }
 
