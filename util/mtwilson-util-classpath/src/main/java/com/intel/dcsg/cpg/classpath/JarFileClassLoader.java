@@ -18,14 +18,13 @@ import java.util.jar.JarFile;
  * (which would throw ClassNotFoundException if the
  * class is not found at that point).
  * 
- * XXX TODO the jarfileclassloader is only being used by classloadertest and reflectionstest... 
- * it's useful to have it inside the container for the reflections test but other than that it should really be in the 
- * launcher where all the class loader magic will be.   OR, since the value added by this class is really 
- * the part about opening the JarFile and using JarEntry to read files and how to convert a fully qualified
- * class name into a path to a class in the jar file,  maybe that little bit of behavior can be refactored into
- * a JarFileClassFinder which accepts the fully qualified class name and returns either null or the byte array,
- * and this can be used by a JarFileClassLoader anywhere and doesn't necessarily change the class loading rules
- * like ModuleClassLoader does. 
+ * XXX TODO the jarfileclassloader is only being used by classloadertest 
+ * It should really be in the launcher where all the class loader magic will be.   OR, 
+ * since the value added by this class is really the part about opening the JarFile and using JarEntry 
+ * to read files and how to convert a fully qualified  class name into a path to a class in the jar file, 
+ * maybe that little bit of behavior can be refactored into a JarFileClassFinder which accepts the fully 
+ * qualified class name and returns either null or the byte array, and this can be used by a JarFileClassLoader 
+ * anywhere and doesn't necessarily change the class loading rules like ModuleClassLoader does. 
  * 
  * @author jbuhacoff
  */
