@@ -113,7 +113,12 @@ public class ShiroUtil {
         if (jwtToken != null) {
             while (noOfRetries <= 2) {
                 try {
-                    Object kid = decodeTokenClaims(jwtToken).getHeader().get("kid");
+                    Jwt decodedJwt = decodeTokenClaims(jwtToken);
+                    if (decodedJwt == null)
+                    {
+                        throw new CertificateException("Exception while parsing JWT token for claims");
+                    }
+                    Object kid = decodedJwt.getHeader().get("kid");
                     if (kid == null) {
                         throw new CertificateException("JWT token kid not found");
                     }

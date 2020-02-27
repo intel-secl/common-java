@@ -66,7 +66,7 @@ public class JWTAuthenticationToken implements AuthenticationToken {
         ShiroUtil shiroUtil = new ShiroUtil();
         Jwt jwtClaims = shiroUtil.decodeTokenClaims(this.token);
         Object keyId = null;
-        if (jwtClaims.getHeader() != null && jwtClaims.getHeader().containsKey("kid")) {
+        if (jwtClaims != null && jwtClaims.getHeader() != null && jwtClaims.getHeader().containsKey("kid")) {
             keyId = jwtClaims.getHeader().get("kid");
         }
         if (keyId != null){
