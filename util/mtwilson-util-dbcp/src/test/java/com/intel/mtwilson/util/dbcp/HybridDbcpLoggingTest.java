@@ -1,9 +1,9 @@
+/*
+ * Copyright (C) 2019 Intel Corporation
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 package com.intel.mtwilson.util.dbcp;
 
-/*
- * Copyright (C) 2014 Intel Corporation
- * All rights reserved.
- */
 import com.intel.dcsg.cpg.util.jdbc.PoolingDataSource;
 import com.intel.dcsg.cpg.io.UUID;
 import com.intel.dcsg.cpg.performance.AlarmClock;

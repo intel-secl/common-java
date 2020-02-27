@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2019 Intel Corporation
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 package com.intel.mtwilson.jaxrs2.client;
 
 import com.intel.mtwilson.retry.ConstantBackoff;
@@ -8,10 +12,6 @@ import java.util.Properties;
 import javax.ws.rs.core.MediaType;
 import org.junit.Test;
 import static org.junit.Assert.*;
-
-/*
- * Copyright 2016 Intel Corporation. All rights reserved.
- */
 
 /**
  * NOTE: the private methods annotated with @RetryOnException are simulating
