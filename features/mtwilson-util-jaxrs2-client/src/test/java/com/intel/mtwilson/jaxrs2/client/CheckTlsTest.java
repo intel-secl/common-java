@@ -28,7 +28,7 @@ public class CheckTlsTest {
     @Test
     public void testTlsConnection() {
         Properties properties = new Properties();
-        properties.setProperty("endpoint.url", "https://10.1.69.137:9449");
+        properties.setProperty("endpoint.url", "https://server.com:9449");
         properties.setProperty("tls.policy.certificate.sha256", "524197ac887b045d9de5400a914bd20039f9a598910cfa53d8ba333a17b2f42a");
          JaxrsClient client = JaxrsClientBuilder.factory().configuration(properties).build();
          log.debug("response; {}", client.getTargetPath("/cgi-bin/fileList.sh").request(MediaType.TEXT_PLAIN_TYPE).get().toString());

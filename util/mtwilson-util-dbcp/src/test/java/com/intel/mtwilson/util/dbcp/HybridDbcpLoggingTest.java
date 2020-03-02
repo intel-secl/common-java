@@ -70,13 +70,13 @@ public class HybridDbcpLoggingTest {
      * Example output:
      * <pre>
      * 01:13:54.302 [main] DEBUG c.i.m.util.dbcp.AbstractObjectPool - Creating new object for pool
-     * 01:13:54.678 [main] DEBUG c.i.m.util.dbcp.PooledConnection - [7530484849248823296] constructor wrapping jdbc:postgresql://10.1.71.56:5432/mw_as, UserName=root, PostgreSQL Native Driver
-     * 01:13:54.679 [main] DEBUG c.i.m.util.dbcp.AbstractObjectPool - Borrowing object from pool: PooledConnection[7530484849248823296] wrapping jdbc:postgresql://10.1.71.56:5432/mw_as, UserName=root, PostgreSQL Native Driver / 216787636
+     * 01:13:54.678 [main] DEBUG c.i.m.util.dbcp.PooledConnection - [7530484849248823296] constructor wrapping jdbc:postgresql://db.server.com:5432/mw_as, UserName=root, PostgreSQL Native Driver
+     * 01:13:54.679 [main] DEBUG c.i.m.util.dbcp.AbstractObjectPool - Borrowing object from pool: PooledConnection[7530484849248823296] wrapping jdbc:postgresql://db.server.com:5432/mw_as, UserName=root, PostgreSQL Native Driver / 216787636
      * 01:13:54.679 [main] DEBUG c.i.m.util.dbcp.PooledConnection - [7530484849248823296] createStatement
      * 01:13:54.704 [main] DEBUG c.i.m.u.dbcp.HybridDbcpLoggingTest - got result row default
      * 01:13:54.705 [main] DEBUG c.i.m.u.dbcp.HybridDbcpLoggingTest - got result row other
      * 01:13:54.705 [main] DEBUG c.i.m.util.dbcp.PooledConnection - [7530484849248823296] close
-     * 01:13:54.705 [main] DEBUG c.i.m.util.dbcp.AbstractObjectPool - Returning object to pool: PooledConnection[7530484849248823296] wrapping jdbc:postgresql://10.1.71.56:5432/mw_as, UserName=root, PostgreSQL Native Driver / 216787636
+     * 01:13:54.705 [main] DEBUG c.i.m.util.dbcp.AbstractObjectPool - Returning object to pool: PooledConnection[7530484849248823296] wrapping jdbc:postgresql://db.server.com:5432/mw_as, UserName=root, PostgreSQL Native Driver / 216787636
      * </pre>
      *
      * @throws SQLException
@@ -163,9 +163,9 @@ public class HybridDbcpLoggingTest {
      * 12:14:22.828 [main] DEBUG c.i.m.u.dbcp.HybridDbcpLoggingTest - opening connection
      * 12:14:22.829 [main] DEBUG c.i.d.c.o.AbstractObjectPool - Creating new object for pool, currently borrowed 0
      * 12:14:22.829 [main] DEBUG c.i.d.cpg.util.jdbc.ConnectionPool - creating new object for pool, now created 1 trashed 0 total 1
-     * 12:14:23.831 [main] DEBUG c.i.d.cpg.util.jdbc.PooledConnection - [3783430681094712320] constructor wrapping jdbc:mysql://10.1.71.56:3306/mw_as, UserName=root@10.254.189.232, MySQL-AB JDBC Driver
-     * 12:14:23.855 [main] DEBUG c.i.d.c.o.AbstractObjectPool - Borrowing object from pool: PooledConnection[3783430681094712320] wrapping jdbc:mysql://10.1.71.56:3306/mw_as, UserName=root@10.254.189.232, MySQL-AB JDBC Driver / 562503067
-     * 12:14:23.877 [main] DEBUG c.i.d.c.u.j.ValidatingConnectionPool - Validating connection PooledConnection[3783430681094712320] wrapping jdbc:mysql://10.1.71.56:3306/mw_as, UserName=root@10.254.189.232, MySQL-AB JDBC Driver
+     * 12:14:23.831 [main] DEBUG c.i.d.cpg.util.jdbc.PooledConnection - [3783430681094712320] constructor wrapping jdbc:mysql://db.server.com:3306/mw_as, UserName=root@db.client.com, MySQL-AB JDBC Driver
+     * 12:14:23.855 [main] DEBUG c.i.d.c.o.AbstractObjectPool - Borrowing object from pool: PooledConnection[3783430681094712320] wrapping jdbc:mysql://db.server.com:3306/mw_as, UserName=root@db.client.com, MySQL-AB JDBC Driver / 562503067
+     * 12:14:23.877 [main] DEBUG c.i.d.c.u.j.ValidatingConnectionPool - Validating connection PooledConnection[3783430681094712320] wrapping jdbc:mysql://db.server.com:3306/mw_as, UserName=root@db.client.com, MySQL-AB JDBC Driver
      * 12:14:23.877 [main] DEBUG c.i.d.cpg.util.jdbc.PooledConnection - [3783430681094712320] createStatement
      * 12:14:23.900 [main] DEBUG c.i.d.c.u.j.ValidatingConnectionPool - Validation result
      * 12:14:23.900 [main] DEBUG c.i.m.u.dbcp.HybridDbcpLoggingTest - trying first statement

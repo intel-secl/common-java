@@ -38,8 +38,8 @@ public class SshTest {
         int port = 22;
         String username = "root";
         String password = "P@ssw0rd";
-        connect("10.1.68.34", port, username, password, "22952a72e24194f208200e76fd3900da");
-        connect("10.1.68.31", port, username, password, "a8334b9235fb0018557b41d8350054a0");
+        connect("some.server.com", port, username, password, "22952a72e24194f208200e76fd3900da");
+        connect("other.server.com", port, username, password, "a8334b9235fb0018557b41d8350054a0");
 
         
     }
