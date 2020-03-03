@@ -2,40 +2,18 @@
     <modelVersion>4.0.0</modelVersion>
     
     <groupId>com.intel.mtwilson.util</groupId>
-    <artifactId>mtwilson-util-text-transform</artifactId>
-    <!--<version>0.1-SNAPSHOT</version>-->
+    <artifactId>mtwilson-util-retry</artifactId>
+    <!--<version>5.0-SNAPSHOT</version>-->
     
     <packaging>jar</packaging>
-    <name>mtwilson-util-text-transform</name>
-    
+
     <parent>
         <groupId>com.intel.mtwilson.util</groupId>
         <artifactId>mtwilson-util</artifactId>
         <version>5.0-SNAPSHOT</version>
     </parent>
     
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
-    
     <dependencies>
-        <!-- for Transformer interface -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>mtwilson-util-pipe</artifactId>
-        </dependency>
-        
-        <!-- for StringUtils -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-        
         <!-- logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -50,6 +28,21 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
+        </dependency>
+        <!-- used by Retry -->
+        <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-performance</artifactId>
+        </dependency>
+        <!-- used by ExponentialBackoff and RandomBackoff; note that version 3.4 is required, and earlier version from dependencyManagement is not compatible -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
         </dependency>
     </dependencies>
     

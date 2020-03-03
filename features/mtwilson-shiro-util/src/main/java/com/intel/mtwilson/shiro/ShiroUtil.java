@@ -20,9 +20,12 @@ import com.intel.mtwilson.jaxrs2.client.AASClient;
 
 import com.intel.mtwilson.jaxrs2.client.CMSRootCaDownloader;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.impl.DefaultJwtParser;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -110,7 +113,12 @@ public class ShiroUtil {
         if (jwtToken != null) {
             while (noOfRetries <= 2) {
                 try {
-                    Object kid = decodeTokenClaims(jwtToken).getHeader().get("kid");
+                    Jwt decodedJwt = decodeTokenClaims(jwtToken);
+                    if (decodedJwt == null)
+                    {
+                        throw new CertificateException("Exception while parsing JWT token for claims");
+                    }
+                    Object kid = decodedJwt.getHeader().get("kid");
                     if (kid == null) {
                         throw new CertificateException("JWT token kid not found");
                     }
@@ -140,7 +148,6 @@ public class ShiroUtil {
         } else {
             throw new AuthenticationException("No JWT token present in request");
         }
-        log.info("JWT token claims: {}", claims);
         return true;
     }
 
@@ -199,8 +206,13 @@ public class ShiroUtil {
     public Jwt decodeTokenClaims(String token) {
         int index = token.lastIndexOf('.');
         String tokenWithoutSignature = token.substring(0, index + 1);
-        DefaultJwtParser parser = new DefaultJwtParser();
-        return parser.parse(tokenWithoutSignature);
+        try {
+            DefaultJwtParser parser = new DefaultJwtParser();
+            return parser.parse(tokenWithoutSignature);
+        } catch (ExpiredJwtException | MalformedJwtException | SignatureException ex) {
+            log.warn("Exception while parsing JWT token for claims");
+        }
+        return null;
     }
 
     private String getTrustStorePath() {

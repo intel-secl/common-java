@@ -39,7 +39,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * This class closes the EntityManagerFactory when when the application stops.
+ * This class closes the EntityManagerFactory when the application stops.
  *
  * It embodies on the fact that we need only one static EntityManagerFactory per
  * PersistenceUnit for the lifecycle of the application. If each Business Object
@@ -178,7 +178,7 @@ public abstract class PersistenceManager implements ServletContextListener {
      * with those settings, which can now include Apache Commons Pool and JDBC.
      *
      * @param persistenceUnitName
-     * @param properties
+     * @param jpaProperties
      * @return
      */
     public static EntityManagerFactory createEntityManagerFactory(String persistenceUnitName, Properties jpaProperties) {
@@ -411,6 +411,8 @@ public abstract class PersistenceManager implements ServletContextListener {
         ds.setTimeBetweenEvictionRunsMillis(1000 * 60); // (milliseconds) check which idle connections should be evicted once every minute
         ds.setUrl(jpaProperties.getProperty("javax.persistence.jdbc.url"));
         ds.setUsername(jpaProperties.getProperty("javax.persistence.jdbc.user"));
+        ds.addConnectionProperty("sslmode",jpaProperties.getProperty("javax.persistence.jdbc.sslmode"));
+        ds.addConnectionProperty("sslrootcert",jpaProperties.getProperty("javax.persistence.jdbc.sslrootcert"));
         ds.setTransactionManager(tm);
 
         ValidatingConnectionPool connectionPool = new ValidatingConnectionPool();

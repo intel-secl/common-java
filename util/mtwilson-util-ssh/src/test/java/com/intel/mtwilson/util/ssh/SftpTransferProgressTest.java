@@ -36,7 +36,7 @@ public class SftpTransferProgressTest {
     // IP ADDRESS LIKE 192.168.1.100)
     @Test
     public void testLogSftpTransferProgress() throws NoSuchAlgorithmException, InvalidKeySpecException {
-        String host = "10.1.68.34";  // for example:  198.51.100.67
+        String host = "198.51.100.67";
         int port = 22;
         String username = "root";
         String password = "P@ssw0rd";
@@ -68,7 +68,7 @@ public class SftpTransferProgressTest {
     // IP ADDRESS LIKE 192.168.1.100)
     @Test
     public void testMonitorSftpTransferProgress() throws NoSuchAlgorithmException, InvalidKeySpecException {
-        String host = "10.1.68.34";  // for example:  198.51.100.67
+        String host = "198.51.100.67";
         int port = 22;
         String username = "root";
         String password = "P@ssw0rd";
