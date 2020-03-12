@@ -15,6 +15,7 @@ import com.intel.dcsg.cpg.extensions.Extensions;
 import java.util.List;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import com.intel.mtwilson.jaxrs2.XmlAnnotationIntrospector;
 
 /**
  * A hypothetical example JSON output using the default ObjectMapper settings 
@@ -60,6 +61,8 @@ public class JacksonXmlMapperProvider implements ContextResolver<XmlMapper> {
     private XmlMapper createDefaultMapper() {
         log.trace("JacksonXmlMapperProvider createDefaultMapper");
         XmlMapper mapper = new XmlMapper(/*jsonFactory*/);
+        // fix for ISECL-8791 - custom annotation for field only marshalled in JSON
+        mapper.setAnnotationIntrospector(new XmlAnnotationIntrospector());
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
