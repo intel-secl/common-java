@@ -209,8 +209,10 @@ public class ShiroUtil {
         try {
             DefaultJwtParser parser = new DefaultJwtParser();
             return parser.parse(tokenWithoutSignature);
-        } catch (ExpiredJwtException | MalformedJwtException | SignatureException ex) {
-            log.warn("Exception while parsing JWT token for claims");
+        } catch (ExpiredJwtException | MalformedJwtException ex) {
+            log.debug("Parsing the token for claims failed, either the token is expired or malformed");
+        } catch (SignatureException exe){
+            log.debug("Signature validation skipped while parsing the token for claims");
         }
         return null;
     }
