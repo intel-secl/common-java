@@ -582,12 +582,12 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
-                <version>5.2.1.RELEASE</version>
+                <version>5.2.5.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-jdbc</artifactId>
-                <version>5.2.1.RELEASE</version>
+                <version>5.2.5.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>com.googlecode.lanterna</groupId>
@@ -671,22 +671,12 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
-                <version>5.2.1.RELEASE</version>
+                <version>5.2.5.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>com.toastcoders</groupId>
                 <artifactId>yavijava</artifactId>
                 <version>6.0.05</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.jclouds.api</groupId>
-                <artifactId>openstack-nova</artifactId>
-                <version>2.2.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.jclouds.api</groupId>
-                <artifactId>openstack-keystone</artifactId>
-                <version>2.2.0</version>
             </dependency>
             <dependency>
                 <groupId>io.jsonwebtoken</groupId>
