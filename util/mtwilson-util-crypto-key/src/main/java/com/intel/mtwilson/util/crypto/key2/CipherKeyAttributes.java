@@ -19,8 +19,7 @@ public class CipherKeyAttributes extends Attributes implements Copyable {
     private Integer keyLength;
     private String mode;
     private String paddingMode;
-    private String kmipKeyID;
-    
+
     /**
      * The key id can be used to look up the key in a database or 
      * key server when the encoded key is not present
@@ -33,14 +32,6 @@ public class CipherKeyAttributes extends Attributes implements Copyable {
         this.keyId = keyId;
     }
 
-    public String getKMIPKeyID() {
-        return kmipKeyID;
-    }
-
-    public void setKMIPKeyID(String kmipKeyID) {
-        this.kmipKeyID = kmipKeyID;
-    }
-    
     /**
      * For a certificate, refers to the algorithm of the enclosed public key.
      * Examples: AES, RSA
