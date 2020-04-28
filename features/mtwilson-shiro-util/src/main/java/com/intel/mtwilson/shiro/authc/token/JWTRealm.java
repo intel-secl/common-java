@@ -52,6 +52,11 @@ public class JWTRealm extends AuthorizingRealm {
             log.debug("doGetAuthenticationInfo() : null bearer token");
             throw new AccountException("JWT token must be provided");
         }
-        return new SimpleAuthenticationInfo(bearerToken.getPrincipal(), bearerToken.getCredentials(), getName());
+        try {
+            return new SimpleAuthenticationInfo(bearerToken.getPrincipal(), bearerToken.getCredentials(), getName());
+        } catch (IllegalArgumentException ex) {
+            log.debug("Unable to get authentication information from bearer token, cached realm name might be empty");
+        }
+        return null;
     }
 }
