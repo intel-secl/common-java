@@ -679,16 +679,6 @@
                 <version>6.0.05</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.jclouds.api</groupId>
-                <artifactId>openstack-nova</artifactId>
-                <version>2.1.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.jclouds.api</groupId>
-                <artifactId>openstack-keystone</artifactId>
-                <version>2.1.0</version>
-            </dependency>
-            <dependency>
                 <groupId>io.jsonwebtoken</groupId>
                 <artifactId>jjwt</artifactId>
                 <version>0.9.1</version>
