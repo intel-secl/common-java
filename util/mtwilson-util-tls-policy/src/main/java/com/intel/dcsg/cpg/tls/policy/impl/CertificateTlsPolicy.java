@@ -4,7 +4,7 @@
  */
 package com.intel.dcsg.cpg.tls.policy.impl;
 
-import com.intel.dcsg.cpg.crypto.Sha1Digest;
+import com.intel.dcsg.cpg.crypto.Sha384Digest;
 import com.intel.dcsg.cpg.tls.policy.ProtocolSelector;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicyException;
@@ -144,9 +144,9 @@ public class CertificateTlsPolicy extends X509ExtendedServerTrustManager impleme
             List<X509Certificate> trustedCertificates = repository.getCertificates(); //repository.getCertificateForSubject(xcs[i].getSubjectX500Principal().getName());  
             log.debug("isCertificateTrusted: checking against {} trusted certificates", trustedCertificates.size());
             try {
-                log.debug("isCertificateTrusted: sha1 {}", Sha1Digest.digestOf(certificate.getEncoded()));
+                log.debug("isCertificateTrusted: sha384 {}", Sha384Digest.digestOf(certificate.getEncoded()));
                 for (X509Certificate trustedCert : trustedCertificates) {
-                    log.debug("isCertificateTrusted: trusted sha1 {}", Sha1Digest.digestOf(trustedCert.getEncoded()));
+                    log.debug("isCertificateTrusted: trusted sha384 {}", Sha384Digest.digestOf(trustedCert.getEncoded()));
                     if (Arrays.equals(trustedCert.getEncoded(), certificate.getEncoded())) {
                         return true; // certificate appears in the trusted repository, so we trust it and anything that it signed
                     }
