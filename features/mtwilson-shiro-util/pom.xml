@@ -37,14 +37,6 @@
         </dependency>
         
         <!-- for @V2 annotation on AuthorizationExceptionMapper -->
-        <!--
-        <dependency>
-            <groupId>com.intel.mtwilson.integration</groupId>
-            <artifactId>mtwilson-launcher-api</artifactId>
-            <version>${project.version}</version>
-            <optional>true</optional>
-        </dependency>		
-        -->
         
         <dependency>
             <groupId>com.intel.mtwilson.util</groupId>
