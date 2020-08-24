@@ -73,7 +73,7 @@ public class AikQuoteVerifier2 {
         byte []recvNonce = tpm2bData;
 
         if (!Arrays.equals(recvNonce, challenge)){
-            throw new IllegalStateException("AIK Quote verification failed, Nonce received does not matches with challenge");
+            throw new IllegalStateException("AIK Quote verification failed, Nonce received " + Base64.getEncoder().encodeToString(recvNonce) + " does not matches with challenge " + Base64.getEncoder().encodeToString(challenge));
         }
         log.info("Successfully verified challenge response");
         index = index + tpm2bDataSize;
