@@ -67,7 +67,7 @@ public class RateLimitFilter implements Filter {
                 client.lockExpires = now;
             }
             client.attempts += 1;
-            client.lockExpires.setTime(client.lockExpires.getTime() + 5000);
+            client.lockExpires.setTime(client.lockExpires.getTime() + 1000);
             if (response instanceof HttpServletResponse) {
                 HttpServletResponse httpResponse = (HttpServletResponse) response;
                 httpResponse.reset();
@@ -92,12 +92,12 @@ public class RateLimitFilter implements Filter {
                     CLIENT_MAP.put(remote, client);
                 } else {
                     client.attempts += 1;
-                    if (client.attempts > 5) {
+                    if (client.attempts > 500) {
                         client.locked = true;
                         if (client.lockExpires == null) {
                             client.lockExpires = new Date();
                         }
-                        client.lockExpires.setTime(client.lockExpires.getTime() + (client.attempts * 5000));
+                        client.lockExpires.setTime(client.lockExpires.getTime() + (client.attempts * 1000));
                     }
                 }
             }

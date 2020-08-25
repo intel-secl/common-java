@@ -43,12 +43,12 @@ import org.eclipse.jetty.server.handler.ErrorHandler;
  *
  * How to access the server:
  *
- * http://localhost:80/
+ * https://localhost:443/
  *
  *
  * javax.net.ssl.keyStore (no default; must be provided)
- * javax.net.ssl.keyStorePassword (no default, must be provided) jetty.port
- * (default 80) jetty.secure.port (default 443)
+ * javax.net.ssl.keyStorePassword (no default, must be provided)
+ * jetty.secure.port (default 443)
  *
  * When using the launcher, export KMS_PASSWORD=password to read the
  * javax.net.ssl.keyStore and .keyStorePassword properties from the encrypted
@@ -111,10 +111,6 @@ public class StartHttpServer implements Runnable {
             extension = "jks";
         }
         return new File(Folders.configuration()+File.separator+"truststore."+extension);
-    }
-
-    public Integer getHttpPort() {
-        return Integer.valueOf(configuration.get(JettyPorts.JETTY_PORT, "80"));
     }
 
     public Integer getHttpsPort() {
@@ -246,16 +242,7 @@ public class StartHttpServer implements Runnable {
         httpsConfiguration.addCustomizer(new SecureRequestCustomizer()); // adds ssl session id's and certificate information to request attributes
         httpsConfiguration.setSendServerVersion(false);
 
-        // http connector
-        ServerConnector http = new ServerConnector(jetty, new ConnectionFactory[]{new HttpConnectionFactory(httpConfiguration)});
-        http.setPort(getHttpPort());
-        log.debug("{}={}", JettyPorts.JETTY_PORT, http.getPort());
-
-		String host = getHost();
-		if (host != null) {
-			http.setHost(host);
-			log.debug("Setting host for jetty server (http)={}", host);
-		}		
+	String host = getHost();
 		
         // https connector
         try {
@@ -294,7 +281,7 @@ public class StartHttpServer implements Runnable {
 			}
             log.debug("{}={}", JettyPorts.JETTY_SECURE_PORT, https.getPort());
 
-            jetty.setConnectors(new Connector[]{http, https});
+            jetty.setConnectors(new Connector[]{https});
             jetty.setHandler(webapp);
 
             errorHandler = new ErrorHandler();

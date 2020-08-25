@@ -17,7 +17,6 @@ public class JettyPorts extends AbstractSetupTask {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JettyPorts.class);
 
     // configuration keys
-    public static final String JETTY_PORT = "jetty.port";
     public static final String JETTY_SECURE_PORT = "jetty.secure.port";
     
     private Configuration file;
@@ -26,7 +25,7 @@ public class JettyPorts extends AbstractSetupTask {
 
     public JettyPorts() {
         super();
-        settings = new String[] { JETTY_PORT, JETTY_SECURE_PORT };
+        settings = new String[] { JETTY_SECURE_PORT };
     }
     
     @Override

@@ -366,15 +366,12 @@ public class JettyTlsKeystore extends AbstractSetupTask {
             endpointHost = "localhost";
         }
         // do we have a custom port or default port?
-        String port = config.get("jetty.port", "80");
-        if( port.equals("80") ) {
-            return String.format("http://%s", endpointHost); //  http://localhost
-        }
-        else if( port.equals("443") ) {
-            return String.format("https://%s", endpointHost);
+        String port = config.get("jetty.secure.port", "443");
+        if( port.equals("443") ) {
+            return String.format("https://%s", endpointHost);     //https://localhost
         }
         else {
-            return String.format("http://%s:%s", endpointHost, port);  //  http://localhost:80
+            return String.format("https://%s:%s", endpointHost, port);  //  https://localhost:443
         }
     }
 
